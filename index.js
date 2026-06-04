@@ -48,29 +48,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function initCalendar(startDate) {
-    const today = startDate || new Date();
+function getLocalDateStr(d) {
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function initCalendar(targetDate) {
+    const target = targetDate || new Date();
     
+    // Tính toán ngày Thứ 2 của tuần chứa targetDate
+    const dayOfWeek = target.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    
+    const startOfWeek = new Date(target);
+    startOfWeek.setDate(target.getDate() + diffToMonday);
+
     // Set current month display
     const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-    currentMonthDisplay.textContent = `${monthNames[today.getMonth()]}, ${today.getFullYear()}`;
+    currentMonthDisplay.textContent = `${monthNames[target.getMonth()]}, ${target.getFullYear()}`;
 
-    // Generate next 7 days
+    // Xác định ngày đang được chọn
+    const targetDateStr = getLocalDateStr(target);
+    selectedDateStr = targetDateStr;
+
+    // Generate 7 days (T2 -> CN)
     datesContainer.innerHTML = '';
-    const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+    const dayNamesList = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
     
     for (let i = 0; i < 7; i++) {
-        const d = new Date(today);
-        d.setDate(today.getDate() + i);
+        const d = new Date(startOfWeek);
+        d.setDate(startOfWeek.getDate() + i);
         
-        const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
-        const dayStr = dayNames[d.getDay()];
+        const dateStr = getLocalDateStr(d);
+        const dayStr = dayNamesList[d.getDay()];
         const dateNum = d.getDate().toString().padStart(2, '0');
         
-        // Mặc định chọn ngày đầu tiên
-        if (i === 0) selectedDateStr = dateStr;
-
-        const isSelected = (i === 0);
+        const isSelected = (dateStr === targetDateStr);
         
         const btn = document.createElement('button');
         btn.className = `date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all duration-300 ${isSelected ? 'border-primary/50 bg-primary/10 selected-glow' : ''}`;
