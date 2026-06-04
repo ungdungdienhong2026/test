@@ -9,6 +9,7 @@ const slotsContainer = document.getElementById('slots-container');
 const currentMonthDisplay = document.getElementById('current-month-display');
 const nextBtn = document.getElementById('next-btn');
 const counterEl = document.getElementById('selected-count');
+const monthBtn = document.getElementById('month-btn');
 const datePicker = document.getElementById('date-picker');
 
 // State
@@ -19,6 +20,16 @@ let currentListener = null; // Quản lý Firebase listener
 // Khởi tạo
 document.addEventListener('DOMContentLoaded', () => {
     initCalendar(new Date());
+    
+    // Gọi lịch khi bấm nút
+    monthBtn.addEventListener('click', () => {
+        try {
+            datePicker.showPicker();
+        } catch (e) {
+            datePicker.focus();
+            datePicker.click();
+        }
+    });
     
     datePicker.addEventListener('change', (e) => {
         if (e.target.value) {

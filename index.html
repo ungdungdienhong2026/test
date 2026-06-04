@@ -144,11 +144,11 @@
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-title-md font-title-md">Chọn ngày</h2>
                 <div class="relative flex items-center">
-                    <input type="date" id="date-picker" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                    <button class="text-primary font-button-text flex items-center gap-1 pointer-events-none">
+                    <button id="month-btn" class="text-primary font-button-text flex items-center gap-1 cursor-pointer hover:opacity-80 transition-soft">
                         <span class="material-symbols-outlined text-[18px]" data-icon="calendar_month">calendar_month</span>
                         <span id="current-month-display">Tháng</span>
                     </button>
+                    <input type="date" id="date-picker" class="absolute w-0 h-0 opacity-0 pointer-events-none" />
                 </div>
             </div>
             <!-- Date list container -->
