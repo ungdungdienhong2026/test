@@ -144,6 +144,18 @@ function renderSlots() {
         currentListener();
     }
     
+    const deptColors = {
+        "IT": { hex: "#00f0ff", rgb: "0, 240, 255" }, // Cyan
+        "Marketing": { hex: "#ff00ff", rgb: "255, 0, 255" }, // Magenta
+        "Kế toán": { hex: "#ffea00", rgb: "255, 234, 0" }, // Yellow
+        "ISO": { hex: "#ff5e00", rgb: "255, 94, 0" }, // Orange
+        "Công tác xã hội": { hex: "#00ff00", rgb: "0, 255, 0" }, // Green
+        "Nhân sự": { hex: "#ff0055", rgb: "255, 0, 85" }, // Pink
+        "Hành chính": { hex: "#b200ff", rgb: "178, 0, 255" }, // Purple
+        "Ban tổng": { hex: "#ffffff", rgb: "255, 255, 255" }, // White
+        "default": { hex: "#39ff14", rgb: "57, 255, 20" } // Neon green
+    };
+
     currentListener = db.collection('meeting_bookings').doc(selectedDateStr).onSnapshot((doc) => {
         const dayBookings = doc.exists ? doc.data() : {};
         slotsContainer.innerHTML = ''; 
@@ -152,13 +164,19 @@ function renderSlots() {
             const isBooked = dayBookings[slot];
             
             if (isBooked) {
+                const deptName = isBooked.department || 'Đã đặt';
+                const colorInfo = deptColors[isBooked.department] || deptColors["default"];
+                
                 const div = document.createElement('div');
-                div.className = 'glass-card rounded-xl py-5 px-6 flex justify-between items-center cursor-pointer transition-soft border border-[#39ff14]/30 bg-[#39ff14]/10 shadow-[0_0_15px_rgba(57,255,20,0.1)] hover:shadow-[0_0_20px_rgba(57,255,20,0.3)] hover:bg-[#39ff14]/20';
+                div.className = 'glass-card rounded-xl py-5 px-6 flex justify-between items-center cursor-pointer transition-soft border booked-slot';
+                div.style.setProperty('--dept-color', colorInfo.hex);
+                div.style.setProperty('--dept-rgb', colorInfo.rgb);
+                
                 div.innerHTML = `
-                    <span class="font-mono-data text-mono-data text-on-surface line-through decoration-[#39ff14]/50">${slot}</span>
-                    <span class="font-label-caps text-[10px] text-[#39ff14] uppercase border border-[#39ff14]/30 bg-[#39ff14]/10 px-2 py-0.5 rounded truncate max-w-[120px] shadow-[0_0_8px_rgba(57,255,20,0.2)]">${isBooked.department || 'Đã đặt'}</span>
+                    <span class="font-mono-data text-mono-data text-on-surface line-through booked-line-through">${slot}</span>
+                    <span class="font-label-caps text-[10px] uppercase border px-2 py-0.5 rounded truncate max-w-[120px] booked-tag">${deptName}</span>
                 `;
-                div.onclick = () => cancelBooking(slot, isBooked);
+                div.onclick = () => cancelBooking(slot, isBooked, colorInfo.hex);
                 slotsContainer.appendChild(div);
             } else {
                 const btn = document.createElement('button');
@@ -209,12 +227,13 @@ window.closeInfoModal = function() {
     currentCancelBooker = null;
 };
 
-function cancelBooking(slotTime, booker) {
+function cancelBooking(slotTime, booker, hexColor = '#39ff14') {
     currentCancelSlot = slotTime;
     currentCancelBooker = booker;
     
     modalTime.textContent = slotTime;
     modalDept.textContent = booker.department || 'Không rõ';
+    modalDept.style.color = hexColor;
     modalName.textContent = booker.name || 'Không rõ';
     modalPurpose.textContent = booker.purpose || 'Không có';
     
