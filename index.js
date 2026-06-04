@@ -86,12 +86,14 @@ function initCalendar(targetDate) {
         const dateNum = d.getDate().toString().padStart(2, '0');
         
         const isSelected = (dateStr === targetDateStr);
+        const isToday = (dateStr === getLocalDateStr(new Date()));
         
         const btn = document.createElement('button');
-        btn.className = `date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all duration-300 ${isSelected ? 'border-primary/50 bg-primary/10 selected-glow' : ''}`;
+        btn.className = `date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center group transition-all duration-300 ${isSelected ? 'border-primary/50 bg-primary/10 selected-glow' : ''}`;
         btn.innerHTML = `
-            <span class="font-label-caps text-label-caps group-hover:text-primary ${isSelected ? 'text-primary' : 'text-on-surface-variant'}">${dayStr}</span>
-            <span class="font-display-lg text-headline-lg text-on-surface">${dateNum}</span>
+            <span class="font-label-caps text-label-caps group-hover:text-primary ${isSelected ? 'text-primary' : 'text-on-surface-variant'} ${isToday ? 'mt-3' : 'mt-1'}">${dayStr}</span>
+            <span class="font-display-lg text-headline-lg ${isToday ? 'text-[#39ff14] drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]' : 'text-on-surface'}">${dateNum}</span>
+            ${isToday ? '<span class="w-1.5 h-1.5 rounded-full bg-[#39ff14] shadow-[0_0_8px_rgba(57,255,20,0.8)] mb-2 animate-pulse"></span>' : '<span class="h-1.5 mb-2"></span>'}
         `;
         
         btn.onclick = () => selectDate(dateStr, btn);
@@ -108,12 +110,18 @@ function selectDate(dateStr, clickedBtn) {
     
     // Update active class on buttons
     document.querySelectorAll('.date-btn').forEach(btn => {
-        btn.className = 'date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all duration-300';
-        btn.querySelector('span:first-child').className = 'font-label-caps text-label-caps group-hover:text-primary text-on-surface-variant';
+        btn.className = 'date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center group transition-all duration-300';
+        
+        const firstSpan = btn.querySelector('span:first-child');
+        const isToday = btn.querySelector('span:last-child').classList.contains('animate-pulse');
+        firstSpan.className = `font-label-caps text-label-caps group-hover:text-primary text-on-surface-variant ${isToday ? 'mt-3' : 'mt-1'}`;
     });
     
-    clickedBtn.className = 'date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all duration-300 border-primary/50 bg-primary/10 selected-glow';
-    clickedBtn.querySelector('span:first-child').className = 'font-label-caps text-label-caps group-hover:text-primary text-primary';
+    clickedBtn.className = 'date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center group transition-all duration-300 border-primary/50 bg-primary/10 selected-glow';
+    
+    const clickedFirstSpan = clickedBtn.querySelector('span:first-child');
+    const isClickedToday = clickedBtn.querySelector('span:last-child').classList.contains('animate-pulse');
+    clickedFirstSpan.className = `font-label-caps text-label-caps group-hover:text-primary text-primary ${isClickedToday ? 'mt-3' : 'mt-1'}`;
     
     renderSlots();
 }
