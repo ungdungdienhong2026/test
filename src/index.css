@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-background text-on-background min-h-screen font-body-md;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    background: rgba(51, 65, 85, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #45464d;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #909097;
+}

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Xác nhận đặt phòng - BookRoom</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed-variant": "#0035be",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#006c4c",
+                      "on-background": "#151c22",
+                      "primary-fixed-dim": "#b9c3ff",
+                      "on-primary-fixed": "#001356",
+                      "surface-dim": "#d4dbe3",
+                      "inverse-primary": "#b9c3ff",
+                      "outline-variant": "#c4c5d7",
+                      "surface-tint": "#2c50d9",
+                      "tertiary-fixed-dim": "#ffb3ac",
+                      "on-tertiary-fixed": "#410003",
+                      "on-secondary-fixed": "#002114",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#dce3ec",
+                      "primary-container": "#4263eb",
+                      "on-error-container": "#93000a",
+                      "on-primary-container": "#f5f3ff",
+                      "on-surface-variant": "#444654",
+                      "surface-container-highest": "#dce3ec",
+                      "primary-fixed": "#dde1ff",
+                      "error": "#ba1a1a",
+                      "primary": "#2248d1",
+                      "on-primary": "#ffffff",
+                      "on-secondary-container": "#007351",
+                      "inverse-surface": "#2a3138",
+                      "surface-container-low": "#eef4fd",
+                      "inverse-on-surface": "#ebf1fa",
+                      "tertiary": "#b20416",
+                      "tertiary-container": "#d6292b",
+                      "secondary-fixed": "#88f8c6",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed": "#ffdad6",
+                      "on-tertiary-container": "#fff1f0",
+                      "outline": "#747686",
+                      "surface-container": "#e8eef7",
+                      "secondary-fixed-dim": "#6bdbab",
+                      "secondary-container": "#88f8c6",
+                      "on-secondary-fixed-variant": "#005138",
+                      "on-surface": "#151c22",
+                      "error-container": "#ffdad6",
+                      "background": "#f6f9ff",
+                      "on-secondary": "#ffffff",
+                      "surface-container-high": "#e2e9f1",
+                      "surface-bright": "#f6f9ff",
+                      "surface": "#f6f9ff",
+                      "on-tertiary-fixed-variant": "#93000f"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "stack-sm": "8px",
+                      "container-padding": "24px",
+                      "base-unit": "4px",
+                      "stack-md": "16px",
+                      "margin-desktop": "48px",
+                      "stack-lg": "32px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "body-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "title-md": ["Inter"],
+                      "button-text": ["Inter"],
+                      "headline-xl": ["Inter"]
+              },
+              "fontSize": {
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "title-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "button-text": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                      "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; min-height: max(884px, 100dvh); }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .soft-shadow {
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+    <!-- TopAppBar -->
+    <header class="bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container shadow-sm flex justify-between items-center w-full px-margin-mobile py-4 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <button onclick="window.location.href='index.html'" class="material-symbols-outlined hover:bg-primary-fixed-variant/10 p-2 rounded-full transition-opacity active:opacity-80">arrow_back</button>
+            <h1 class="text-headline-lg-mobile font-headline-lg-mobile font-bold">BookRoom</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined hover:bg-primary-fixed-variant/10 p-2 rounded-full transition-opacity active:opacity-80" data-icon="location_on">location_on</span>
+            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-on-primary/20">
+                <img alt="Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdAh0IuSrmvrtDpYXDRrjdOR_q5PcC6JdmnucjQEV2WgOBII_YxgAAo5I82eKhrqD_JR1AS3TzSdBPj5oZvFtKCMjcjebS9YlYFDiFIaVsR5P-NwY_IUdpGuAexqMtNs1YKJ1j7uOAnEEohe_U8_I7rCXAOGHooVJD2IhCqgb5fm4781L-bHsWYg6Idj3PiDQNCMKH5bw6eAjqaEXmfJH8QoSWNMToUC4YTSy4IuJkCiutYJPG3F87-N62J5gX8Tg5J79hAbQytc1w"/>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1140px] mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg pb-32">
+        <div class="flex flex-col items-center mb-stack-lg animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div class="w-16 h-16 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center mb-4 soft-shadow">
+                <span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            </div>
+            <h2 class="text-headline-xl font-headline-xl text-center">Hoàn tất đăng ký</h2>
+            <p class="text-body-md font-body-md text-outline mt-2 text-center">Vui lòng kiểm tra lại thông tin và xác nhận đặt phòng của bạn.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+            <!-- Left Column: Summary Card -->
+            <div class="lg:col-span-5 space-y-gutter">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-container-padding soft-shadow overflow-hidden relative">
+                    <div class="absolute top-0 right-0 p-4">
+                        <span class="bg-surface-container-high text-on-surface-variant text-label-md font-label-md px-3 py-1 rounded-full">Phòng họp</span>
+                    </div>
+                    <div class="mb-stack-md">
+                        <h3 class="text-title-md font-title-md mb-1 text-primary">Phòng họp</h3>
+                    </div>
+                    <div class="space-y-4 border-t border-outline-variant pt-4">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">calendar_today</span>
+                            <div>
+                                <p class="text-label-md font-label-md text-outline uppercase tracking-wider">Ngày đặt</p>
+                                <p id="summary-date" class="text-body-lg font-body-lg font-semibold">Đang tải...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">schedule</span>
+                            <div>
+                                <p class="text-label-md font-label-md text-outline uppercase tracking-wider">Thời gian</p>
+                                <p id="summary-time" class="text-body-lg font-body-lg font-semibold text-wrap">Đang tải...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            <!-- Right Column: Form -->
+            <div class="lg:col-span-7">
+                <form id="booking-form" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-container-padding soft-shadow space-y-stack-lg">
+                    <div>
+                        <label class="block text-label-md font-label-md text-on-surface-variant mb-2 ml-1" for="name">Người đặt phòng *</label>
+                        <input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 text-body-md font-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" id="name" placeholder="Ví dụ: Nguyễn Văn A" type="text" required/>
+                    </div>
+                    <div>
+                        <label class="block text-label-md font-label-md text-on-surface-variant mb-2 ml-1" for="purpose">Mục đích cuộc họp *</label>
+                        <select class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 text-body-md font-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" id="purpose" required>
+                            <option value="">Chọn mục đích</option>
+                            <option value="Họp nội bộ định kỳ">Họp nội bộ định kỳ</option>
+                            <option value="Họp với đối tác / khách hàng">Họp với đối tác / khách hàng</option>
+                            <option value="Brainstorming & Sáng tạo">Brainstorming & Sáng tạo</option>
+                            <option value="Phỏng vấn ứng viên">Phỏng vấn ứng viên</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+                        <div>
+                            <label class="block text-label-md font-label-md text-on-surface-variant mb-2 ml-1" for="attendees">Số lượng người tham gia</label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">groups</span>
+                                <input class="w-full bg-white border border-outline-variant rounded-lg pl-10 pr-4 py-3 text-body-md font-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" id="attendees" placeholder="Ví dụ: 8" type="number"/>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-label-md font-label-md text-on-surface-variant mb-2 ml-1" for="department">Phòng ban phụ trách</label>
+                            <input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 text-body-md font-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" id="department" placeholder="Ví dụ: Marketing" type="text"/>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-label-md font-label-md text-on-surface-variant mb-2 ml-1" for="notes">Ghi chú thêm (Yêu cầu đặc biệt)</label>
+                        <textarea class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 text-body-md font-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none" id="notes" placeholder="Ví dụ: Cần chuẩn bị thêm 2 ghế dự phòng, chuẩn bị nước suối cho 10 người..." rows="4"></textarea>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 bg-surface-container-low rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">info</span>
+                        <p class="text-label-md font-label-md text-on-surface-variant">Bằng cách xác nhận, bạn đồng ý với các quy định sử dụng phòng họp và đảm bảo dọn dẹp sau khi kết thúc.</p>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button type="submit" class="flex-1 bg-primary text-on-primary font-button-text text-button-text py-4 rounded-lg shadow-md hover:opacity-90 active:scale-[0.98] transition-all flex justify-center items-center gap-2">
+                            <span>Xác nhận đặt phòng</span>
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                        </button>
+                        <button onclick="window.location.href='index.html'" class="sm:w-auto px-8 border border-outline text-outline font-button-text text-button-text py-4 rounded-lg hover:bg-surface-container-high transition-colors" type="button">
+                            Hủy bỏ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- BottomNavBar (Mobile Only) -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 bg-surface dark:bg-surface-container-highest border-t border-outline-variant dark:border-outline shadow-lg z-50 rounded-t-xl">
+        <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface p-1 rounded-lg" href="index.html">
+            <span class="material-symbols-outlined" data-icon="home">home</span>
+            <span class="text-label-md font-label-md">Home</span>
+        </a>
+        <a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 scale-95 transition-transform duration-150" href="#">
+            <span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+            <span class="text-label-md font-label-md">Bookings</span>
+        </a>
+    </nav>
+
+    <!-- Firebase SDK (Compat Version để chạy được trên file://) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script src="booking.js"></script>
+</body>
+</html>
