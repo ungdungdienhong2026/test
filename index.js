@@ -43,7 +43,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     datePicker.addEventListener('change', (e) => {
         if (e.target.value) {
-            initCalendar(new Date(e.target.value));
+            const val = e.target.value;
+            if (val.includes('-W')) {
+                const [yearStr, weekNumStr] = val.split('-W');
+                const y = parseInt(yearStr, 10);
+                const w = parseInt(weekNumStr, 10);
+                
+                const simple = new Date(y, 0, 1 + (w - 1) * 7);
+                const dow = simple.getDay();
+                const ISOweekStart = simple;
+                if (dow <= 4) {
+                    ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+                } else {
+                    ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+                }
+                initCalendar(ISOweekStart);
+            } else {
+                initCalendar(new Date(val));
+            }
         }
     });
 });
@@ -65,9 +82,16 @@ function initCalendar(targetDate) {
     const startOfWeek = new Date(target);
     startOfWeek.setDate(target.getDate() + diffToMonday);
 
+    // Tính toán số Tuần (ISO week number)
+    const tempDate = new Date(target.getTime());
+    tempDate.setHours(0, 0, 0, 0);
+    tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
+    const week1 = new Date(tempDate.getFullYear(), 0, 4);
+    const weekNumber = 1 + Math.round(((tempDate.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+
     // Set current month display
     const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-    currentMonthDisplay.textContent = `${monthNames[target.getMonth()]}, ${target.getFullYear()}`;
+    currentMonthDisplay.textContent = `Tuần ${weekNumber} - ${monthNames[target.getMonth()]}, ${target.getFullYear()}`;
 
     // Xác định ngày đang được chọn
     const targetDateStr = getLocalDateStr(target);
