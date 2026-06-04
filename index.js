@@ -185,6 +185,7 @@ function renderSlots() {
         "Nhân sự": { hex: "#ff0055", rgb: "255, 0, 85" }, // Pink
         "Hành chính": { hex: "#b200ff", rgb: "178, 0, 255" }, // Purple
         "Ban tổng": { hex: "#ffffff", rgb: "255, 255, 255" }, // White
+        "Chánh văn phòng": { hex: "#ffaa00", rgb: "255, 170, 0" }, // Golden Orange
         "default": { hex: "#39ff14", rgb: "57, 255, 20" } // Neon green
     };
 
