@@ -279,5 +279,5 @@ nextBtn.addEventListener('click', () => {
     };
     localStorage.setItem('bookingDraft', JSON.stringify(bookingDraft));
     
-    window.location.href = 'booking.html';
+    window.location.href = 'booking.html?v=1';
 });
