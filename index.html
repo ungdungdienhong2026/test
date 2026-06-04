@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html class="light" lang="vi">
+<html class="dark" lang="vi">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Chi tiết đặt phòng - BookRoom</title>
+    <title>Đặt Phòng Họp - Premium Booking</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@500;600;700&family=Geist:wght@400;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
     <script id="tailwind-config">
@@ -14,53 +14,53 @@
             theme: {
                 extend: {
                     "colors": {
-                        "on-primary-fixed-variant": "#0035be",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary": "#006c4c",
-                        "on-background": "#151c22",
-                        "primary-fixed-dim": "#b9c3ff",
-                        "on-primary-fixed": "#001356",
-                        "surface-dim": "#d4dbe3",
-                        "inverse-primary": "#b9c3ff",
-                        "outline-variant": "#c4c5d7",
-                        "surface-tint": "#2c50d9",
-                        "tertiary-fixed-dim": "#ffb3ac",
-                        "on-tertiary-fixed": "#410003",
-                        "on-secondary-fixed": "#002114",
-                        "on-error": "#ffffff",
-                        "surface-variant": "#dce3ec",
-                        "primary-container": "#4263eb",
-                        "on-error-container": "#93000a",
-                        "on-primary-container": "#f5f3ff",
-                        "on-surface-variant": "#444654",
-                        "surface-container-highest": "#dce3ec",
-                        "primary-fixed": "#dde1ff",
-                        "error": "#ba1a1a",
-                        "primary": "#2248d1",
-                        "on-primary": "#ffffff",
-                        "on-secondary-container": "#007351",
-                        "inverse-surface": "#2a3138",
-                        "surface-container-low": "#eef4fd",
-                        "inverse-on-surface": "#ebf1fa",
-                        "tertiary": "#b20416",
-                        "tertiary-container": "#d6292b",
-                        "secondary-fixed": "#88f8c6",
-                        "on-tertiary": "#ffffff",
-                        "tertiary-fixed": "#ffdad6",
-                        "on-tertiary-container": "#fff1f0",
-                        "outline": "#747686",
-                        "surface-container": "#e8eef7",
-                        "secondary-fixed-dim": "#6bdbab",
-                        "secondary-container": "#88f8c6",
-                        "on-secondary-fixed-variant": "#005138",
-                        "on-surface": "#151c22",
-                        "error-container": "#ffdad6",
-                        "background": "#f6f9ff",
-                        "on-secondary": "#ffffff",
-                        "surface-container-high": "#e2e9f1",
-                        "surface-bright": "#f6f9ff",
-                        "surface": "#f6f9ff",
-                        "on-tertiary-fixed-variant": "#93000f"
+                        "tertiary-fixed-dim": "#d0bcff",
+                        "on-surface-variant": "#c7c4d7",
+                        "secondary-fixed": "#c9e6ff",
+                        "on-secondary-fixed": "#001e2f",
+                        "on-tertiary-fixed-variant": "#5516be",
+                        "on-tertiary": "#3c0091",
+                        "on-primary": "#1000a9",
+                        "primary": "#c0c1ff",
+                        "surface-variant": "#2d3449",
+                        "surface-container-low": "#131b2e",
+                        "on-surface": "#dae2fd",
+                        "primary-fixed": "#e1e0ff",
+                        "surface-container": "#171f33",
+                        "outline-variant": "#464554",
+                        "inverse-primary": "#494bd6",
+                        "surface-container-high": "#222a3d",
+                        "tertiary": "#d0bcff",
+                        "surface": "#0b1326",
+                        "inverse-surface": "#dae2fd",
+                        "outline": "#908fa0",
+                        "secondary-container": "#00a2e6",
+                        "primary-container": "#8083ff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "secondary-fixed-dim": "#89ceff",
+                        "on-primary-fixed": "#07006c",
+                        "surface-container-highest": "#2d3449",
+                        "on-error-container": "#ffdad6",
+                        "surface-bright": "#31394d",
+                        "background": "#0b1326",
+                        "inverse-on-surface": "#283044",
+                        "error-container": "#93000a",
+                        "on-secondary": "#00344d",
+                        "tertiary-container": "#a078ff",
+                        "error": "#ffb4ab",
+                        "secondary": "#89ceff",
+                        "on-tertiary-container": "#340080",
+                        "tertiary-fixed": "#e9ddff",
+                        "on-tertiary-fixed": "#23005c",
+                        "surface-tint": "#c0c1ff",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-container-lowest": "#060e20",
+                        "on-error": "#690005",
+                        "on-secondary-container": "#00344e",
+                        "on-primary-container": "#0d0096",
+                        "surface-dim": "#0b1326",
+                        "on-secondary-fixed-variant": "#004c6e",
+                        "on-background": "#dae2fd"
                     },
                     "borderRadius": {
                         "DEFAULT": "0.25rem",
@@ -69,136 +69,151 @@
                         "full": "9999px"
                     },
                     "spacing": {
-                        "gutter": "16px",
-                        "stack-sm": "8px",
-                        "container-padding": "24px",
-                        "base-unit": "4px",
-                        "stack-md": "16px",
-                        "margin-desktop": "48px",
-                        "stack-lg": "32px",
-                        "margin-mobile": "16px"
+                        "gutter": "24px",
+                        "base": "8px",
+                        "container-max-width": "1280px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px"
                     },
                     "fontFamily": {
-                        "body-md": ["Inter"],
-                        "label-md": ["Inter"],
-                        "headline-lg": ["Inter"],
-                        "headline-lg-mobile": ["Inter"],
-                        "body-lg": ["Inter"],
-                        "title-md": ["Inter"],
-                        "button-text": ["Inter"],
-                        "headline-xl": ["Inter"]
+                        "mono-data": ["Geist"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "title-md": ["Hanken Grotesk"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Geist"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Inter"]
                     },
                     "fontSize": {
-                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
-                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                        "headline-lg-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "title-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
-                        "button-text": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
-                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                        "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
                     }
                 },
             },
         }
     </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
-        .hide-scrollbar::-webkit-scrollbar {
+        
+        .glass-card:hover {
+            border-color: rgba(192, 193, 255, 0.3);
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .selected-glow {
+            box-shadow: 0px 0px 20px rgba(99, 102, 241, 0.25);
+            border-color: #c0c1ff !important;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
-        .hide-scrollbar {
+        .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        .transition-soft {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .time-slot-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        body { min-height: max(884px, 100dvh); }
+        body {
+            min-height: max(884px, 100dvh);
+        }
     </style>
 </head>
-<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
-    <!-- Top Navigation Bar -->
-    <header class="bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container flex justify-between items-center w-full px-margin-mobile py-4 sticky top-0 z-50 shadow-sm transition-soft">
-        <div class="flex items-center gap-3">
-            <button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
-                <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-24">
+    <!-- Top App Bar -->
+    <header class="bg-surface/60 backdrop-blur-xl border-b border-white/10 docked full-width top-0 sticky flex justify-between items-center px-margin-mobile h-16 w-full z-50">
+        <div class="flex items-center gap-4">
+            <button class="text-primary hover:bg-white/5 p-2 rounded-full transition-colors active:scale-95 duration-200">
+                <span class="material-symbols-outlined">arrow_back</span>
             </button>
-            <h1 class="text-headline-lg-mobile font-headline-lg-mobile font-bold">Phòng họp</h1>
+            <h1 class="text-on-surface font-headline-lg-mobile text-headline-lg-mobile font-bold">Phòng họp</h1>
         </div>
         <div class="flex items-center gap-2">
-            <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
-                <span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+            <button class="text-on-surface-variant hover:bg-white/5 p-2 rounded-full transition-colors">
+                <span class="material-symbols-outlined">map</span>
             </button>
+            <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">
+                JD
+            </div>
         </div>
     </header>
 
-    <main class="max-w-[1140px] mx-auto">
-        <!-- Hero Image Section Removed -->
+    <main class="max-w-container-max-width mx-auto px-margin-mobile md:px-margin-desktop py-8">
+        <!-- Header Section -->
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">Chọn ngày</h2>
+                <p class="text-on-surface-variant font-body-sm mt-1">Lên lịch họp chuyên nghiệp và dễ dàng</p>
+            </div>
+            <div class="relative flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-xl border border-white/5 cursor-pointer hover:bg-white/5 transition-soft" id="month-btn">
+                <span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+                <span class="font-label-caps text-label-caps text-on-surface" id="current-month-display">Tháng 6, 2024</span>
+                <input type="date" id="date-picker" class="absolute w-0 h-0 opacity-0 pointer-events-none" />
+            </div>
+        </div>
 
-        <!-- Date Selector -->
-        <section class="px-margin-mobile md:px-margin-desktop py-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-title-md font-title-md">Chọn ngày</h2>
-                <div class="relative flex items-center">
-                    <button id="month-btn" class="text-primary font-button-text flex items-center gap-1 cursor-pointer hover:opacity-80 transition-soft">
-                        <span class="material-symbols-outlined text-[18px]" data-icon="calendar_month">calendar_month</span>
-                        <span id="current-month-display">Tháng</span>
-                    </button>
-                    <input type="date" id="date-picker" class="absolute w-0 h-0 opacity-0 pointer-events-none" />
-                </div>
+        <!-- Date Horizontal Picker -->
+        <div class="relative mb-12">
+            <div id="dates-container" class="flex overflow-x-auto gap-4 no-scrollbar pb-4 scroll-smooth">
+                <!-- JS injected dates -->
             </div>
-            <!-- Date list container -->
-            <div id="dates-container" class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
-                <!-- Sẽ được tạo động bằng JS -->
-            </div>
-        </section>
+            <div class="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none"></div>
+        </div>
 
         <!-- Status Legend -->
-        <section class="px-margin-mobile md:px-margin-desktop py-2 flex gap-6">
+        <div class="flex flex-wrap gap-6 mb-8 items-center px-2">
             <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full border-2 border-secondary bg-white"></div>
-                <span class="text-body-md font-body-md text-on-surface-variant">Trống</span>
+                <span class="w-2.5 h-2.5 rounded-full border border-primary animate-pulse"></span>
+                <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Trống</span>
             </div>
             <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-tertiary"></div>
-                <span class="text-body-md font-body-md text-on-surface-variant">Đã đặt</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-error/40"></span>
+                <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Đã đặt</span>
             </div>
             <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-primary"></div>
-                <span class="text-body-md font-body-md text-on-surface-variant">Đang chọn</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(192,193,255,0.6)]"></span>
+                <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Đang chọn</span>
             </div>
-        </section>
+        </div>
 
-        <!-- Time Slot Grid -->
-        <section class="px-margin-mobile md:px-margin-desktop py-6">
-            <div id="slots-container" class="grid grid-cols-2 gap-3">
-                <!-- Slots sẽ được tạo động bằng JS -->
-            </div>
-        </section>
+        <!-- Time Grid -->
+        <div id="slots-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- JS injected slots -->
+        </div>
     </main>
 
-    <!-- Footer Action -->
-    <footer class="fixed bottom-0 left-0 w-full bg-white border-t border-outline-variant p-4 flex flex-col md:flex-row md:justify-center gap-4 z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
-        <div class="max-w-[1140px] w-full mx-auto flex items-center justify-between">
-            <div class="hidden md:flex flex-col">
-                <span class="text-label-md font-label-md text-on-surface-variant">Phòng họp</span>
-                <span class="text-body-md font-body-md font-bold text-primary" id="selected-count">Chưa chọn khung giờ</span>
+    <!-- Fixed Bottom Action Bar -->
+    <div class="fixed bottom-0 left-0 w-full bg-surface/80 backdrop-blur-2xl border-t border-white/5 z-50 px-margin-mobile py-4 pb-safe flex justify-between items-center shadow-lg">
+        <div class="flex flex-col">
+            <span class="font-label-caps text-label-caps text-on-surface-variant">Phòng họp đã chọn</span>
+            <div class="flex items-center gap-2">
+                <span class="font-title-md text-title-md text-primary font-semibold" id="selected-count">Chưa chọn khung giờ</span>
             </div>
-            <button id="next-btn" class="w-full md:w-auto md:min-w-[240px] py-4 px-8 rounded-full bg-primary text-on-primary text-button-text font-button-text shadow-md hover:opacity-90 active:scale-95 transition-all opacity-50 cursor-not-allowed">
-                Tiếp theo
-            </button>
         </div>
-    </footer>
+        <button id="next-btn" class="bg-primary hover:bg-primary-container text-on-primary font-label-caps text-label-caps px-8 py-4 rounded-xl shadow-[0_8px_16px_rgba(192,193,255,0.2)] hover:shadow-[0_8px_20px_rgba(192,193,255,0.4)] transition-all duration-300 active:scale-95 flex items-center gap-2 opacity-50 cursor-not-allowed">
+            TIẾP THEO
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+    </div>
 
-    <!-- Firebase SDK (Compat Version để chạy được trên file://) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
-    
     <script src="index.js"></script>
 </body>
 </html>
