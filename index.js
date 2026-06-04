@@ -12,10 +12,20 @@ const counterEl = document.getElementById('selected-count');
 const monthBtn = document.getElementById('month-btn');
 const datePicker = document.getElementById('date-picker');
 
+const infoModal = document.getElementById('info-modal');
+const modalTime = document.getElementById('modal-time');
+const modalDept = document.getElementById('modal-dept');
+const modalName = document.getElementById('modal-name');
+const modalPurpose = document.getElementById('modal-purpose');
+const cancelNameInput = document.getElementById('cancel-name-input');
+const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+
 // State
 let selectedDateStr = ''; // YYYY-MM-DD
 let selectedSlots = []; // Array of slot strings like "08:00 - 08:30"
 let currentListener = null; // Quản lý Firebase listener
+let currentCancelSlot = null;
+let currentCancelBooker = null;
 
 // Khởi tạo
 document.addEventListener('DOMContentLoaded', () => {
@@ -128,12 +138,12 @@ function renderSlots() {
             
             if (isBooked) {
                 const div = document.createElement('div');
-                div.className = 'glass-card rounded-xl py-5 px-6 flex justify-between items-center opacity-50 cursor-pointer border-none hover:opacity-80 transition-soft';
+                div.className = 'glass-card rounded-xl py-5 px-6 flex justify-between items-center cursor-pointer transition-soft border border-[#39ff14]/30 bg-[#39ff14]/10 shadow-[0_0_15px_rgba(57,255,20,0.1)] hover:shadow-[0_0_20px_rgba(57,255,20,0.3)] hover:bg-[#39ff14]/20';
                 div.innerHTML = `
-                    <span class="font-mono-data text-mono-data text-on-surface-variant line-through italic">${slot}</span>
-                    <span class="font-label-caps text-[10px] text-error uppercase border border-error/30 px-2 py-0.5 rounded truncate max-w-[120px]">${isBooked.name || 'Booked'}</span>
+                    <span class="font-mono-data text-mono-data text-on-surface line-through decoration-[#39ff14]/50">${slot}</span>
+                    <span class="font-label-caps text-[10px] text-[#39ff14] uppercase border border-[#39ff14]/30 bg-[#39ff14]/10 px-2 py-0.5 rounded truncate max-w-[120px] shadow-[0_0_8px_rgba(57,255,20,0.2)]">${isBooked.department || 'Đã đặt'}</span>
                 `;
-                div.onclick = () => cancelBooking(slot, isBooked.name);
+                div.onclick = () => cancelBooking(slot, isBooked);
                 slotsContainer.appendChild(div);
             } else {
                 const btn = document.createElement('button');
@@ -177,24 +187,51 @@ function toggleSlot(el, slotTime) {
     updateSelectedCounter();
 }
 
-function cancelBooking(slotTime, bookerName) {
-    const inputName = prompt(`Khung giờ này đã được đặt bởi: ${bookerName}\n\nĐể hủy đặt phòng, vui lòng nhập chính xác tên người đặt:`);
-    if (inputName === null) return;
+window.closeInfoModal = function() {
+    infoModal.classList.replace('flex', 'hidden');
+    cancelNameInput.value = '';
+    currentCancelSlot = null;
+    currentCancelBooker = null;
+};
+
+function cancelBooking(slotTime, booker) {
+    currentCancelSlot = slotTime;
+    currentCancelBooker = booker;
     
-    if (inputName.trim().toLowerCase() === bookerName.toLowerCase()) {
+    modalTime.textContent = slotTime;
+    modalDept.textContent = booker.department || 'Không rõ';
+    modalName.textContent = booker.name || 'Không rõ';
+    modalPurpose.textContent = booker.purpose || 'Không có';
+    
+    infoModal.classList.replace('hidden', 'flex');
+    setTimeout(() => cancelNameInput.focus(), 100);
+}
+
+confirmCancelBtn.addEventListener('click', () => {
+    if (!currentCancelSlot || !currentCancelBooker) return;
+    
+    const inputName = cancelNameInput.value;
+    if (inputName.trim().toLowerCase() === (currentCancelBooker.name || '').toLowerCase()) {
+        confirmCancelBtn.disabled = true;
+        confirmCancelBtn.textContent = 'Đang hủy...';
         db.collection('meeting_bookings').doc(selectedDateStr).update({
-            [slotTime]: firebase.firestore.FieldValue.delete()
+            [currentCancelSlot]: firebase.firestore.FieldValue.delete()
         })
             .then(() => {
                 alert('Đã hủy lịch đặt phòng thành công!');
+                closeInfoModal();
             })
             .catch((error) => {
                 alert('Có lỗi xảy ra khi hủy: ' + error.message);
+            })
+            .finally(() => {
+                confirmCancelBtn.disabled = false;
+                confirmCancelBtn.textContent = 'Hủy phòng';
             });
     } else {
         alert('Tên không khớp! Chỉ người đặt mới có quyền hủy.');
     }
-}
+});
 
 function updateSelectedCounter() {
     if (selectedSlots.length > 0) {
