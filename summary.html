@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Bảng tổng hợp - Premium Booking</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@500;600;700&family=Geist:wght@400;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#c0c1ff",
+                        "on-primary": "#1000a9",
+                        "primary-container": "#8083ff",
+                        "on-primary-container": "#0d0096",
+                        "surface": "#0b1326",
+                        "on-surface": "#dae2fd",
+                        "surface-variant": "#2d3449",
+                        "on-surface-variant": "#c7c4d7",
+                        "background": "#0b1326",
+                        "on-background": "#dae2fd",
+                        "surface-container-high": "#222a3d",
+                        "error": "#ffb4ab",
+                    },
+                    "fontFamily": {
+                        "mono-data": ["Geist"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "title-md": ["Hanken Grotesk"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Geist"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Inter"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .transition-soft {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        :root {
+            color-scheme: dark;
+        }
+
+        /* Table Styles */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .summary-table th {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #c0c1ff;
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .summary-table td {
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #dae2fd;
+            vertical-align: middle;
+            text-align: center;
+        }
+        
+        .summary-table tbody tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        
+        .summary-table td.text-left {
+            text-align: left;
+        }
+
+        /* Dynamic Department Colors */
+        .dept-tag {
+            color: var(--dept-color);
+            background-color: rgba(var(--dept-rgb), 0.1);
+            border: 1px solid rgba(var(--dept-rgb), 0.3);
+            box-shadow: 0 0 8px rgba(var(--dept-rgb), 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Geist', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-24">
+    <!-- Top App Bar -->
+    <header class="bg-surface/60 backdrop-blur-xl border-b border-white/10 docked full-width top-0 sticky flex justify-between items-center px-4 md:px-8 h-16 w-full z-50">
+        <div class="flex items-center gap-4">
+            <button onclick="window.location.href='index.html'" class="text-primary hover:bg-white/5 p-2 rounded-full transition-colors active:scale-95 duration-200">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1 class="text-on-surface font-headline-lg-mobile text-[20px] md:text-headline-lg-mobile font-bold">Bảng tổng hợp lịch họp</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Month Picker -->
+            <div class="relative flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-xl border border-white/5 cursor-pointer hover:bg-white/5 transition-soft">
+                <span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+                <input type="month" id="month-picker" class="bg-transparent text-on-surface font-label-caps outline-none border-none cursor-pointer" />
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1400px] mx-auto px-4 md:px-8 py-8">
+        <div class="mb-6 flex justify-between items-end">
+            <div>
+                <h2 class="font-headline-lg text-[24px] md:text-headline-lg text-primary tracking-tight" id="table-title">LỊCH ĐĂNG KÝ SỬ DỤNG PHÒNG HỌP</h2>
+                <p class="text-on-surface-variant font-body-sm mt-1" id="loading-text">Đang tải dữ liệu...</p>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden overflow-x-auto">
+            <table class="summary-table min-w-[800px]">
+                <thead>
+                    <tr>
+                        <th width="8%">Tuần</th>
+                        <th width="10%">Ngày</th>
+                        <th width="15%">Thời gian</th>
+                        <th width="15%">Phòng ban</th>
+                        <th width="35%">Nội dung</th>
+                        <th width="17%">Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Data injected by JS -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="summary.js?v=1"></script>
+</body>
+</html>
