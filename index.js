@@ -9,6 +9,7 @@ const slotsContainer = document.getElementById('slots-container');
 const currentMonthDisplay = document.getElementById('current-month-display');
 const nextBtn = document.getElementById('next-btn');
 const counterEl = document.getElementById('selected-count');
+const datePicker = document.getElementById('date-picker');
 
 // State
 let selectedDateStr = ''; // YYYY-MM-DD
@@ -17,11 +18,17 @@ let currentListener = null; // Quản lý Firebase listener
 
 // Khởi tạo
 document.addEventListener('DOMContentLoaded', () => {
-    initCalendar();
+    initCalendar(new Date());
+    
+    datePicker.addEventListener('change', (e) => {
+        if (e.target.value) {
+            initCalendar(new Date(e.target.value));
+        }
+    });
 });
 
-function initCalendar() {
-    const today = new Date();
+function initCalendar(startDate) {
+    const today = startDate || new Date();
     
     // Set current month display
     const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
