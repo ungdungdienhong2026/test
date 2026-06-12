@@ -123,10 +123,11 @@
 
             // Đổi nguồn iframe
             const frame = document.getElementById('app-frame');
+            const cacheBuster = new Date().getTime();
             if (app === 'meeting') {
-                frame.src = 'meeting.html';
+                frame.src = `meeting.html?v=${cacheBuster}`;
             } else if (app === 'mealapp') {
-                frame.src = 'mealapp.html';
+                frame.src = `mealapp.html?v=${cacheBuster}`;
             }
         }
     </script>
