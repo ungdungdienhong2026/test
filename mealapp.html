@@ -159,7 +159,7 @@
         const { useState, useEffect, useRef } = React;
         const { ConfigProvider, Form, Input, DatePicker, message, Spin, theme } = antd;
 
-        const MealToggle = ({ value, onChange, disabled, type }) => {
+        const MealToggle = React.memo(({ value, onChange, disabled, type }) => {
             const isChecked = !!value;
             return (
                 <div
