@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const draftStr = localStorage.getItem('bookingDraft');
     if (!draftStr) {
         alert("Không tìm thấy thông tin khung giờ đã chọn. Trở về trang chủ.");
-        window.location.href = 'index.html';
+        window.location.href = 'meeting.html';
         return;
     }
     
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 backBtn.addEventListener('click', () => {
-    window.location.href = 'index.html';
+    window.location.href = 'meeting.html';
 });
 
 form.addEventListener('submit', function(e) {
@@ -74,7 +74,7 @@ form.addEventListener('submit', function(e) {
         
         if (hasConflict) {
             alert('Có lỗi! Một số khung giờ bạn chọn vừa mới được người khác đặt. Vui lòng chọn lại.');
-            window.location.href = 'index.html';
+            window.location.href = 'meeting.html';
             return Promise.reject("Conflict"); // Ngăn chặn then() phía dưới chạy
         }
         
@@ -88,7 +88,7 @@ form.addEventListener('submit', function(e) {
         btn.innerHTML = `<span class="material-symbols-outlined">check</span> <span>THÀNH CÔNG!</span>`;
         
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = 'meeting.html';
         }, 1500);
     }).catch((error) => {
         if (error !== "Conflict") {
