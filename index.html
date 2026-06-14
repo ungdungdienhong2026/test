@@ -38,18 +38,23 @@
         }
         .nav-item {
             transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
         .nav-item.active {
             background-color: rgba(192, 193, 255, 0.15);
-            border-left: 4px solid #c0c1ff;
             color: #c0c1ff;
         }
         .nav-item:hover:not(.active) {
             background-color: rgba(255, 255, 255, 0.05);
-            border-left: 4px solid transparent;
         }
-        .nav-item:not(.active) {
-            border-left: 4px solid transparent;
+        @media (min-width: 768px) {
+            .nav-item {
+                border: none;
+                border-left: 4px solid transparent;
+            }
+            .nav-item.active {
+                border-left: 4px solid #c0c1ff;
+            }
         }
         iframe {
             border: none;
@@ -63,29 +68,27 @@
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-surface border-r border-white/10 flex flex-col z-10 shadow-2xl shrink-0">
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
+    <!-- Sidebar / Bottom Nav -->
+    <aside class="w-full md:w-64 h-auto md:h-full bg-surface border-t md:border-t-0 md:border-r border-white/10 flex flex-col z-10 shadow-2xl shrink-0 order-last md:order-first" style="padding-bottom: env(safe-area-inset-bottom);">
         <!-- Logo / Title -->
-        <div class="h-16 flex items-center justify-center border-b border-white/10 bg-gradient-to-r from-surface to-background/50">
+        <div class="hidden md:flex h-16 items-center justify-center border-b border-white/10 bg-gradient-to-r from-surface to-background/50">
             <span class="material-symbols-outlined text-primary text-3xl mr-3 shadow-primary">admin_panel_settings</span>
             <h1 class="font-display text-xl font-bold tracking-wide text-white">VPT Portal</h1>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 py-6 flex flex-col gap-2 px-3">
-            <p class="px-4 text-xs font-semibold text-on-surface/40 uppercase tracking-wider mb-2">Chức năng</p>
-            <button onclick="switchApp('meeting')" id="nav-meeting" class="nav-item active flex items-center w-full px-4 py-3 rounded-r-lg text-left text-on-surface/80 font-medium">
-                <span class="material-symbols-outlined mr-3">meeting_room</span>
-                Quản lý Phòng Họp
+        <nav class="py-2 md:flex-1 md:py-6 flex flex-row md:flex-col gap-2 px-2 md:px-3 justify-center">
+            <p class="hidden md:block px-4 text-xs font-semibold text-on-surface/40 uppercase tracking-wider mb-2">Chức năng</p>
+            <button onclick="switchApp('meeting')" id="nav-meeting" class="nav-item active flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-xl md:rounded-none md:rounded-r-lg text-center md:text-left text-on-surface/80 font-medium">
+                <span class="material-symbols-outlined md:mr-3 mb-1 md:mb-0 text-2xl md:text-[24px]">meeting_room</span>
+                <span class="text-[11px] md:text-base whitespace-nowrap">Phòng Họp</span>
             </button>
-            <button onclick="switchApp('mealapp')" id="nav-mealapp" class="nav-item flex items-center w-full px-4 py-3 rounded-r-lg text-left text-on-surface/80 font-medium">
-                <span class="material-symbols-outlined mr-3">restaurant</span>
-                Quản lý Suất Ăn
+            <button onclick="switchApp('mealapp')" id="nav-mealapp" class="nav-item flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-xl md:rounded-none md:rounded-r-lg text-center md:text-left text-on-surface/80 font-medium">
+                <span class="material-symbols-outlined md:mr-3 mb-1 md:mb-0 text-2xl md:text-[24px]">restaurant</span>
+                <span class="text-[11px] md:text-base whitespace-nowrap">Suất Ăn</span>
             </button>
         </nav>
-
-
     </aside>
 
     <!-- Main Content Area -->
