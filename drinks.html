@@ -238,13 +238,23 @@
                 setIsModalOpen(true);
             };
 
-            const handleDelete = async (orderId) => {
-                try {
-                    await db.collection('drink_orders').doc(currentDate).collection('orders').doc(orderId).delete();
-                    message.success('Đã xóa món!');
-                } catch (error) {
-                    message.error('Lỗi xóa dữ liệu: ' + error.message);
-                }
+            const showDeleteConfirm = (orderId) => {
+                Modal.confirm({
+                    title: 'Xóa món này?',
+                    content: 'Bạn có chắc chắn muốn xóa món này không? Hành động này không thể hoàn tác.',
+                    okText: 'Xóa',
+                    okType: 'danger',
+                    cancelText: 'Hủy',
+                    className: 'dark-modal',
+                    onOk: async () => {
+                        try {
+                            await db.collection('drink_orders').doc(currentDate).collection('orders').doc(orderId).delete();
+                            message.success('Đã xóa món!');
+                        } catch (error) {
+                            message.error('Lỗi xóa dữ liệu: ' + error.message);
+                        }
+                    }
+                });
             };
 
             const handleAddOrder = async (values) => {
@@ -387,18 +397,9 @@
                                                                 <button onClick={() => handleEdit(order)} className="text-on-surface-variant hover:text-primary transition-colors p-1" title="Sửa">
                                                                     <span className="material-symbols-outlined text-[18px]">edit</span>
                                                                 </button>
-                                                                <antd.Popconfirm
-                                                                    title="Xóa món này?"
-                                                                    description="Bạn có chắc chắn muốn xóa không?"
-                                                                    onConfirm={() => handleDelete(order.id)}
-                                                                    okText="Xóa"
-                                                                    cancelText="Hủy"
-                                                                    okButtonProps={{ danger: true }}
-                                                                >
-                                                                    <button className="text-on-surface-variant hover:text-error transition-colors p-1" title="Xóa">
-                                                                        <span className="material-symbols-outlined text-[18px]">delete</span>
-                                                                    </button>
-                                                                </antd.Popconfirm>
+                                                                <button onClick={() => showDeleteConfirm(order.id)} className="text-on-surface-variant hover:text-error transition-colors p-1" title="Xóa">
+                                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                                </button>
                                                             </div>
                                                         </td>
                                                     </tr>
