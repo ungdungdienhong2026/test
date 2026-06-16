@@ -17,6 +17,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/5.12.2/antd.min.js"></script>
 
+    <!-- Utils (Export & Screenshot) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -204,6 +208,7 @@
             const [currentDate, setCurrentDate] = useState(dayjs().format('YYYY-MM-DD'));
             const [isModalOpen, setIsModalOpen] = useState(false);
             const [editingOrderId, setEditingOrderId] = useState(null);
+            const [screenshotMode, setScreenshotMode] = useState(false);
             const [form] = Form.useForm();
 
             useEffect(() => {
@@ -295,7 +300,42 @@
                 }
             };
 
+            const handleDownloadImage = async () => {
+                const element = document.getElementById('report-capture-area');
+                if (!element) return;
+                try {
+                    const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#0b1326' });
+                    const link = document.createElement('a');
+                    link.download = `DoUong_${currentDate}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    message.success('Đã tải ảnh thành công!');
+                } catch (error) {
+                    message.error('Lỗi khi tạo ảnh: ' + error.message);
+                }
+            };
 
+            const exportToExcel = () => {
+                if (!orders || orders.length === 0) {
+                    message.warning('Không có dữ liệu để xuất!');
+                    return;
+                }
+
+                const exportData = orders.map((order, idx) => ({
+                    'STT': idx + 1,
+                    'Người đặt': order.name,
+                    'Đồ uống': order.drink,
+                    'Ghi chú': order.note || '',
+                    'Giá': order.price,
+                    'Đã thanh toán': order.isPaid ? 'Đã Thanh Toán' : 'Chưa Thanh Toán'
+                }));
+
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "DoUong");
+
+                XLSX.writeFile(workbook, `ThongKeDoUong_${currentDate}.xlsx`);
+            };
 
             const totalOrders = orders.length;
             const totalPrice = orders.reduce((sum, order) => sum + (Number(order.price) || 0), 0);
@@ -307,19 +347,30 @@
             };
 
             return (
-                <div className="w-full">
-                    <header className="sticky top-0 z-40 glass-header flex justify-between items-center px-margin-mobile w-full py-4 border-b border-outline-variant/20">
+                <div className="w-full" id={screenshotMode ? "report-capture-area" : ""}>
+                    <header className="sticky top-0 z-40 glass-header flex flex-col md:flex-row justify-between items-start md:items-center px-margin-mobile w-full py-4 border-b border-outline-variant/20 gap-4">
                         <div className="flex items-center gap-4">
                             <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
                                 ĐẶT ĐỒ UỐNG
                             </h1>
+                            <input 
+                                type="date" 
+                                value={currentDate}
+                                onChange={(e) => setCurrentDate(e.target.value)}
+                                className="bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps rounded-lg px-2 py-1 outline-none focus:border-primary"
+                            />
                         </div>
-                        <input 
-                            type="date" 
-                            value={currentDate}
-                            onChange={(e) => setCurrentDate(e.target.value)}
-                            className="bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps rounded-lg px-2 py-1 outline-none focus:border-primary"
-                        />
+                        <div className="flex items-center gap-2" data-html2canvas-ignore>
+                            <button type="button" onClick={() => setScreenshotMode(!screenshotMode)} className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg ${screenshotMode ? 'bg-error text-slate-900 border-transparent shadow-[0_0_15px_rgba(255,180,171,0.4)]' : 'bg-surface-bright/50 hover:bg-surface-container-highest text-slate-200 border-outline-variant/30'} font-bold shadow-sm transition-all active:scale-95 text-[13px] whitespace-nowrap border`}>
+                                <span className="material-symbols-outlined text-[16px]">{screenshotMode ? 'fullscreen_exit' : 'fullscreen'}</span>
+                            </button>
+                            <button type="button" onClick={handleDownloadImage} className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 text-slate-900 font-bold shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all active:scale-95 text-[13px] whitespace-nowrap border border-transparent">
+                                <span className="material-symbols-outlined text-[16px]">image</span>
+                            </button>
+                            <button type="button" onClick={exportToExcel} className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#57f1db] hover:bg-[#3cddc7] text-[#003731] font-bold shadow-[0_0_15px_rgba(87,241,219,0.2)] transition-all active:scale-95 text-[13px] whitespace-nowrap border border-transparent">
+                                <span className="material-symbols-outlined text-[16px]">ios_share</span>
+                            </button>
+                        </div>
                     </header>
 
                     <main className="px-margin-mobile space-y-stack-lg pt-4 pb-24 max-w-[1280px] mx-auto">
