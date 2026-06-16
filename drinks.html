@@ -20,7 +20,7 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <!-- App Config -->
     <script src="firebase-config.js"></script>
@@ -192,10 +192,6 @@
         const { useState, useEffect, useMemo } = React;
         const { Modal, Form, Input, InputNumber, message, Button } = antd;
 
-        // Tái sử dụng Database connection từ firebaseConfig
-        const database = firebase.database();
-        const auth = firebase.auth();
-        const provider = new firebase.auth.GoogleAuthProvider();
         const App = () => {
             const [orders, setOrders] = useState([]);
             const [currentDate, setCurrentDate] = useState(dayjs().format('YYYY-MM-DD'));
@@ -204,28 +200,25 @@
 
             useEffect(() => {
                 
-                const dbRef = database.ref(`drink-orders/${currentDate}`);
-                const listener = dbRef.on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        // Chuyển object thành mảng
-                        const ordersList = Object.keys(data).map(key => ({
-                            id: key,
-                            ...data[key]
+                const unsubscribe = db.collection('drink_orders').doc(currentDate).collection('orders')
+                    .orderBy('timestamp', 'asc')
+                    .onSnapshot((snapshot) => {
+                        const ordersList = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
                         }));
                         setOrders(ordersList);
-                    } else {
-                        setOrders([]);
-                    }
-                });
-                return () => dbRef.off('value', listener);
+                    }, (error) => {
+                        message.error('Lỗi tải dữ liệu: ' + error.message);
+                    });
+                return () => unsubscribe();
             }, [currentDate]);
 
 
 
             const togglePaymentStatus = async (orderId, currentStatus) => {
                 try {
-                    await database.ref(`drink-orders/${currentDate}/${orderId}`).update({
+                    await db.collection('drink_orders').doc(currentDate).collection('orders').doc(orderId).update({
                         isPaid: !currentStatus
                     });
                 } catch (error) {
@@ -235,15 +228,14 @@
 
             const handleAddOrder = async (values) => {
                 try {
-                    const newOrderRef = database.ref(`drink-orders/${currentDate}`).push();
-                    await newOrderRef.set({
+                    await db.collection('drink_orders').doc(currentDate).collection('orders').add({
                         name: values.name,
                         drink: values.drink,
                         note: values.note || '',
                         price: values.price,
                         isPaid: false,
                         addedBy: values.name,
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     message.success('Đã thêm đồ uống!');
                     setIsModalOpen(false);
