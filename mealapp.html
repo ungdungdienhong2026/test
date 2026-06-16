@@ -354,26 +354,39 @@
 
                     const monthlySummary = {};
                     const dayKeys = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
+                    const dayNames = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
 
                     for (const weekInfo of weeksData) {
                         const snapshot = await database.ref(`meal-registration/${weekInfo.key}`).once('value');
                         const data = snapshot.val();
                         if (data && data.employees) {
-                            data.employees.forEach(emp => {
-                                if (!emp || (!emp.id && !emp.name)) return;
-                                
-                                const empId = emp.id || emp.name;
-                                
-                                if (!monthlySummary[empId]) {
-                                    monthlySummary[empId] = { id: emp.id || '', name: emp.name || '', totalTrua: 0, totalChieu: 0 };
+                            
+                            dayKeys.forEach((dKey, index) => {
+                                const exactDate = weekInfo.start.add(index, 'day');
+                                if (exactDate.month() === selectedReportMonth.month()) {
+                                    const dateStr = exactDate.format('DD/MM/YYYY');
+                                    if (!monthlySummary[dateStr]) {
+                                        monthlySummary[dateStr] = { 
+                                            date: dateStr, 
+                                            dayName: dayNames[index],
+                                            timestamp: exactDate.valueOf(),
+                                            totalTrua: 0, 
+                                            totalChieu: 0 
+                                        };
+                                    }
                                 }
+                            });
+
+                            data.employees.forEach(emp => {
+                                if (!emp) return;
                                 
                                 dayKeys.forEach((dKey, index) => {
                                     const exactDate = weekInfo.start.add(index, 'day');
                                     
                                     if (exactDate.month() === selectedReportMonth.month()) {
-                                        if (emp[`${dKey}_t`]) monthlySummary[empId].totalTrua++;
-                                        if (emp[`${dKey}_c`]) monthlySummary[empId].totalChieu++;
+                                        const dateStr = exactDate.format('DD/MM/YYYY');
+                                        if (emp[`${dKey}_t`]) monthlySummary[dateStr].totalTrua++;
+                                        if (emp[`${dKey}_c`]) monthlySummary[dateStr].totalChieu++;
                                     }
                                 });
                             });
@@ -381,11 +394,7 @@
                     }
 
                     const reportArray = Object.values(monthlySummary);
-                    reportArray.sort((a, b) => {
-                        const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
-                        const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
-                        return numA - numB;
-                    });
+                    reportArray.sort((a, b) => a.timestamp - b.timestamp);
 
                     setMonthlyReportData(reportArray);
                 } catch (error) {
@@ -641,14 +650,14 @@
                         <div className="w-full py-20 flex justify-center"><Spin size="large" tip="Đang tổng hợp dữ liệu tháng..." /></div>
                     ) : (
                         <div className="overflow-x-auto custom-scrollbar">
-                            <table className="w-full text-left border-collapse min-w-[700px]">
+                            <table className="w-full text-left border-collapse min-w-[500px]">
                                 <thead className="bg-slate-900 border-b border-slate-700">
                                     <tr>
                                         <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center w-16">STT</th>
-                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold w-32">Mã NV</th>
-                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold">Họ Tên</th>
-                                        <th className="p-4 text-xs text-teal-400 uppercase font-bold text-center w-40">Tổng Trưa (Tháng)</th>
-                                        <th className="p-4 text-xs text-secondary uppercase font-bold text-center w-40">Tổng Chiều (Tháng)</th>
+                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold w-32">Ngày</th>
+                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold">Thứ</th>
+                                        <th className="p-4 text-xs text-teal-400 uppercase font-bold text-center w-40">Tổng Trưa</th>
+                                        <th className="p-4 text-xs text-secondary uppercase font-bold text-center w-40">Tổng Chiều</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-800/40">
@@ -657,16 +666,16 @@
                                             <td colSpan="5" className="p-8 text-center text-slate-500 font-medium">Không có dữ liệu trong tháng này.</td>
                                         </tr>
                                     ) : (
-                                        monthlyReportData.map((emp, idx) => (
+                                        monthlyReportData.map((dayData, idx) => (
                                             <tr key={idx} className="hover:bg-slate-800/20">
                                                 <td className="p-4 text-center text-slate-500 font-bold">{idx + 1}</td>
-                                                <td className="p-4 font-['Space_Grotesk'] font-bold text-primary-fixed">{emp.id}</td>
-                                                <td className="p-4 font-semibold text-slate-200">{emp.name}</td>
+                                                <td className="p-4 font-['Space_Grotesk'] font-bold text-primary-fixed">{dayData.date}</td>
+                                                <td className="p-4 font-semibold text-slate-200">{dayData.dayName}</td>
                                                 <td className="p-4 text-center">
-                                                    <span className="bg-teal-500/10 text-teal-400 px-3 py-1 rounded-lg font-bold text-lg">{emp.totalTrua}</span>
+                                                    <span className="bg-teal-500/10 text-teal-400 px-3 py-1 rounded-lg font-bold text-lg">{dayData.totalTrua}</span>
                                                 </td>
                                                 <td className="p-4 text-center">
-                                                    <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-lg font-bold text-lg">{emp.totalChieu}</span>
+                                                    <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-lg font-bold text-lg">{dayData.totalChieu}</span>
                                                 </td>
                                             </tr>
                                         ))
