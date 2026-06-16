@@ -194,6 +194,13 @@
         .ant-input-number-handler-wrap {
             display: none !important;
         }
+        .screenshot-mode-active {
+            max-width: none !important;
+            padding-bottom: 24px !important;
+        }
+        .screenshot-mode-active header {
+            position: static !important;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background min-h-screen pb-24">
@@ -347,7 +354,7 @@
             };
 
             return (
-                <div className="w-full" id={screenshotMode ? "report-capture-area" : ""}>
+                <div className={`w-full ${screenshotMode ? 'screenshot-mode-active' : ''}`} id="report-capture-area">
                     <header className="sticky top-0 z-40 glass-header flex flex-col md:flex-row justify-between items-start md:items-center px-margin-mobile w-full py-4 border-b border-outline-variant/20 gap-4">
                         <div className="flex items-center gap-4">
                             <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
