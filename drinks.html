@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Tổng Hợp Đặt Đồ Uống</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Ant Design -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/5.12.2/antd.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- App Config -->
+    <script src="firebase-config.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#003731",
+                        "primary": "#57f1db",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "surface": "#0b1326",
+                        "tertiary-fixed-dim": "#ffb875",
+                        "on-error": "#690005",
+                        "background": "#0b1326",
+                        "on-background": "#dae2fd",
+                        "inverse-on-surface": "#283044",
+                        "primary-fixed": "#62fae3",
+                        "tertiary-fixed": "#ffdcc0",
+                        "surface-dim": "#0b1326",
+                        "on-secondary-fixed": "#07006c",
+                        "on-tertiary-container": "#744000",
+                        "on-secondary": "#1000a9",
+                        "on-error-container": "#ffdad6",
+                        "secondary": "#c0c1ff",
+                        "surface-container-lowest": "#060e20",
+                        "surface-variant": "#2d3449",
+                        "on-surface": "#dae2fd",
+                        "surface-container-highest": "#2d3449",
+                        "surface-tint": "#3cddc7",
+                        "tertiary": "#ffd1aa",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-primary-container": "#00574d",
+                        "surface-bright": "#31394d",
+                        "tertiary-container": "#ffac5a",
+                        "on-tertiary": "#4b2800",
+                        "primary-fixed-dim": "#3cddc7",
+                        "secondary-fixed": "#e1e0ff",
+                        "surface-container-low": "#131b2e",
+                        "surface-container-high": "#222a3d",
+                        "surface-container": "#171f33",
+                        "secondary-container": "#3131c0",
+                        "primary-container": "#2dd4bf",
+                        "on-primary-fixed": "#00201c",
+                        "error-container": "#93000a",
+                        "on-secondary-container": "#b0b2ff",
+                        "on-primary-fixed-variant": "#005047",
+                        "inverse-surface": "#dae2fd",
+                        "on-surface-variant": "#bacac5",
+                        "outline-variant": "#3c4a46",
+                        "outline": "#859490",
+                        "on-tertiary-fixed-variant": "#6b3b00",
+                        "inverse-primary": "#006b5f",
+                        "on-tertiary-fixed": "#2d1600"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "gutter": "16px",
+                        "stack-lg": "32px",
+                        "stack-md": "16px",
+                        "base": "4px",
+                        "container-padding": "24px",
+                        "margin-desktop": "40px",
+                        "margin-mobile": "16px",
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "title-md": ["Hanken Grotesk"],
+                        "display": ["Hanken Grotesk"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "display": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            min-height: max(884px, 100dvh);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .order-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .order-card:active {
+            transform: scale(0.98);
+        }
+        .glass-header {
+            background: rgba(11, 19, 38, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        /* Ant Design Dark Mode Overrides */
+        .ant-modal-content {
+            background-color: #171f33 !important;
+            color: #dae2fd !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .ant-modal-header {
+            background-color: #171f33 !important;
+            color: #dae2fd !important;
+            border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .ant-modal-title {
+            color: #57f1db !important;
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-size: 20px !important;
+        }
+        .ant-modal-close-x {
+            color: #dae2fd !important;
+        }
+        .ant-input, .ant-input-number-input {
+            background-color: #0b1326 !important;
+            border: 1px solid rgba(255,255,255,0.2) !important;
+            color: #dae2fd !important;
+        }
+        .ant-input::placeholder, .ant-input-number-input::placeholder {
+            color: rgba(255,255,255,0.3) !important;
+        }
+        .ant-input:focus, .ant-input:hover, .ant-input-number-input:focus, .ant-input-number:hover {
+            border-color: #57f1db !important;
+            box-shadow: 0 0 0 2px rgba(87, 241, 219, 0.2) !important;
+        }
+        .ant-form-item-label > label {
+            color: #bacac5 !important;
+            font-family: 'Inter', sans-serif;
+        }
+        .ant-input-number {
+            background-color: #0b1326 !important;
+            border: 1px solid rgba(255,255,255,0.2) !important;
+        }
+        .ant-input-number-handler-wrap {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        const { Modal, Form, Input, InputNumber, message, Button } = antd;
+
+        // Tái sử dụng Database connection từ firebaseConfig
+        const database = firebase.database();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+        
+        // Allowed Emails
+        const ALLOWED_EMAILS = [
+            'xuanbactran196@gmail.com',
+            'nguyendiep95a1@gmail.com',
+            'dinhhong.kt@gmail.com',
+            'hanhpn@vinhomes.vn',
+            'huyentt1@vinhomes.vn',
+            'haint@vinhomes.vn',
+            'anhnq8@vinhomes.vn'
+        ];
+
+        const App = () => {
+            const [userAuth, setUserAuth] = useState(null);
+            const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+            const [orders, setOrders] = useState([]);
+            const [currentDate, setCurrentDate] = useState(dayjs().format('YYYY-MM-DD'));
+            const [isModalOpen, setIsModalOpen] = useState(false);
+            const [form] = Form.useForm();
+
+            useEffect(() => {
+                const unsubscribe = auth.onAuthStateChanged(user => {
+                    if (user) {
+                        if (ALLOWED_EMAILS.includes(user.email)) {
+                            setUserAuth(user);
+                        } else {
+                            message.error('Email này không được cấp quyền truy cập!');
+                            auth.signOut();
+                        }
+                    } else {
+                        setUserAuth(null);
+                    }
+                    setIsCheckingAuth(false);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            useEffect(() => {
+                if (!userAuth) return;
+                
+                const dbRef = database.ref(`drink-orders/${currentDate}`);
+                const listener = dbRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        // Chuyển object thành mảng
+                        const ordersList = Object.keys(data).map(key => ({
+                            id: key,
+                            ...data[key]
+                        }));
+                        setOrders(ordersList);
+                    } else {
+                        setOrders([]);
+                    }
+                });
+                return () => dbRef.off('value', listener);
+            }, [currentDate, userAuth]);
+
+            const handleLogin = () => {
+                auth.signInWithPopup(provider).catch(err => {
+                    message.error('Lỗi đăng nhập: ' + err.message);
+                });
+            };
+
+            const togglePaymentStatus = async (orderId, currentStatus) => {
+                try {
+                    await database.ref(`drink-orders/${currentDate}/${orderId}`).update({
+                        isPaid: !currentStatus
+                    });
+                } catch (error) {
+                    message.error('Lỗi cập nhật: ' + error.message);
+                }
+            };
+
+            const handleAddOrder = async (values) => {
+                try {
+                    const newOrderRef = database.ref(`drink-orders/${currentDate}`).push();
+                    await newOrderRef.set({
+                        name: values.name,
+                        drink: values.drink,
+                        note: values.note || '',
+                        price: values.price,
+                        isPaid: false,
+                        addedBy: userAuth.email,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    message.success('Đã thêm đồ uống!');
+                    setIsModalOpen(false);
+                    form.resetFields();
+                } catch (error) {
+                    message.error('Lỗi thêm dữ liệu: ' + error.message);
+                }
+            };
+
+            if (isCheckingAuth) {
+                return (
+                    <div className="flex h-screen w-full items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+                    </div>
+                );
+            }
+
+            if (!userAuth) {
+                return (
+                    <div className="flex flex-col h-screen w-full items-center justify-center p-6 bg-background">
+                        <div className="bg-surface-container-high border border-outline-variant/30 rounded-3xl p-10 max-w-md w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-tertiary to-primary"></div>
+                            <span className="material-symbols-outlined text-6xl text-primary mb-6 animate-bounce">local_cafe</span>
+                            <h1 className="font-display text-2xl font-bold text-on-surface mb-2">Đăng nhập Nội bộ</h1>
+                            <p className="text-on-surface-variant font-body-sm mb-8 leading-relaxed">
+                                Bạn cần đăng nhập bằng tài khoản Email nội bộ đã được phê duyệt mới có thể vào ứng dụng Đặt đồ uống.
+                            </p>
+                            <button 
+                                onClick={handleLogin}
+                                className="w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 px-6 border border-gray-300 rounded-xl shadow-sm flex items-center justify-center gap-3 transition-all active:scale-95"
+                            >
+                                <svg className="w-5 h-5" viewBox="0 0 48 48">
+                                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                                </svg>
+                                Đăng nhập bằng Google
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const totalOrders = orders.length;
+            const totalPrice = orders.reduce((sum, order) => sum + (Number(order.price) || 0), 0);
+
+            // Format tiền
+            const formatMoney = (amount) => {
+                if (!amount) return '0k';
+                return (amount / 1000) + 'k';
+            };
+
+            return (
+                <div className="w-full">
+                    <header className="sticky top-0 z-40 glass-header flex justify-between items-center px-margin-mobile w-full py-4 border-b border-outline-variant/20">
+                        <div className="flex items-center gap-4">
+                            <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
+                                ĐẶT ĐỒ UỐNG
+                            </h1>
+                        </div>
+                        <input 
+                            type="date" 
+                            value={currentDate}
+                            onChange={(e) => setCurrentDate(e.target.value)}
+                            className="bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps rounded-lg px-2 py-1 outline-none focus:border-primary"
+                        />
+                    </header>
+
+                    <main className="px-margin-mobile space-y-stack-lg pt-4 pb-24 max-w-[1280px] mx-auto">
+                        <div className="flex items-center justify-between">
+                            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">
+                                {dayjs(currentDate).format('DD/MM/YYYY')}
+                            </span>
+                        </div>
+
+                        <section className="grid grid-cols-2 gap-stack-md">
+                            <div className="bg-surface-container-low p-stack-lg rounded-xl shadow-sm border border-outline-variant/30">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="material-symbols-outlined text-primary scale-90">shopping_cart</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface-variant">TỔNG ĐƠN</span>
+                                </div>
+                                <div className="font-headline-lg text-headline-lg text-primary">{totalOrders}</div>
+                                <div className="font-body-sm text-body-sm text-on-surface-variant mt-1">Sản phẩm đặt</div>
+                            </div>
+                            <div className="bg-surface-container-high p-stack-lg rounded-xl shadow-md border border-outline-variant/30 relative overflow-hidden">
+                                <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
+                                <div className="flex items-center gap-2 mb-2 relative z-10">
+                                    <span className="material-symbols-outlined text-primary scale-90">payments</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface">TỔNG TIỀN</span>
+                                </div>
+                                <div className="font-headline-lg text-headline-lg text-on-surface relative z-10">{formatMoney(totalPrice)}</div>
+                                <div className="font-body-sm text-body-sm text-on-surface-variant mt-1 relative z-10">VNĐ Dự tính</div>
+                            </div>
+                        </section>
+
+                        <section className="space-y-stack-md">
+                            <h2 className="font-title-md text-title-md text-primary px-1">Danh sách chi tiết</h2>
+                            <div className="overflow-x-auto pb-2 -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+                                <div className="min-w-[640px] bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-surface-container-low border-b border-outline-variant/30">
+                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-12 text-center">STT</th>
+                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-40">Người đặt</th>
+                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold">Đồ uống (Kèm ghi chú)</th>
+                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-24">Giá</th>
+                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-32 text-center">Trạng thái</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-outline-variant/20">
+                                            {orders.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan="5" className="p-6 text-center text-on-surface-variant font-body-sm">
+                                                        Chưa có ai đặt đồ uống ngày này. Bấm dấu + để tạo đơn mới!
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                orders.map((order, idx) => (
+                                                    <tr key={order.id} className="hover:bg-surface-variant/20 transition-colors order-row">
+                                                        <td className="p-3 text-center text-on-surface-variant font-label-caps">{idx + 1}</td>
+                                                        <td className="p-3">
+                                                            <div className="flex items-center gap-3">
+                                                                <span className="font-title-md text-[14px] leading-[20px] text-on-surface whitespace-nowrap">{order.name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-3 flex flex-col">
+                                                            <span className="font-body-sm text-body-sm text-on-surface">{order.drink}</span>
+                                                            {order.note && <span className="text-[12px] text-primary/80 mt-1 italic">*{order.note}</span>}
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <span className="font-title-md text-[14px] leading-[20px] text-primary whitespace-nowrap">{formatMoney(order.price)}</span>
+                                                        </td>
+                                                        <td className="p-3 text-center">
+                                                            <button 
+                                                                onClick={() => togglePaymentStatus(order.id, order.isPaid)}
+                                                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter whitespace-nowrap transition-transform active:scale-95 ${
+                                                                    order.isPaid 
+                                                                        ? "bg-[#003731] text-[#62fae3] border border-[#005047]" 
+                                                                        : "bg-[#744000] text-[#ffdcc0] border border-[#965a00]"
+                                                                }`}
+                                                            >
+                                                                {order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div className="mt-8 bg-surface-container-low rounded-2xl p-6 border border-dashed border-outline-variant flex flex-col items-center text-center">
+                            <span className="material-symbols-outlined text-primary text-4xl mb-2">celebration</span>
+                            <p className="font-title-md text-title-md text-on-surface">Danh sách chốt theo thời gian thực!</p>
+                            <p className="font-body-sm text-body-sm text-on-surface-variant">Vui lòng kiểm tra kỹ số tiền trước khi thanh toán cho cửa hàng.</p>
+                        </div>
+                    </main>
+
+                    {/* Floating Action Button */}
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="fixed bottom-8 right-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-[0_0_15px_rgba(87,241,219,0.4)] flex items-center justify-center active:scale-90 hover:scale-105 transition-transform z-50"
+                    >
+                        <span className="material-symbols-outlined text-2xl font-bold">add</span>
+                    </button>
+
+                    {/* Add Order Modal */}
+                    <Modal
+                        title="Thêm Đồ Uống Mới"
+                        open={isModalOpen}
+                        onCancel={() => setIsModalOpen(false)}
+                        footer={null}
+                        centered
+                        className="dark-modal"
+                    >
+                        <Form
+                            form={form}
+                            layout="vertical"
+                            onFinish={handleAddOrder}
+                            className="mt-4"
+                        >
+                            <Form.Item
+                                name="name"
+                                label="Họ và tên người nhận"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
+                            >
+                                <Input size="large" placeholder="Ví dụ: Nguyễn Văn A" />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="drink"
+                                label="Món đồ uống"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên món!' }]}
+                            >
+                                <Input size="large" placeholder="Ví dụ: Trà sữa trân châu" />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="price"
+                                label="Giá tiền (VNĐ)"
+                                rules={[{ required: true, message: 'Vui lòng nhập giá tiền!' }]}
+                            >
+                                <InputNumber 
+                                    size="large" 
+                                    className="w-full" 
+                                    placeholder="Ví dụ: 55000"
+                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="note"
+                                label="Ghi chú thêm (Không bắt buộc)"
+                            >
+                                <Input size="large" placeholder="Ví dụ: 50% đường, ít đá..." />
+                            </Form.Item>
+
+                            <Form.Item className="mb-0 mt-6">
+                                <Button 
+                                    type="primary" 
+                                    htmlType="submit" 
+                                    size="large" 
+                                    className="w-full bg-[#57f1db] text-[#003731] hover:bg-[#3cddc7] border-none font-bold shadow-md"
+                                >
+                                    Xác nhận Đặt
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
