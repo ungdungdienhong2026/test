@@ -633,6 +633,11 @@
                                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:inline">Chiều:</span>
                                     <span className="text-tertiary text-xl font-['Space_Grotesk'] font-bold drop-shadow-[0_0_8px_rgba(243,135,100,0.5)]">{totalMonthlyChieu}</span>
                                 </div>
+                                <div className="w-px h-4 bg-slate-700"></div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:inline">Tổng Tháng:</span>
+                                    <span className="text-white text-xl font-['Space_Grotesk'] font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">{totalMonthlyTrua + totalMonthlyChieu}</span>
+                                </div>
                             </div>
                         </div>
                         <DatePicker
@@ -650,20 +655,21 @@
                         <div className="w-full py-20 flex justify-center"><Spin size="large" tip="Đang tổng hợp dữ liệu tháng..." /></div>
                     ) : (
                         <div className="overflow-x-auto custom-scrollbar">
-                            <table className="w-full text-left border-collapse min-w-[500px]">
+                            <table className="w-full text-left border-collapse min-w-[600px]">
                                 <thead className="bg-slate-900 border-b border-slate-700">
                                     <tr>
                                         <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center w-16">STT</th>
                                         <th className="p-4 text-xs text-slate-400 uppercase font-bold w-32">Ngày</th>
                                         <th className="p-4 text-xs text-slate-400 uppercase font-bold">Thứ</th>
-                                        <th className="p-4 text-xs text-teal-400 uppercase font-bold text-center w-40">Tổng Trưa</th>
-                                        <th className="p-4 text-xs text-secondary uppercase font-bold text-center w-40">Tổng Chiều</th>
+                                        <th className="p-4 text-xs text-teal-400 uppercase font-bold text-center w-32">Tổng Trưa</th>
+                                        <th className="p-4 text-xs text-secondary uppercase font-bold text-center w-32">Tổng Chiều</th>
+                                        <th className="p-4 text-xs text-white uppercase font-bold text-center w-32">Tổng Cộng</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-800/40">
                                     {monthlyReportData.length === 0 ? (
                                         <tr>
-                                            <td colSpan="5" className="p-8 text-center text-slate-500 font-medium">Không có dữ liệu trong tháng này.</td>
+                                            <td colSpan="6" className="p-8 text-center text-slate-500 font-medium">Không có dữ liệu trong tháng này.</td>
                                         </tr>
                                     ) : (
                                         monthlyReportData.map((dayData, idx) => (
@@ -676,6 +682,9 @@
                                                 </td>
                                                 <td className="p-4 text-center">
                                                     <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-lg font-bold text-lg">{dayData.totalChieu}</span>
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    <span className="bg-slate-700/50 text-white px-3 py-1 rounded-lg font-bold text-lg">{dayData.totalTrua + dayData.totalChieu}</span>
                                                 </td>
                                             </tr>
                                         ))
