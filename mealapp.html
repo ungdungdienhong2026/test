@@ -186,6 +186,10 @@
             const [activeTab, setActiveTab] = useState('meal-board');
             const [screenshotMode, setScreenshotMode] = useState(false);
 
+            const [selectedReportMonth, setSelectedReportMonth] = useState(dayjs());
+            const [monthlyReportData, setMonthlyReportData] = useState([]);
+            const [reportLoading, setReportLoading] = useState(false);
+
             // DANH SÁCH EMAIL ĐƯỢC PHÉP TRUY CẬP HỆ THỐNG
             const ALLOWED_EMAILS = [
                 'xuanbactran196@gmail.com',
@@ -329,6 +333,73 @@
                     }
                 }, 800);
             };
+
+            const fetchMonthlyReport = async () => {
+                if (!isConfigured) return;
+                setReportLoading(true);
+                setMonthlyReportData([]);
+
+                try {
+                    const startOfMonth = selectedReportMonth.startOf('month');
+                    const endOfMonth = selectedReportMonth.endOf('month');
+                    
+                    let weekStart = startOfMonth.day() === 0 ? startOfMonth.subtract(6, 'day') : startOfMonth.day(1);
+                    const weeksData = [];
+
+                    while (weekStart.isBefore(endOfMonth) || weekStart.isSame(endOfMonth, 'day')) {
+                        const weekKey = weekStart.format('YYYY-[w]ww');
+                        weeksData.push({ key: weekKey, start: weekStart.clone() });
+                        weekStart = weekStart.add(1, 'week');
+                    }
+
+                    const monthlySummary = {};
+                    const dayKeys = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
+
+                    for (const weekInfo of weeksData) {
+                        const snapshot = await database.ref(`meal-registration/${weekInfo.key}`).once('value');
+                        const data = snapshot.val();
+                        if (data && data.employees) {
+                            data.employees.forEach(emp => {
+                                if (!emp || (!emp.id && !emp.name)) return;
+                                
+                                const empId = emp.id || emp.name;
+                                
+                                if (!monthlySummary[empId]) {
+                                    monthlySummary[empId] = { id: emp.id || '', name: emp.name || '', totalTrua: 0, totalChieu: 0 };
+                                }
+                                
+                                dayKeys.forEach((dKey, index) => {
+                                    const exactDate = weekInfo.start.add(index, 'day');
+                                    
+                                    if (exactDate.month() === selectedReportMonth.month()) {
+                                        if (emp[`${dKey}_t`]) monthlySummary[empId].totalTrua++;
+                                        if (emp[`${dKey}_c`]) monthlySummary[empId].totalChieu++;
+                                    }
+                                });
+                            });
+                        }
+                    }
+
+                    const reportArray = Object.values(monthlySummary);
+                    reportArray.sort((a, b) => {
+                        const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
+                        const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
+                        return numA - numB;
+                    });
+
+                    setMonthlyReportData(reportArray);
+                } catch (error) {
+                    message.error('Lỗi khi tải báo cáo tháng: ' + error.message);
+                } finally {
+                    setReportLoading(false);
+                }
+            };
+
+            useEffect(() => {
+                if (activeTab === 'report') {
+                    fetchMonthlyReport();
+                }
+            }, [selectedReportMonth, activeTab, isConfigured]);
 
             const dayHeaders = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
             const dayKeys = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
@@ -536,57 +607,57 @@
                 <div className="glass-card rounded-2xl p-6 shadow-2xl overflow-hidden border border-slate-700 font-['Inter'] animate-[fadeIn_0.5s_ease-out]">
                     <div className="flex justify-between items-center mb-6 gap-4 flex-wrap border-b border-slate-700/50 pb-4">
                         <h2 className="font-['Space_Grotesk'] font-bold text-xl text-primary flex items-center gap-3">
-                            <span className="material-symbols-outlined">analytics</span> Báo Cáo Phân Tích Cá Nhân (Tuần {currentWeekKey.split('-w')[1]})
+                            <span className="material-symbols-outlined">analytics</span> Báo Cáo Tổng Hợp Tháng {selectedReportMonth.format('MM/YYYY')}
                         </h2>
                         <DatePicker
-                            picker="week"
+                            picker="month"
                             size="middle"
-                            format={(val) => `Tuần ${val.format('ww')} (${val.day(1).format('DD/MM')} - ${val.day(7).format('DD/MM')})`}
+                            format="MM/YYYY"
                             allowClear={false}
-                            value={selectedDate}
-                            onChange={(date) => date && setSelectedDate(date)}
-                            className="bg-surface-container-high border-slate-700/80 hover:border-primary/50 text-white shadow-none focus:ring-0 w-48 sm:w-56 font-semibold"
+                            value={selectedReportMonth}
+                            onChange={(date) => date && setSelectedReportMonth(date)}
+                            className="bg-surface-container-high border-slate-700/80 hover:border-primary/50 text-white shadow-none focus:ring-0 w-32 font-semibold"
                             inputReadOnly
                         />
                     </div>
-                    <div className="overflow-x-auto custom-scrollbar">
-                        <table className="w-full text-left border-collapse min-w-[700px]">
-                            <thead className="bg-slate-900 border-b border-slate-700">
-                                <tr>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center">STT</th>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold">Mã NV</th>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold">Họ Tên</th>
-                                    <th className="p-4 text-xs text-teal-400 uppercase font-bold text-center">Đã Đăng ký Trưa</th>
-                                    <th className="p-4 text-xs text-secondary uppercase font-bold text-center">Đã Đăng ký Chiều</th>
-                                    <th className="p-4 text-xs text-error uppercase font-bold text-center">Ghi chú thao tác bữa</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-800/40">
-                                {(employeesData || []).map((emp, idx) => {
-                                    if (!emp) return null;
-                                    const t_trua = dayKeys.reduce((a, d) => a + (emp[`${d}_t`] ? 1 : 0), 0);
-                                    const t_chieu = dayKeys.reduce((a, d) => a + (emp[`${d}_c`] ? 1 : 0), 0);
-                                    const thay = `${emp.noEat || ''} ${emp.replaceBy || ''}`.trim();
-                                    return (
-                                        <tr key={idx} className="hover:bg-slate-800/20">
-                                            <td className="p-4 text-center text-slate-500 font-bold">{idx + 1}</td>
-                                            <td className="p-4 font-['Space_Grotesk'] font-bold text-primary-fixed">{emp.id}</td>
-                                            <td className="p-4 font-semibold text-slate-200">{emp.name}</td>
-                                            <td className="p-4 text-center">
-                                                <span className="bg-teal-500/10 text-teal-400 px-3 py-1 rounded-lg font-bold text-lg">{t_trua}</span>
-                                            </td>
-                                            <td className="p-4 text-center">
-                                                <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-lg font-bold text-lg">{t_chieu}</span>
-                                            </td>
-                                            <td className="p-4 text-center">
-                                                {thay ? <span className="bg-error/10 border border-error/20 text-error px-2 py-1 rounded text-xs leading-tight block">{thay}</span> : <span className="text-slate-600">-</span>}
-                                            </td>
+                    {reportLoading ? (
+                        <div className="w-full py-20 flex justify-center"><Spin size="large" tip="Đang tổng hợp dữ liệu tháng..." /></div>
+                    ) : (
+                        <div className="overflow-x-auto custom-scrollbar">
+                            <table className="w-full text-left border-collapse min-w-[700px]">
+                                <thead className="bg-slate-900 border-b border-slate-700">
+                                    <tr>
+                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center w-16">STT</th>
+                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold w-32">Mã NV</th>
+                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold">Họ Tên</th>
+                                        <th className="p-4 text-xs text-teal-400 uppercase font-bold text-center w-40">Tổng Trưa (Tháng)</th>
+                                        <th className="p-4 text-xs text-secondary uppercase font-bold text-center w-40">Tổng Chiều (Tháng)</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-800/40">
+                                    {monthlyReportData.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" className="p-8 text-center text-slate-500 font-medium">Không có dữ liệu trong tháng này.</td>
                                         </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                    ) : (
+                                        monthlyReportData.map((emp, idx) => (
+                                            <tr key={idx} className="hover:bg-slate-800/20">
+                                                <td className="p-4 text-center text-slate-500 font-bold">{idx + 1}</td>
+                                                <td className="p-4 font-['Space_Grotesk'] font-bold text-primary-fixed">{emp.id}</td>
+                                                <td className="p-4 font-semibold text-slate-200">{emp.name}</td>
+                                                <td className="p-4 text-center">
+                                                    <span className="bg-teal-500/10 text-teal-400 px-3 py-1 rounded-lg font-bold text-lg">{emp.totalTrua}</span>
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-lg font-bold text-lg">{emp.totalChieu}</span>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             );
 
