@@ -229,6 +229,7 @@
             const [isModalOpen, setIsModalOpen] = useState(false);
             const [editingOrderId, setEditingOrderId] = useState(null);
             const [screenshotMode, setScreenshotMode] = useState(false);
+            const [isTotalModalOpen, setIsTotalModalOpen] = useState(false);
             const [form] = Form.useForm();
 
             useEffect(() => {
@@ -439,32 +440,41 @@
                         </div>
 
                         <section className="grid grid-cols-2 gap-stack-md items-start">
-                            <div id="report-capture-area" className="bg-surface-container-low p-stack-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col h-full relative">
-                                <div className="flex items-center gap-2 mb-3 border-b border-outline-variant/10 pb-3">
+                            <div className="bg-surface-container-low p-stack-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col h-[280px] relative">
+                                <div className="flex items-center gap-2 mb-3 border-b border-outline-variant/10 pb-3 shrink-0">
                                     <span className="material-symbols-outlined text-primary scale-90">shopping_cart</span>
                                     <div className="flex flex-col">
                                         <span className="font-label-caps text-label-caps text-on-surface-variant">TỔNG ĐƠN ({totalOrders})</span>
-                                        <span className="text-[11px] text-teal-400 font-bold tracking-wider">{dayjs(currentDate).format('DD/MM/YYYY')}</span>
                                     </div>
                                 </div>
                                 {groupedDrinks.length > 0 ? (
-                                    <ul className="space-y-2 flex-1 pr-2 pb-2">
-                                        {groupedDrinks.map((item, idx) => (
-                                            <li key={idx} className="flex justify-between items-start text-sm border-b border-outline-variant/10 pb-3 mb-2 last:border-0 last:mb-0 last:pb-0">
-                                                <div className="flex flex-col flex-1 pr-2">
-                                                    <span className="text-on-surface font-medium leading-snug">{item.name}</span>
-                                                    {item.note && <span className="text-on-surface-variant text-xs italic opacity-80 mt-1 uppercase">* {item.note}</span>}
-                                                </div>
-                                                <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs whitespace-nowrap mt-0.5">x{item.count}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <>
+                                        <ul className="space-y-2 flex-1 overflow-hidden relative">
+                                            {groupedDrinks.map((item, idx) => (
+                                                <li key={idx} className="flex justify-between items-start text-sm border-b border-outline-variant/10 pb-3 mb-2 last:border-0 last:mb-0 last:pb-0">
+                                                    <div className="flex flex-col flex-1 pr-2">
+                                                        <span className="text-on-surface font-medium leading-snug">{item.name}</span>
+                                                        {item.note && <span className="text-on-surface-variant text-xs italic opacity-80 mt-1 uppercase">* {item.note}</span>}
+                                                    </div>
+                                                    <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs whitespace-nowrap mt-0.5">x{item.count}</span>
+                                                </li>
+                                            ))}
+                                            {groupedDrinks.length > 3 && (
+                                                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#171f33] to-transparent pointer-events-none"></div>
+                                            )}
+                                        </ul>
+                                        <button onClick={() => setIsTotalModalOpen(true)} className="mt-3 text-teal-400 text-sm font-bold hover:text-teal-300 w-full text-center py-2 transition-colors border border-teal-400/20 rounded-lg hover:bg-teal-400/10 shrink-0">
+                                            Xem tất cả ({groupedDrinks.length} loại)
+                                        </button>
+                                    </>
                                 ) : (
                                     <div className="flex flex-col">
                                         <div className="font-headline-lg text-headline-lg text-primary">{totalOrders}</div>
                                         <div className="font-body-sm text-body-sm text-on-surface-variant mt-1">Sản phẩm đặt</div>
                                     </div>
                                 )}
+                            </div>
+
                             </div>
                             <div className="bg-surface-container-high p-stack-lg rounded-xl shadow-md border border-outline-variant/30 relative overflow-hidden">
                                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
@@ -633,6 +643,56 @@
                             </Form.Item>
                         </Form>
                     </Modal>
+
+                    {/* Modal Chi tiết Tổng Đơn */}
+                    <Modal
+                        title="CHI TIẾT TỔNG ĐƠN"
+                        open={isTotalModalOpen}
+                        onCancel={() => setIsTotalModalOpen(false)}
+                        footer={null}
+                        width={500}
+                    >
+                        <ul className="space-y-2 pr-2 mt-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                            {groupedDrinks.map((item, idx) => (
+                                <li key={idx} className="flex justify-between items-start text-sm border-b border-outline-variant/10 pb-3 mb-2 last:border-0 last:mb-0 last:pb-0">
+                                    <div className="flex flex-col flex-1 pr-2">
+                                        <span className="text-on-surface font-medium leading-snug text-base">{item.name}</span>
+                                        {item.note && <span className="text-on-surface-variant text-xs italic opacity-80 mt-1 uppercase">* {item.note}</span>}
+                                    </div>
+                                    <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-sm whitespace-nowrap mt-0.5">x{item.count}</span>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="mt-6 flex justify-end">
+                            <button type="button" onClick={handleDownloadImage} className="flex items-center justify-center gap-2 px-6 py-2 rounded-lg bg-teal-400 hover:bg-teal-300 text-slate-900 font-bold shadow-lg transition-all active:scale-95 text-sm">
+                                <span className="material-symbols-outlined text-[18px]">photo_camera</span> Chụp ảnh gửi quán
+                            </button>
+                        </div>
+                    </Modal>
+
+                    {/* Thẻ ẩn (off-screen) dành riêng cho việc chụp ảnh để tối ưu bố cục */}
+                    <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', width: '450px' }}>
+                        <div id="report-capture-area" className="bg-[#171f33] p-6 rounded-xl flex flex-col">
+                            <div className="flex items-center gap-3 mb-4 border-b border-white/10 pb-4">
+                                <span className="material-symbols-outlined text-teal-400 text-[32px]">local_cafe</span>
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-[20px] text-white leading-tight tracking-wide">TỔNG ĐƠN ĐỒ UỐNG ({totalOrders})</span>
+                                    <span className="text-[14px] text-teal-400 font-bold mt-1">{dayjs(currentDate).format('DD/MM/YYYY')}</span>
+                                </div>
+                            </div>
+                            <ul className="space-y-3">
+                                {groupedDrinks.map((item, idx) => (
+                                    <li key={idx} className="flex justify-between items-start text-base border-b border-white/5 pb-3 mb-2 last:border-0 last:mb-0 last:pb-0">
+                                        <div className="flex flex-col flex-1 pr-4">
+                                            <span className="text-white font-medium text-[16px]">{item.name}</span>
+                                            {item.note && <span className="text-gray-400 text-[13px] italic mt-1 uppercase">* {item.note}</span>}
+                                        </div>
+                                        <span className="text-slate-900 font-bold bg-teal-400 px-3 py-1 rounded text-[15px] mt-0.5">x{item.count}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             );
         };
