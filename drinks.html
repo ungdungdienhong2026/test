@@ -320,19 +320,41 @@
                 }
             };
 
-            const handleDownloadImage = async () => {
+            const handleDownloadImage = () => {
                 const element = document.getElementById('report-capture-area');
                 if (!element) return;
-                try {
-                    const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#0b1326' });
-                    const link = document.createElement('a');
-                    link.download = `DoUong_${currentDate}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    message.success('Đã tải ảnh thành công!');
-                } catch (error) {
-                    message.error('Lỗi khi tạo ảnh: ' + error.message);
-                }
+
+                const hideLoading = message.loading('Đang tạo ảnh chụp (vui lòng đợi)...', 0);
+
+                const wasScreenshotMode = screenshotMode;
+                if (!wasScreenshotMode) setScreenshotMode(true);
+
+                setTimeout(async () => {
+                    try {
+                        const canvas = await html2canvas(element, { 
+                            scale: 1.5, 
+                            backgroundColor: '#0b1326',
+                            useCORS: true,
+                            windowWidth: element.scrollWidth,
+                            width: element.scrollWidth,
+                            windowHeight: element.scrollHeight,
+                            height: element.scrollHeight
+                        });
+                        const link = document.createElement('a');
+                        link.download = `DoUong_${currentDate}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        
+                        hideLoading();
+                        message.success('Đã tải ảnh thành công!');
+                        
+                        if (!wasScreenshotMode) setScreenshotMode(false);
+                    } catch (error) {
+                        hideLoading();
+                        message.error('Lỗi khi tạo ảnh: ' + error.message);
+                        if (!wasScreenshotMode) setScreenshotMode(false);
+                    }
+                }, 300);
             };
 
             const exportToExcel = () => {
