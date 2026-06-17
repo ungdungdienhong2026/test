@@ -332,8 +332,8 @@
                 setTimeout(async () => {
                     try {
                         const canvas = await html2canvas(element, { 
-                            scale: 1.5, 
-                            backgroundColor: '#0b1326',
+                            scale: 2, 
+                            backgroundColor: '#171f33',
                             useCORS: true,
                             windowWidth: element.scrollWidth,
                             width: element.scrollWidth,
@@ -387,9 +387,10 @@
                 orders.forEach(order => {
                     if (!order.drink) return;
                     const name = order.drink.trim();
-                    const key = name.toLowerCase();
+                    const note = order.note ? order.note.trim() : '';
+                    const key = `${name.toLowerCase()}|${note.toLowerCase()}`;
                     if (!group[key]) {
-                        group[key] = { name: name, count: 1 };
+                        group[key] = { name: name, note: note, count: 1 };
                     } else {
                         group[key].count += 1;
                     }
@@ -404,7 +405,7 @@
             };
 
             return (
-                <div className={`w-full ${screenshotMode ? 'screenshot-mode-active' : ''}`} id="report-capture-area">
+                <div className={`w-full ${screenshotMode ? 'screenshot-mode-active' : ''}`}>
                     <header className="sticky top-0 z-40 glass-header flex flex-col md:flex-row justify-between items-start md:items-center px-margin-mobile w-full py-4 border-b border-outline-variant/20 gap-4">
                         <div className="flex items-center gap-4">
                             <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
@@ -437,18 +438,24 @@
                             </span>
                         </div>
 
-                        <section className="grid grid-cols-2 gap-stack-md">
-                            <div className="bg-surface-container-low p-stack-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col max-h-[160px]">
-                                <div className="flex items-center gap-2 mb-3">
+                        <section className="grid grid-cols-2 gap-stack-md items-start">
+                            <div id="report-capture-area" className="bg-surface-container-low p-stack-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col h-full relative">
+                                <div className="flex items-center gap-2 mb-3 border-b border-outline-variant/10 pb-3">
                                     <span className="material-symbols-outlined text-primary scale-90">shopping_cart</span>
-                                    <span className="font-label-caps text-label-caps text-on-surface-variant">TỔNG ĐƠN ({totalOrders})</span>
+                                    <div className="flex flex-col">
+                                        <span className="font-label-caps text-label-caps text-on-surface-variant">TỔNG ĐƠN ({totalOrders})</span>
+                                        <span className="text-[11px] text-teal-400 font-bold tracking-wider">{dayjs(currentDate).format('DD/MM/YYYY')}</span>
+                                    </div>
                                 </div>
                                 {groupedDrinks.length > 0 ? (
-                                    <ul className="space-y-2 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                                    <ul className="space-y-2 flex-1 pr-2 pb-2">
                                         {groupedDrinks.map((item, idx) => (
-                                            <li key={idx} className="flex justify-between items-center text-sm border-b border-outline-variant/10 pb-1 last:border-0 last:pb-0">
-                                                <span className="text-on-surface line-clamp-1 flex-1 pr-2" title={item.name}>{item.name}</span>
-                                                <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs whitespace-nowrap">x{item.count}</span>
+                                            <li key={idx} className="flex justify-between items-start text-sm border-b border-outline-variant/10 pb-3 mb-2 last:border-0 last:mb-0 last:pb-0">
+                                                <div className="flex flex-col flex-1 pr-2">
+                                                    <span className="text-on-surface font-medium leading-snug">{item.name}</span>
+                                                    {item.note && <span className="text-on-surface-variant text-xs italic opacity-80 mt-1 uppercase">* {item.note}</span>}
+                                                </div>
+                                                <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs whitespace-nowrap mt-0.5">x{item.count}</span>
                                             </li>
                                         ))}
                                     </ul>
