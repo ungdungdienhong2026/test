@@ -182,7 +182,9 @@
 
             const [selectedDate, setSelectedDate] = useState(dayjs());
             const currentWeekKey = selectedDate.format('YYYY-[w]ww');
-            const [isLocked, setIsLocked] = useState(true);
+            const isPastWeek = currentWeekKey < dayjs().format('YYYY-[w]ww');
+            const [isLockedState, setIsLocked] = useState(true);
+            const isLocked = isPastWeek || isLockedState;
             const [activeTab, setActiveTab] = useState('meal-board');
             const [screenshotMode, setScreenshotMode] = useState(false);
 
@@ -549,7 +551,11 @@
             };
 
             const handleUnlock = () => {
-                if (!isLocked) {
+                if (isPastWeek) {
+                    message.error('Hệ thống đã tự động khóa dữ liệu của các tuần đã qua để bảo vệ dữ liệu!');
+                    return;
+                }
+                if (!isLockedState) {
                     setIsLocked(true);
                     message.info('Về lại trạng thái an toàn (Read Only).');
                 } else {
