@@ -80,11 +80,11 @@
         <!-- Navigation -->
         <nav class="py-2 md:flex-1 md:py-6 flex flex-row md:flex-col gap-2 px-2 md:px-3 justify-center">
             <p class="hidden md:block px-4 text-xs font-semibold text-on-surface/40 uppercase tracking-wider mb-2">Chức năng</p>
-            <button onclick="switchApp('meeting')" id="nav-meeting" class="nav-item active flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-xl md:rounded-none md:rounded-r-lg text-center md:text-left text-on-surface/80 font-medium">
+            <button onclick="switchApp('meeting')" id="nav-meeting" class="nav-item flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-xl md:rounded-none md:rounded-r-lg text-center md:text-left text-on-surface/80 font-medium">
                 <span class="material-symbols-outlined md:mr-3 mb-1 md:mb-0 text-2xl md:text-[24px]">meeting_room</span>
                 <span class="text-[11px] md:text-base whitespace-nowrap">Phòng Họp</span>
             </button>
-            <button onclick="switchApp('mealapp')" id="nav-mealapp" class="nav-item flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-xl md:rounded-none md:rounded-r-lg text-center md:text-left text-on-surface/80 font-medium">
+            <button onclick="switchApp('mealapp')" id="nav-mealapp" class="nav-item active flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-xl md:rounded-none md:rounded-r-lg text-center md:text-left text-on-surface/80 font-medium">
                 <span class="material-symbols-outlined md:mr-3 mb-1 md:mb-0 text-2xl md:text-[24px]">restaurant</span>
                 <span class="text-[11px] md:text-base whitespace-nowrap">Suất Ăn</span>
             </button>
@@ -105,7 +105,7 @@
             </div>
         </div>
         
-        <iframe id="app-frame" src="meeting.html" title="Application Frame" onload="hideLoader()"></iframe>
+        <iframe id="app-frame" src="mealapp.html" title="Application Frame" onload="hideLoader()"></iframe>
     </main>
 
     <script>
