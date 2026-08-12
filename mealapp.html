@@ -193,7 +193,7 @@
             const [reportLoading, setReportLoading] = useState(false);
 
             // DANH SÁCH EMAIL ĐƯỢC PHÉP TRUY CẬP HỆ THỐNG
-            const ALLOWED_EMAILS = [
+            const INITIAL_EMAILS = [
                 'xuanbactran196@gmail.com',
                 'admin@gmail.com',
                 'luu2004vp@gmail.com',
@@ -223,6 +223,9 @@
             ];
             const [userAuth, setUserAuth] = useState(null);
             const [checkingAuth, setCheckingAuth] = useState(true);
+            const [allowedEmailsList, setAllowedEmailsList] = useState([]);
+            const [newEmail, setNewEmail] = useState("");
+            const [isSavingEmail, setIsSavingEmail] = useState(false);
 
             const isCurrentWeek = currentWeekKey === dayjs().format('YYYY-[w]ww');
             const currentDayNumber = dayjs().day();
@@ -235,14 +238,30 @@
                     setCheckingAuth(false);
                     return;
                 }
-                const unsubscribe = auth.onAuthStateChanged((user) => {
+                const unsubscribe = auth.onAuthStateChanged(async (user) => {
                     if (user) {
-                        if (ALLOWED_EMAILS.includes(user.email)) {
-                            setUserAuth(user);
-                            setIsLocked(false); // Vừa vào mặc định mở khóa
-                        } else {
+                        try {
+                            const snap = await database.ref('allowed-emails').once('value');
+                            let currentEmails = snap.val();
+                            
+                            if (!currentEmails || !Array.isArray(currentEmails)) {
+                                currentEmails = INITIAL_EMAILS;
+                                await database.ref('allowed-emails').set(currentEmails);
+                            }
+                            
+                            setAllowedEmailsList(currentEmails);
+
+                            if (currentEmails.includes(user.email)) {
+                                setUserAuth(user);
+                                setIsLocked(false); // Vừa vào mặc định mở khóa
+                            } else {
+                                auth.signOut();
+                                message.error(`Email ${user.email} KHÔNG ĐƯỢC CẤP QUYỀN TRUY CẬP!`, 5);
+                                setUserAuth(null);
+                            }
+                        } catch (error) {
+                            message.error("Lỗi xác thực: " + error.message);
                             auth.signOut();
-                            message.error(`Email ${user.email} KHÔNG ĐƯỢC CẤP QUYỀN TRUY CẬP!`, 5);
                             setUserAuth(null);
                         }
                     } else {
@@ -567,50 +586,109 @@
 
             /* ==== COMPONENT RENDER TABS ==== */
 
-            // Tab 2: Quản lý Team
+            // Tab 2: Quản lý Truy Cập (Admin)
+            const handleAddEmail = async () => {
+                if (!newEmail || !newEmail.includes('@')) {
+                    message.error('Vui lòng nhập một địa chỉ email hợp lệ!');
+                    return;
+                }
+                const emailToAdd = newEmail.trim().toLowerCase();
+                if (allowedEmailsList.includes(emailToAdd)) {
+                    message.warning('Email này đã được cấp quyền từ trước!');
+                    return;
+                }
+
+                setIsSavingEmail(true);
+                try {
+                    const newList = [...allowedEmailsList, emailToAdd];
+                    await database.ref('allowed-emails').set(newList);
+                    setAllowedEmailsList(newList);
+                    setNewEmail("");
+                    message.success(`Đã cấp quyền truy cập cho ${emailToAdd}`);
+                } catch (error) {
+                    message.error('Lỗi khi thêm email: ' + error.message);
+                } finally {
+                    setIsSavingEmail(false);
+                }
+            };
+
+            const handleRemoveEmail = async (emailToRemove) => {
+                if (emailToRemove === userAuth.email) {
+                    message.error('Bạn không thể tự thu hồi quyền của chính mình!');
+                    return;
+                }
+                setIsSavingEmail(true);
+                try {
+                    const newList = allowedEmailsList.filter(email => email !== emailToRemove);
+                    await database.ref('allowed-emails').set(newList);
+                    setAllowedEmailsList(newList);
+                    message.success(`Đã thu hồi quyền của ${emailToRemove}`);
+                } catch (error) {
+                    message.error('Lỗi khi xóa email: ' + error.message);
+                } finally {
+                    setIsSavingEmail(false);
+                }
+            };
+
             const renderTeamTab = () => (
-                <div className="glass-card rounded-2xl p-6 shadow-2xl overflow-hidden border border-slate-700 font-['Inter'] animate-[fadeIn_0.5s_ease-out]">
+                <div className="glass-card rounded-2xl p-6 shadow-2xl overflow-hidden border border-slate-700 font-['Inter'] animate-[fadeIn_0.5s_ease-out] max-w-4xl mx-auto">
                     <div className="flex justify-between items-center mb-6 gap-4 flex-wrap border-b border-slate-700/50 pb-4">
                         <h2 className="font-['Space_Grotesk'] font-bold text-xl text-primary flex items-center gap-3">
-                            <span className="material-symbols-outlined">group</span> Danh Bạ Rút Gọn (Chốt Danh Sách Nhanh)
+                            <span className="material-symbols-outlined">admin_panel_settings</span> Quản Lý Quyền Truy Cập (Admin)
                         </h2>
-                        <DatePicker
-                            picker="week"
-                            size="middle"
-                            format={(val) => `Tuần ${val.format('ww')} (${val.day(1).format('DD/MM')} - ${val.day(7).format('DD/MM')})`}
-                            allowClear={false}
-                            value={selectedDate}
-                            onChange={(date) => date && setSelectedDate(date)}
-                            className="bg-surface-container-high border-slate-700/80 hover:border-primary/50 text-white shadow-none focus:ring-0 w-48 sm:w-56 font-semibold"
-                            inputReadOnly
-                        />
                     </div>
+                    
                     <div className="text-sm text-slate-400 mb-6 bg-slate-900/50 p-4 rounded-xl border border-slate-800 border-l-4 border-l-primary shadow-inner">
-                        <span className="font-bold text-slate-200">ℹ Thông tin quản trị viên:</span> Dưới đây là danh sách {employeesData?.length || 0} cán bộ tuần này.
-                        <br />Khi bạn sang một Tuần Mới (tuần trống chưa có dữ liệu), toàn bộ danh sách này sẽ tự động được copy (bốc) nguyên xi sang Tuần Mới làm phôi. Bạn gần như không bao giờ phải nhập lại danh sách! Để Thêm/Xóa người, vui lòng quay lại cấu hình ở [Bảng Suất Ăn].
+                        <span className="font-bold text-slate-200">ℹ Lưu ý bảo mật:</span> Dưới đây là danh sách {allowedEmailsList.length} tài khoản đang có quyền truy cập vào Ứng dụng đăng ký Suất Ăn. Bất kỳ ai trong danh sách này đều có thể Thêm hoặc Xóa tài khoản khác.
                     </div>
-                    <div className="overflow-x-auto custom-scrollbar">
+
+                    <div className="flex flex-col sm:flex-row gap-3 mb-6 bg-slate-950/50 p-4 rounded-xl border border-slate-700/50">
+                        <Input 
+                            value={newEmail} 
+                            onChange={e => setNewEmail(e.target.value)}
+                            placeholder="Nhập địa chỉ email mới (VD: nguyenvana@gmail.com)" 
+                            className="!bg-slate-800 !border-slate-700 !text-white !rounded-lg flex-1 focus:!border-teal-500"
+                            onPressEnter={handleAddEmail}
+                            disabled={isSavingEmail}
+                        />
+                        <button 
+                            onClick={handleAddEmail} 
+                            disabled={isSavingEmail}
+                            className="bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-slate-900 font-bold px-6 py-2 rounded-lg flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(20,184,166,0.3)] whitespace-nowrap active:scale-95">
+                            {isSavingEmail ? <Spin size="small"/> : <span className="material-symbols-outlined">person_add</span>}
+                            <span>Cấp Quyền</span>
+                        </button>
+                    </div>
+
+                    <div className="overflow-x-auto custom-scrollbar border border-slate-700 rounded-xl">
                         <table className="w-full text-left border-collapse min-w-[500px]">
                             <thead className="bg-slate-900 border-b border-slate-700">
                                 <tr>
                                     <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center w-16">STT</th>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold w-32">Mã NV</th>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold">Họ & Tên</th>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center">Trạng thái Logic</th>
+                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold">Tài khoản Email</th>
+                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center w-32">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800/40">
-                                {(employeesData || []).map((emp, idx) => {
-                                    if (!emp) return null;
-                                    return (
-                                        <tr key={idx} className="hover:bg-slate-800/20">
-                                            <td className="p-4 text-center text-slate-500 font-bold">{idx + 1}</td>
-                                            <td className="p-4 font-['Space_Grotesk'] font-bold text-primary-fixed">{emp.id || '- -'}</td>
-                                            <td className="p-4 font-semibold text-slate-200">{emp.name || '- -'}</td>
-                                            <td className="p-4 text-center text-slate-500 text-xs italic">Sẽ Copy sang Tuần tiếp theo</td>
-                                        </tr>
-                                    );
-                                })}
+                                {allowedEmailsList.map((email, idx) => (
+                                    <tr key={idx} className="hover:bg-slate-800/20 group">
+                                        <td className="p-4 text-center text-slate-500 font-bold">{idx + 1}</td>
+                                        <td className="p-4 font-semibold text-slate-200">
+                                            {email} 
+                                            {email === userAuth?.email && <span className="ml-2 text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full border border-primary/30 font-bold">Bạn</span>}
+                                        </td>
+                                        <td className="p-4 text-center">
+                                            <button 
+                                                onClick={() => handleRemoveEmail(email)}
+                                                disabled={email === userAuth?.email || isSavingEmail}
+                                                className="text-error opacity-70 hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed p-1.5 rounded-lg hover:bg-error/10 transition-all flex items-center justify-center mx-auto"
+                                                title="Thu hồi quyền truy cập"
+                                            >
+                                                <span className="material-symbols-outlined text-[18px]">person_remove</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
@@ -951,7 +1029,7 @@
                                 <span className="text-xl font-bold text-teal-500 tracking-tighter font-['Space_Grotesk'] hidden sm:block">VitalMeal Pro</span>
                                 <nav className="flex gap-3 sm:gap-6 overflow-x-auto no-scrollbar max-w-[60vw]">
                                     <span onClick={() => setActiveTab('meal-board')} className={`flex items-center gap-1 font-['Space_Grotesk'] text-[11px] sm:text-sm tracking-tight cursor-pointer transition-all whitespace-nowrap ${activeTab === 'meal-board' ? 'text-teal-400 border-b-2 border-teal-500 pb-1' : 'text-slate-400 hover:text-slate-200'}`}><span className="material-symbols-outlined text-[14px] sm:text-[18px]">restaurant</span> Bảng Cơm</span>
-                                    <span onClick={() => setActiveTab('team')} className={`flex items-center gap-1 font-['Space_Grotesk'] text-[11px] sm:text-sm tracking-tight cursor-pointer transition-all whitespace-nowrap ${activeTab === 'team' ? 'text-teal-400 border-b-2 border-teal-500 pb-1' : 'text-slate-400 hover:text-slate-200'}`}><span className="material-symbols-outlined text-[14px] sm:text-[18px]">group</span> Quản lý Team</span>
+                                    <span onClick={() => setActiveTab('team')} className={`flex items-center gap-1 font-['Space_Grotesk'] text-[11px] sm:text-sm tracking-tight cursor-pointer transition-all whitespace-nowrap ${activeTab === 'team' ? 'text-teal-400 border-b-2 border-teal-500 pb-1' : 'text-slate-400 hover:text-slate-200'}`}><span className="material-symbols-outlined text-[14px] sm:text-[18px]">admin_panel_settings</span> Quản lý Truy Cập</span>
                                     <span onClick={() => setActiveTab('report')} className={`flex items-center gap-1 font-['Space_Grotesk'] text-[11px] sm:text-sm tracking-tight cursor-pointer transition-all whitespace-nowrap ${activeTab === 'report' ? 'text-teal-400 border-b-2 border-teal-500 pb-1' : 'text-slate-400 hover:text-slate-200'}`}><span className="material-symbols-outlined text-[14px] sm:text-[18px]">monitoring</span> Báo cáo</span>
                                 </nav>
                             </div>
