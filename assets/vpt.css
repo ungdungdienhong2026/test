@@ -416,7 +416,12 @@ textarea.input{resize:vertical;min-height:84px}
 .mtab th.act{z-index:4;background:var(--surface-2);text-align:center}
 .mtab tfoot td.act{z-index:4;background:var(--surface-2)}
 .mtab tbody tr:hover td.act{background:var(--surface-2)}
-.meal-board.shot .mtab th.act,.meal-board.shot .mtab td.act{position:static;box-shadow:none}
+.meal-board.shot .mtab th,
+.meal-board.shot .mtab tr.sub-row th,
+.meal-board.shot .mtab tfoot td,
+.meal-board.shot .mtab th.act,
+.meal-board.shot .mtab td.act,
+.meal-board.shot .mtab tfoot td.act{position:static !important;box-shadow:none !important}
 .rowdel{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--danger);white-space:nowrap}
 .rowdel button{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:3px 8px;font-size:12px}
 .rowdel button.yes{background:var(--danger);color:var(--bg);border-color:var(--danger)}
