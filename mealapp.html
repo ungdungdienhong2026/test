@@ -347,7 +347,27 @@ $('#meal-img').onclick = () => {
     toast('Đang tạo ảnh, vui lòng đợi…');
     setTimeout(() => {
         const bg = getComputedStyle(document.body).backgroundColor;
-        html2canvas(el, { backgroundColor: bg, scale: 1.5, useCORS: true, logging: false, windowWidth: el.scrollWidth, width: el.scrollWidth }).then(canvas => {
+        html2canvas(el, {
+            backgroundColor: bg,
+            scale: 1.5,
+            useCORS: true,
+            logging: false,
+            windowWidth: el.scrollWidth,
+            width: el.scrollWidth,
+            onclone: (clonedDoc) => {
+                // Quét qua tất cả phần tử trong bản clone, chuẩn hóa màu sắc tránh mọi hàm màu oklab/color() lạ
+                const all = clonedDoc.querySelectorAll('*');
+                all.forEach(node => {
+                    const comp = window.getComputedStyle(node);
+                    ['color', 'backgroundColor', 'borderColor', 'outlineColor'].forEach(p => {
+                        const val = comp[p];
+                        if (val && (val.includes('oklab') || val.includes('color('))) {
+                            node.style[p] = p === 'color' ? '#dae2fd' : (p.includes('Color') && p !== 'backgroundColor') ? 'rgba(255,255,255,0.1)' : 'transparent';
+                        }
+                    });
+                });
+            }
+        }).then(canvas => {
             const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = `BangCom_Tuan_${keyOf(M.date).split('-w')[1]}.png`; document.body.appendChild(a); a.click(); a.remove();
             toast('Đã tải ảnh bảng cơm'); if (!was) { M.shot = false; renderBoard(); }
         }).catch(err => { toast('Lỗi khi tạo ảnh: ' + err.message, 'bad'); if (!was) { M.shot = false; renderBoard(); } });
