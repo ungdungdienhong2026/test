@@ -1,1109 +1,408 @@
 <!DOCTYPE html>
-<html class="dark" lang="vi">
-
+<html lang="vi">
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>VitalMeal Pro - Đăng ký Suất Ăn</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <title>Đăng ký suất ăn - VPT Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block">
+    <link rel="stylesheet" href="assets/vpt.css">
+    <script src="assets/vpt.js"></script>
 
-    <!-- Tailwind & Fonts -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-
-    <!-- React & ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
-
-    <!-- Ant Design & Dayjs -->
+    <!-- dayjs + weekOfYear: giữ nguyên cách tính khóa tuần 'YYYY-wWW' của dữ liệu cũ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/weekOfYear.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/advancedFormat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/customParseFormat.min.js"></script>
-    <script>
-        dayjs.extend(window.dayjs_plugin_weekOfYear);
-        dayjs.extend(window.dayjs_plugin_advancedFormat);
-        dayjs.extend(window.dayjs_plugin_customParseFormat);
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/5.12.2/antd.min.js"></script>
+    <script>dayjs.extend(window.dayjs_plugin_weekOfYear);</script>
 
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <!-- Excel Export (SheetJS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-    <!-- html2canvas cho tính năng chụp ảnh -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "outline": "#859490",
-                        "surface-bright": "#31394d",
-                        "error": "#ffb4ab",
-                        "background": "#0b1326",
-                        "outline-variant": "#3c4947",
-                        "surface-container": "#171f33",
-                        "on-background": "#dae2fd",
-                        "primary": "#4fdbc8",
-                        "primary-container": "#14b8a6",
-                        "on-primary-container": "#00423b",
-                        "secondary": "#ffb2b7",
-                        "surface": "#0b1326",
-                        "primary-fixed": "#71f8e4",
-                        "surface-container-high": "#222a3d",
-                        "tertiary": "#f38764"
-                    },
-                    "fontFamily": {
-                        "display-lg": ["Space Grotesk"],
-                        "headline-md": ["Space Grotesk"],
-                        "body-md": ["Inter"],
-                        "label-sm": ["Inter"]
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .main-table-container {
-            overflow: auto;
-            max-height: 65vh;
-        }
-
-        .table-header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(16px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-            height: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(11, 19, 38, 0.5);
-            border-radius: 8px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #3c4947;
-            border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #4fdbc8;
-        }
-
-        .ant-form-item {
-            margin-bottom: 0 !important;
-        }
-
-        .ant-picker-input>input {
-            color: #fff !important;
-            font-weight: 600 !important;
-            font-size: 16px !important;
-        }
-
-        .ant-picker-clear {
-            background: transparent !important;
-            color: #fff !important;
-        }
-    </style>
 </head>
+<body>
+    <header class="topbar">
+        <div class="crumbs"><span class="cur">Đăng ký suất ăn</span></div>
+        <div class="top-actions" id="user-area"></div>
+    </header>
 
-<body class="bg-background text-on-background font-body-md selection:bg-primary/30 min-h-screen">
-    <div id="root"></div>
+    <div class="content">
+        <!-- Đang kiểm tra đăng nhập -->
+        <div class="loading" id="auth-loading"><span class="ms">progress_activity</span>Đang kiểm tra đăng nhập…</div>
 
-    <script type="text/babel">
-        // --- 1. FIREBASE CONFIG ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDn2ViF16E55B311bunMSA-Dn8eDhFYJ_c",
-            authDomain: "quanlysuatan.firebaseapp.com",
-            databaseURL: "https://quanlysuatan-default-rtdb.firebaseio.com",
-            projectId: "quanlysuatan",
-            storageBucket: "quanlysuatan.firebasestorage.app",
-            messagingSenderId: "1018268550131",
-            appId: "1:1018268550131:web:d2aa1c663b6d18e17e4886"
-        };
-        const isConfigured = firebaseConfig.apiKey !== "DÁN_API_KEY_CỦA_BẠN_VÀO_ĐÂY";
-        let database, auth;
+        <!-- Đăng nhập -->
+        <div class="panel login" id="meal-login" hidden>
+            <span class="login-ic"><span class="ms fill">vpn_key</span></span>
+            <h2 class="h2">Đăng ký suất ăn</h2>
+            <p>Khu vực nội bộ. Đăng nhập bằng tài khoản Google đã được cấp quyền để vào bảng ghi cơm.</p>
+            <button class="gbtn" id="meal-google"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4c-.2 1.2-.9 2.3-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.4z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6C4.8 19.8 8.1 22 12 22z"/><path fill="#FBBC05" d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1C2.4 8.8 2 10.4 2 12s.4 3.2 1.1 4.6L6.4 14z"/><path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.8-2.8C17 3 14.7 2 12 2 8.1 2 4.8 4.2 3.1 7.4L6.4 10c.8-2.3 3-4.1 5.6-4.1z"/></svg>Đăng nhập bằng Google</button>
+            <p class="err" id="login-err" hidden></p>
+            <small>Chưa có quyền? Liên hệ quản trị viên để được thêm email vào danh sách.</small>
+        </div>
 
-        if (isConfigured) {
-            firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            auth = firebase.auth();
+        <div id="meal-app" hidden>
+            <div class="app-head">
+                <div><p class="eyebrow">Suất ăn</p><h2 class="h2">Bảng ghi cơm</h2></div>
+                <div class="seg" id="meal-tabs" role="tablist">
+                    <button data-t="board" class="on"><span class="ms" style="font-size:17px;vertical-align:-3px">restaurant</span> Bảng cơm</button>
+                    <button data-t="report"><span class="ms" style="font-size:17px;vertical-align:-3px">monitoring</span> Báo cáo</button>
+                    <button data-t="access" hidden><span class="ms" style="font-size:17px;vertical-align:-3px">admin_panel_settings</span> Quản lý truy cập</button>
+                </div>
+            </div>
+
+            <!-- Tab: Bảng cơm -->
+            <div id="meal-board" class="meal-board">
+                <div class="tools">
+                    <div class="tools-l">
+                        <button class="icon-btn" id="mw-prev" aria-label="Tuần trước"><span class="ms">chevron_left</span></button>
+                        <div class="wk-label"><span class="ms">calendar_month</span><span id="mw-text"></span></div>
+                        <button class="icon-btn" id="mw-next" aria-label="Tuần sau"><span class="ms">chevron_right</span></button>
+                        <button class="btn ghost" id="mw-today">Tuần này</button>
+                    </div>
+                    <div class="tools-r">
+                        <span class="state" id="meal-state"><span class="ms">lock</span><span>Chỉ xem</span></span>
+                        <button class="btn ghost lockbtn" id="meal-lock"><span class="ms">lock</span>Mở khóa để sửa</button>
+                        <button class="btn ghost" id="meal-shot"><span class="ms">screenshot_region</span><span>Chế độ chụp</span></button>
+                        <button class="btn ghost" id="meal-img"><span class="ms">photo_camera</span><span>Tải ảnh</span></button>
+                        <button class="btn soft" id="meal-xlsx"><span class="ms">download</span><span>Xuất Excel</span></button>
+                    </div>
+                </div>
+                <div class="banner warn" id="meal-past" hidden><span class="ms">history</span><span>Tuần này đã qua. Hệ thống tự khóa dữ liệu các tuần cũ để bảo toàn số liệu, chỉ xem và xuất báo cáo.</span></div>
+                <div class="banner info" id="meal-hint" hidden><span class="ms">lock</span><span>Đang ở chế độ chỉ xem. Bấm <b>Mở khóa để sửa</b> để tick suất ăn, sửa tên, thêm / xóa dòng. Tick xong dòng của mình thì bấm <b>khóa dòng</b> để người khác không bấm nhầm. Mọi thay đổi tự lưu.</span></div>
+                <div class="stats" id="meal-stats"></div>
+                <div class="filters"><input class="input" id="meal-q" placeholder="Tìm theo tên hoặc mã nhân viên…" aria-label="Tìm nhân viên" style="flex:1;min-width:200px"></div>
+                <div class="mt-wrap" id="meal-table"><div class="loading"><span class="ms">progress_activity</span>Đang tải dữ liệu tuần…</div></div>
+                <div class="mday" id="meal-day"></div>
+                <div class="meal-foot" id="meal-foot" hidden>
+                    <button class="btn ghost" id="meal-add"><span class="ms">person_add</span>Thêm dòng nhân sự</button>
+                    <button class="btn ghost" id="meal-sync"><span class="ms">sync</span>Bổ sung nhân sự từ tuần trước</button>
+                </div>
+            </div>
+
+            <!-- Tab: Báo cáo tháng -->
+            <div id="meal-report" hidden>
+                <div class="tools">
+                    <div class="tools-l">
+                        <button class="icon-btn" id="mr-prev" aria-label="Tháng trước"><span class="ms">chevron_left</span></button>
+                        <div class="wk-label"><span class="ms">calendar_month</span><span id="mr-text"></span></div>
+                        <button class="icon-btn" id="mr-next" aria-label="Tháng sau"><span class="ms">chevron_right</span></button>
+                    </div>
+                    <div class="rleg"><span><i style="background:var(--teal)"></i>Trưa</span><span><i style="background:var(--orange)"></i>Chiều</span></div>
+                </div>
+                <div class="stats" id="mr-stats"></div>
+                <div class="table-wrap"><table class="rtab"><thead><tr><th style="width:120px">Ngày</th><th style="width:110px">Thứ</th><th style="text-align:center">Trưa</th><th style="text-align:center">Chiều</th><th style="text-align:center">Tổng</th><th>Tỷ lệ</th></tr></thead><tbody id="mr-body"></tbody></table></div>
+            </div>
+
+            <!-- Tab: Quản lý truy cập (chỉ Super Admin) -->
+            <div id="meal-access" hidden>
+                <div class="banner info"><span class="ms">info</span><span id="acc-note"></span></div>
+                <div class="panel">
+                    <div class="acc-add"><input class="input" id="acc-email" type="email" placeholder="Nhập email cần cấp quyền, ví dụ: nguyenvana@gmail.com" autocomplete="off"><button class="btn primary" id="acc-add-btn"><span class="ms">person_add</span>Cấp quyền</button></div>
+                    <p class="err" id="acc-err" hidden></p>
+                    <div class="acc-list" id="acc-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" hidden><span class="ms fill">check_circle</span><span id="toast-tx"></span></div>
+
+<script>
+/* ==== Suất ăn — Realtime Database (project quanlysuatan)
+   meal-registration/<YYYY-wWW> = { employees:[{id,name,t2_t,t2_c,…,cn_c,noEat,replaceBy,rowLocked}], lastUpdated }
+   allowed-emails = [email,...]  ==== */
+const { $, pad, esc, fm, toast, DL } = VPT;
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDn2ViF16E55B311bunMSA-Dn8eDhFYJ_c",
+    authDomain: "quanlysuatan.firebaseapp.com",
+    databaseURL: "https://quanlysuatan-default-rtdb.firebaseio.com",
+    projectId: "quanlysuatan",
+    storageBucket: "quanlysuatan.firebasestorage.app",
+    messagingSenderId: "1018268550131",
+    appId: "1:1018268550131:web:d2aa1c663b6d18e17e4886"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database(), auth = firebase.auth();
+
+// Danh sách khởi tạo khi node allowed-emails chưa có (giữ nguyên bản cũ)
+const INITIAL_EMAILS = ['xuanbactran196@gmail.com','admin@gmail.com','luu2004vp@gmail.com','haict080691@gmail.com','thanhhai.dienhong@gmail.com','qvu3507@gmail.com','dotranhothang@gmail.com','phamthuhacshb@gmail.com','camhuyendienhong@gmail.com','vanhuong131087hp@gmail.com','thuyquynh0327@gmail.com','ngoctungcon@gmail.com','nguyenthuy19772003@gmail.com','songnguyetle.work@gmail.com','tthangdh2022@gmail.com','vdlnguyenha@gmail.com','maithihoangyen1512dhcn@gmail.com','ngattt3@gmail.com','ngocanhvp1701.vnu@gmail.com','honghai.dienhong@gmail.com','hanhnt016@gmail.com','ntth522@gmail.com','ntth2252000@gmail.com','lybuidienhong28@gmail.com','vuhoangchinh2501@gmail.com','lanvu2727@gmail.com'];
+const SUPER_ADMIN_EMAILS = ['xuanbactran196@gmail.com', 'admin@gmail.com'];
+
+const DK = ['t2','t3','t4','t5','t6','t7','cn'], DH = ['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','CN'], DHS = ['T2','T3','T4','T5','T6','T7','CN'];
+const keyOf = d => d.format('YYYY-[w]ww');
+const nowKey = () => keyOf(dayjs());
+const normEmps = raw => { // RTDB có thể trả mảng hoặc object, phần tử có thể null
+    if (!raw) return [];
+    const arr = Array.isArray(raw) ? raw : Object.values(raw);
+    return arr.map(e => e ? { ...e } : { id: '', name: '' });
+};
+
+const M = { user: null, emails: [], date: dayjs(), tab: 'board', unlocked: false, day: (dayjs().day() + 6) % 7, q: '', shot: false, save: '', del: null, W: null, loaded: false, rm: dayjs() };
+const isSuper = () => !!M.user && SUPER_ADMIN_EMAILS.includes(M.user.email);
+let weekRef = null, weekListener = null, saveT = null;
+
+/* ---------- đăng nhập ---------- */
+auth.onAuthStateChanged(async user => {
+    $('#auth-loading').hidden = true;
+    if (!user) { M.user = null; M.unlocked = false; detachWeek(); renderAuth(); return; }
+    try {
+        const snap = await database.ref('allowed-emails').once('value');
+        let emails = snap.val();
+        if (!emails || !Array.isArray(emails)) { emails = INITIAL_EMAILS; await database.ref('allowed-emails').set(emails); }
+        M.emails = emails;
+        if (!emails.includes(user.email)) {
+            await auth.signOut();
+            $('#login-err').hidden = false; $('#login-err').textContent = `Email ${user.email} chưa được cấp quyền truy cập.`;
+            M.user = null; renderAuth(); return;
         }
+        M.user = user; M.unlocked = true; // vào là mở khóa, giống bản cũ
+        renderAuth(); attachWeek();
+    } catch (err) {
+        $('#login-err').hidden = false; $('#login-err').textContent = 'Lỗi xác thực: ' + err.message;
+        await auth.signOut(); M.user = null; renderAuth();
+    }
+});
+$('#meal-google').onclick = async () => {
+    $('#login-err').hidden = true;
+    try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+    catch (err) { $('#login-err').hidden = false; $('#login-err').textContent = 'Đăng nhập thất bại: ' + err.message; }
+};
+function renderAuth() {
+    $('#meal-login').hidden = !!M.user; $('#meal-app').hidden = !M.user;
+    $('#user-area').innerHTML = M.user ? `<span class="user-chip">${M.user.photoURL ? `<img src="${esc(M.user.photoURL)}" alt="" referrerpolicy="no-referrer">` : '<span class="ms">account_circle</span>'}<span title="${esc(M.user.email)}">${esc(M.user.displayName || M.user.email)}</span><button id="logout-btn" title="Đăng xuất" aria-label="Đăng xuất"><span class="ms">logout</span></button></span>` : '';
+    const lb = $('#logout-btn'); if (lb) lb.onclick = () => auth.signOut();
+    document.querySelector('#meal-tabs [data-t="access"]').hidden = !isSuper();
+    if (M.user) renderMeal();
+}
 
-        const { useState, useEffect, useRef } = React;
-        const { ConfigProvider, Form, Input, DatePicker, message, Spin, theme } = antd;
+/* ---------- dữ liệu tuần ---------- */
+function detachWeek() { if (weekRef && weekListener) weekRef.off('value', weekListener); weekRef = weekListener = null; }
+function attachWeek() {
+    detachWeek(); M.loaded = false; M.W = null; M.del = null; renderBoard();
+    const key = keyOf(M.date);
+    weekRef = database.ref(`meal-registration/${key}`);
+    weekListener = weekRef.on('value', async snap => {
+        const data = snap.val();
+        if (data && data.employees) {
+            M.W = { employees: normEmps(data.employees), lastUpdated: data.lastUpdated || null };
+            M.loaded = true; renderBoard(); return;
+        }
+        // Tuần chưa có dữ liệu: bốc danh sách nhân sự (mã + tên) từ tuần liền trước
+        try {
+            const prev = (await database.ref(`meal-registration/${keyOf(M.date.subtract(1, 'week'))}`).once('value')).val();
+            if (prev && prev.employees) {
+                const roster = normEmps(prev.employees).map(e => ({ id: e.id || '', name: e.name || '' }));
+                M.W = { employees: roster, lastUpdated: null }; M.loaded = true; renderBoard();
+                toast(`Đã lấy danh sách nhân sự từ tuần trước sang tuần mới`);
+                if (!isLocked()) persist(); // lưu khung sườn luôn nếu đang mở khóa
+                return;
+            }
+        } catch (e) { /* bỏ qua, dùng mặc định */ }
+        M.W = { employees: [{ id: 'VMP-001', name: 'Đỗ Trần Hồ Thắng' }], lastUpdated: null }; M.loaded = true; renderBoard();
+    }, err => { toast('Lỗi tải dữ liệu: ' + err.message, 'bad'); });
+}
+const isPastWeek = () => keyOf(M.date) < nowKey();
+const isLocked = () => isPastWeek() || !M.unlocked;
+function persist() { // ghi cả tuần (debounce 800ms như bản cũ)
+    if (isLocked() || !M.W) return;
+    M.save = 'saving'; paintState(); clearTimeout(saveT);
+    saveT = setTimeout(async () => {
+        try {
+            const employees = M.W.employees.map(e => { const o = {}; Object.keys(e).forEach(k => { if (e[k] !== undefined) o[k] = e[k]; }); return o; });
+            const lastUpdated = new Date().toISOString();
+            await database.ref(`meal-registration/${keyOf(M.date)}`).set({ employees, lastUpdated });
+            M.W.lastUpdated = lastUpdated; M.save = 'saved'; paintState();
+        } catch (err) { M.save = ''; paintState(); toast('Lỗi tự động lưu: ' + err.message, 'bad'); }
+    }, 800);
+}
+function touch() { persist(); renderBoard(); }
 
-        const MealToggle = React.memo(({ value, onChange, disabled, type }) => {
-            const isChecked = !!value;
-            return (
-                <div
-                    onClick={() => !disabled && onChange && onChange(!isChecked ? 'x' : '')}
-                    className={`w-6 h-6 flex items-center justify-center rounded cursor-pointer transition-all mx-auto ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.05] hover:shadow-md'
-                        } ${isChecked
-                            ? (type === 'trua' ? 'bg-primary text-slate-950 shadow-[0_0_10px_rgba(79,219,200,0.5)]' : 'bg-tertiary text-slate-950 shadow-[0_0_10px_rgba(243,135,100,0.5)]')
-                            : 'bg-slate-800/50 border border-slate-700/50 text-transparent'
-                        }`}
-                >
-                    {isChecked && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}
-                </div>
-            );
+/* ---------- render ---------- */
+function paintState() {
+    const locked = isLocked(), st = $('#meal-state');
+    st.className = 'state ' + (locked ? '' : M.save);
+    if (locked) st.innerHTML = '<span class="ms">lock</span><span>Chỉ xem</span>';
+    else if (M.save === 'saving') st.innerHTML = '<span class="ms">progress_activity</span><span>Đang lưu…</span>';
+    else if (M.save === 'saved' && M.W && M.W.lastUpdated) { const t = new Date(M.W.lastUpdated); st.innerHTML = `<span class="ms">cloud_done</span><span>Đã lưu ${fm(t.getHours() * 60 + t.getMinutes())}</span>`; }
+    else st.innerHTML = '<span class="ms">edit</span><span>Tự lưu khi sửa</span>';
+    const lb = $('#meal-lock'); lb.disabled = isPastWeek(); lb.classList.toggle('open', !locked);
+    lb.innerHTML = locked ? '<span class="ms">lock</span>Mở khóa để sửa' : '<span class="ms">lock_open</span>Đang mở · khóa lại';
+}
+function renderMeal() {
+    document.querySelectorAll('#meal-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === M.tab));
+    ['board', 'report', 'access'].forEach(t => $('#meal-' + t).hidden = t !== M.tab);
+    if (M.tab === 'board') renderBoard(); if (M.tab === 'report') renderReport(); if (M.tab === 'access') renderAccess();
+}
+let pendingRender = false;
+function renderBoard() {
+    // Đang gõ trong ô nhập thì hoãn vẽ lại để không mất chữ
+    const ae = document.activeElement; if (ae && ae.classList && ae.classList.contains('cell-in')) { pendingRender = true; return; }
+    pendingRender = false;
+    const key = keyOf(M.date), past = isPastWeek(), locked = isLocked(), isCur = key === nowKey(), ti = (dayjs().day() + 6) % 7;
+    const mon = M.date.day(1), sun = M.date.day(7);
+    $('#mw-text').textContent = `Tuần ${key.split('-w')[1]} · ${mon.format('DD/MM')} – ${sun.format('DD/MM/YYYY')}`;
+    $('#meal-past').hidden = !past; $('#meal-hint').hidden = past || !locked; $('#meal-foot').hidden = locked || !M.loaded;
+    $('#meal-board').classList.toggle('shot', M.shot);
+    $('#meal-shot').innerHTML = M.shot ? '<span class="ms">fullscreen_exit</span><span>Thoát chế độ chụp</span>' : '<span class="ms">screenshot_region</span><span>Chế độ chụp</span>';
+    paintState();
+    if (!M.loaded || !M.W) { $('#meal-stats').innerHTML = ''; $('#meal-table').innerHTML = '<div class="loading"><span class="ms">progress_activity</span>Đang tải dữ liệu tuần…</div>'; $('#meal-day').innerHTML = ''; return; }
+    const emps = M.W.employees;
+    const cnt = (k, s) => emps.reduce((n, e) => n + ((e[k + '_' + s] || '').trim() ? 1 : 0), 0);
+    const tl = DK.reduce((n, k) => n + cnt(k, 't'), 0), tc = DK.reduce((n, k) => n + cnt(k, 'c'), 0);
+    const notes = emps.filter(e => (e.noEat || '').trim() || (e.replaceBy || '').trim()).length, tk = DK[ti];
+    $('#meal-stats').innerHTML = `
+    <div class="stat"><span class="lbl">Suất trưa cả tuần</span><div class="v teal">${tl}</div><small>${emps.length} nhân sự trong danh sách</small></div>
+    <div class="stat"><span class="lbl">Suất chiều cả tuần</span><div class="v orange">${tc}</div><small>Tổng ${tl + tc} suất đăng ký</small></div>
+    <div class="stat"><span class="lbl">Hôm nay</span><div class="v">${isCur ? `<span class="teal">${cnt(tk, 't')}</span> <small style="font:500 13px var(--f-body);color:var(--muted)">trưa</small> · <span class="orange">${cnt(tk, 'c')}</span> <small style="font:500 13px var(--f-body);color:var(--muted)">chiều</small>` : '—'}</div><small>${isCur ? 'Số suất bếp cần chuẩn bị' : 'Không phải tuần hiện tại'}</small></div>
+    <div class="stat"><span class="lbl">Ghi chú đặc biệt</span><div class="v ${notes ? 'warnc' : ''}">${notes}</div><small>Không ăn hoặc đổi món</small></div>`;
+
+    const q = M.q.trim().toLowerCase(), dis0 = locked ? 'disabled' : '';
+    let h = `<div class="shot-title"><h3>Bảng đăng ký suất ăn</h3><p>Tuần ${key.split('-w')[1]} · từ ${mon.format('DD/MM/YYYY')} đến ${sun.format('DD/MM/YYYY')}</p></div><table class="mtab"><thead><tr><th class="n">#</th><th>Mã NV</th><th>Họ và tên</th>`;
+    h += DK.map((k, i) => `<th class="day ${isCur && i === ti ? 'today' : ''} ${locked ? '' : 'clk'}" colspan="2" data-col="${k}" title="${locked ? '' : 'Bấm để chọn / bỏ chọn cả cột'}">${DH[i]}${isCur && i === ti ? '<small>Hôm nay</small>' : ''}</th>`).join('');
+    h += `<th class="n">Tuần</th><th>Không ăn</th><th>Món đổi</th>${locked ? '' : '<th class="n act">Thao tác</th>'}</tr><tr class="sub-row"><th></th><th></th><th></th>`;
+    h += DK.map((k, i) => `<th class="sub l ${isCur && i === ti ? 'today' : ''}">Trưa</th><th class="sub d ${isCur && i === ti ? 'today' : ''}">Chiều</th>`).join('');
+    h += `<th></th><th></th><th></th>${locked ? '' : '<th class="act"></th>'}</tr></thead><tbody>`;
+    let shown = 0;
+    emps.forEach((e, r) => {
+        if (q && !((e.name || '') + ' ' + (e.id || '')).toLowerCase().includes(q)) return; shown++;
+        const wk = DK.reduce((n, k) => n + (e[k + '_t'] ? 1 : 0) + (e[k + '_c'] ? 1 : 0), 0), rl = !!e.rowLocked, dis = (locked || rl) ? 'disabled' : '';
+        h += `<tr class="${rl ? 'rowlock' : ''}"><td class="n">${r + 1}</td><td><input class="cell-in mono" data-r="${r}" data-f="id" value="${esc(e.id || '')}" ${dis} placeholder="Mã NV"></td><td><div style="display:flex;align-items:center;gap:2px"><input class="cell-in name" data-r="${r}" data-f="name" value="${esc(e.name || '')}" ${dis} placeholder="Họ và tên">${rl ? '<span class="ms rl-ic" title="Dòng đã khóa">lock</span>' : ''}</div></td>`;
+        h += DK.map((k, i) => { const td = isCur && i === ti ? 'today' : ''; return `<td class="c first ${td}"><button class="mt l ${e[k + '_t'] ? 'on' : ''}" data-r="${r}" data-k="${k}_t" ${dis} aria-label="${DH[i]} trưa" aria-pressed="${!!e[k + '_t']}"><span class="ms">check</span></button></td><td class="c ${td}"><button class="mt d ${e[k + '_c'] ? 'on' : ''}" data-r="${r}" data-k="${k}_c" ${dis} aria-label="${DH[i]} chiều" aria-pressed="${!!e[k + '_c']}"><span class="ms">check</span></button></td>`; }).join('');
+        h += `<td class="n wk">${wk || '–'}</td><td><input class="cell-in note" data-r="${r}" data-f="noEat" value="${esc(e.noEat || '')}" ${dis} placeholder="…"></td><td><input class="cell-in note" data-r="${r}" data-f="replaceBy" value="${esc(e.replaceBy || '')}" ${dis} placeholder="…"></td>`;
+        if (!locked) h += M.del === r ? `<td class="act"><div class="rowdel">Xóa dòng? <button class="yes" data-delyes="${r}">Xóa</button><button data-delno="1">Giữ</button></div></td>` : `<td class="n act"><div class="rowact"><button class="icon-btn sm ${rl ? 'locked' : ''}" data-lock="${r}" title="${rl ? 'Dòng đang khóa — bấm để mở' : 'Khóa dòng sau khi tick xong'}" aria-pressed="${rl}"><span class="ms">${rl ? 'lock' : 'lock_open'}</span></button><button class="icon-btn sm danger" data-del="${r}" title="${rl ? 'Mở khóa dòng trước khi xóa' : 'Xóa dòng'}" ${rl ? 'disabled' : ''}><span class="ms">delete</span></button></div></td>`;
+        h += '</tr>';
+    });
+    if (!shown) h += `<tr><td colspan="24" class="empty" style="text-align:center;padding:28px">${emps.length ? `Không có nhân sự nào khớp "${esc(M.q)}".` : 'Chưa có nhân sự nào trong tuần này.'}</td></tr>`;
+    h += `</tbody><tfoot><tr><td colspan="3" class="tf-lbl">Tổng số suất đăng ký</td>` + DK.map(k => `<td class="l">${cnt(k, 't') || '–'}</td><td class="d">${cnt(k, 'c') || '–'}</td>`).join('') + `<td>${tl + tc}</td><td colspan="2"></td>${locked ? '' : '<td class="act"></td>'}</tr></tfoot></table>`;
+    $('#meal-table').innerHTML = h;
+
+    // Điện thoại: chế độ theo ngày
+    const dk = DK[M.day], dd = mon.add(M.day, 'day');
+    $('#meal-day').innerHTML = `<div class="seg" id="mday-seg">${DK.map((k, i) => `<button data-di="${i}" class="${M.day === i ? 'on' : ''}" style="${isCur && i === ti ? 'color:var(--ok)' : ''}">${DHS[i]}</button>`).join('')}</div>
+    <div class="mday-sum"><span><b>${cnt(dk, 't')}</b><span class="sub l">Trưa</span></span><span><b>${cnt(dk, 'c')}</b><span class="sub d">Chiều</span></span><span style="margin-left:auto">${DH[M.day]} · ${dd.format('DD/MM')}</span></div>
+    <div class="mday-list">${emps.map((e, r) => ({ e, r })).filter(({ e }) => !q || ((e.name || '') + ' ' + (e.id || '')).toLowerCase().includes(q)).map(({ e, r }) => { const rl = !!e.rowLocked, rd = (locked || rl) ? 'disabled' : ''; return `<div class="mday-row ${rl ? 'rowlock' : ''}"><div class="mday-name"><b>${esc(e.name) || '(chưa có tên)'}${rl ? ' <span class="ms rl-ic">lock</span>' : ''}</b><span class="mono">${esc(e.id || '')}${e.noEat ? ' · ' + esc(e.noEat) : ''}${e.replaceBy ? ' · ' + esc(e.replaceBy) : ''}</span></div><button class="chip-t l ${e[dk + '_t'] ? 'on' : ''}" data-r="${r}" data-k="${dk}_t" ${rd}><span class="ms">check</span>Trưa</button><button class="chip-t d ${e[dk + '_c'] ? 'on' : ''}" data-r="${r}" data-k="${dk}_c" ${rd}><span class="ms">check</span>Chiều</button>${locked ? '' : `<button class="icon-btn sm ${rl ? 'locked' : ''}" data-lock="${r}" aria-label="${rl ? 'Mở khóa dòng' : 'Khóa dòng'}"><span class="ms">${rl ? 'lock' : 'lock_open'}</span></button>`}</div>`; }).join('')}</div>`;
+}
+
+/* ---------- thao tác ---------- */
+function mealToggle(r, k) { const e = M.W.employees[r]; if (!e || e.rowLocked || isLocked()) return; e[k] = e[k] ? '' : 'x'; touch(); }
+function rowLock(r) { const e = M.W.employees[r]; if (!e || isLocked()) return; e.rowLocked = !e.rowLocked; if (e.rowLocked && M.del === r) M.del = null; touch(); toast(e.rowLocked ? `Đã khóa dòng ${e.name || ''}. Người khác không sửa được nữa.` : `Đã mở khóa dòng ${e.name || ''}`); }
+$('#meal-table').addEventListener('click', e => {
+    const t = e.target.closest('.mt'); if (t && !t.disabled) return mealToggle(+t.dataset.r, t.dataset.k);
+    const th = e.target.closest('th.day.clk'); if (th && !isLocked()) { const k = th.dataset.col, open = M.W.employees.filter(x => !x.rowLocked), all = open.every(x => x[k + '_t'] && x[k + '_c']); open.forEach(x => { x[k + '_t'] = all ? '' : 'x'; x[k + '_c'] = all ? '' : 'x'; }); touch(); const skip = M.W.employees.length - open.length; toast(`${all ? 'Đã bỏ chọn' : 'Đã chọn'} cả cột ${DH[DK.indexOf(k)]}${skip ? ` (bỏ qua ${skip} dòng đã khóa)` : ''}`); return; }
+    const lk = e.target.closest('[data-lock]'); if (lk) { rowLock(+lk.dataset.lock); return; }
+    const d = e.target.closest('[data-del]'); if (d && !d.disabled) { M.del = +d.dataset.del; renderBoard(); return; }
+    if (e.target.closest('[data-delno]')) { M.del = null; renderBoard(); return; }
+    const y = e.target.closest('[data-delyes]'); if (y) { const x = M.W.employees.splice(+y.dataset.delyes, 1)[0]; M.del = null; touch(); toast(`Đã xóa ${x.name || 'dòng'}`); }
+});
+$('#meal-table').addEventListener('change', e => { const i = e.target.closest('.cell-in'); if (!i || isLocked()) return; const emp = M.W.employees[+i.dataset.r]; if (!emp || emp.rowLocked) return; emp[i.dataset.f] = i.value; persist(); });
+$('#meal-table').addEventListener('focusout', e => { if (e.target.classList.contains('cell-in') && pendingRender) setTimeout(() => { if (!document.activeElement.classList.contains('cell-in')) renderBoard(); }, 0); });
+$('#meal-day').addEventListener('click', e => { const s = e.target.closest('[data-di]'); if (s) { M.day = +s.dataset.di; renderBoard(); return; } const lk = e.target.closest('[data-lock]'); if (lk) { rowLock(+lk.dataset.lock); return; } const t = e.target.closest('.chip-t'); if (t && !t.disabled) mealToggle(+t.dataset.r, t.dataset.k); });
+$('#meal-q').addEventListener('input', e => { M.q = e.target.value; renderBoard(); });
+$('#mw-prev').onclick = () => { M.date = M.date.subtract(1, 'week'); attachWeek(); };
+$('#mw-next').onclick = () => { M.date = M.date.add(1, 'week'); attachWeek(); };
+$('#mw-today').onclick = () => { M.date = dayjs(); attachWeek(); };
+$('#meal-lock').onclick = () => { if (isPastWeek()) { toast('Tuần đã qua được khóa tự động để bảo vệ dữ liệu.', 'warn'); return; } M.unlocked = !M.unlocked; M.save = ''; M.del = null; renderBoard(); toast(M.unlocked ? 'Đã mở khóa. Mọi thay đổi tự lưu.' : 'Đã khóa lại, chỉ xem.'); };
+$('#meal-shot').onclick = () => { M.shot = !M.shot; renderBoard(); };
+$('#meal-add').onclick = () => { if (isLocked()) return; M.W.employees.push({ id: '', name: '' }); touch(); setTimeout(() => { const ins = $('#meal-table').querySelectorAll('.cell-in.name'); ins[ins.length - 1] && ins[ins.length - 1].focus(); }, 0); };
+$('#meal-sync').onclick = async () => {
+    if (isLocked()) return;
+    const prevKey = keyOf(M.date.subtract(1, 'week'));
+    try {
+        const prev = (await database.ref(`meal-registration/${prevKey}`).once('value')).val();
+        if (!prev || !prev.employees) { toast('Không tìm thấy dữ liệu tuần trước để đồng bộ.', 'warn'); return; }
+        const have = new Set(M.W.employees.map(e => (e.id || e.name || '').toLowerCase().trim())); let n = 0;
+        normEmps(prev.employees).forEach(e => { const k = (e.id || e.name || '').toLowerCase().trim(); if (k && !have.has(k)) { M.W.employees.push({ id: e.id || '', name: e.name || '' }); have.add(k); n++; } });
+        if (n) touch();
+        toast(n ? `Đã bổ sung ${n} nhân sự từ tuần ${prevKey.split('-w')[1]}` : `Tất cả nhân sự tuần ${prevKey.split('-w')[1]} đều đã có trong tuần này`);
+    } catch (err) { toast('Lỗi đồng bộ: ' + err.message, 'bad'); }
+};
+$('#meal-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; M.tab = b.dataset.t; renderMeal(); });
+
+/* ---------- xuất Excel / ảnh ---------- */
+$('#meal-xlsx').onclick = () => {
+    if (!M.W) return;
+    const key = keyOf(M.date);
+    const rows = M.W.employees.map((emp, i) => ({
+        "STT": i + 1, "Mã NV": emp.id || "", "Họ Tên": emp.name || "",
+        "T2 - Trưa": emp.t2_t || "", "T2 - Chiều": emp.t2_c || "", "T3 - Trưa": emp.t3_t || "", "T3 - Chiều": emp.t3_c || "",
+        "T4 - Trưa": emp.t4_t || "", "T4 - Chiều": emp.t4_c || "", "T5 - Trưa": emp.t5_t || "", "T5 - Chiều": emp.t5_c || "",
+        "T6 - Trưa": emp.t6_t || "", "T6 - Chiều": emp.t6_c || "", "T7 - Trưa": emp.t7_t || "", "T7 - Chiều": emp.t7_c || "",
+        "CN - Trưa": emp.cn_t || "", "CN - Chiều": emp.cn_c || "", "Ghi chú - Không ăn": emp.noEat || "", "Ghi chú - Đổi món": emp.replaceBy || ""
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const cols = [{ wch: 5 }, { wch: 10 }, { wch: 25 }]; for (let i = 0; i < 14; i++) cols.push({ wch: 12 }); cols.push({ wch: 20 }, { wch: 20 }); ws['!cols'] = cols;
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, `Tuan_${key.split('-w')[1]}`);
+    XLSX.writeFile(wb, `BaoCaoSuatAn_${key}.xlsx`); toast('Đã xuất file Excel');
+};
+$('#meal-img').onclick = () => {
+    const el = $('#meal-table'); if (!el || !M.W) return;
+    const was = M.shot; if (!was) { M.shot = true; renderBoard(); }
+    toast('Đang tạo ảnh, vui lòng đợi…');
+    setTimeout(() => {
+        const bg = getComputedStyle(document.body).backgroundColor;
+        html2canvas(el, { backgroundColor: bg, scale: 1.5, useCORS: true, logging: false, windowWidth: el.scrollWidth, width: el.scrollWidth }).then(canvas => {
+            const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = `BangCom_Tuan_${keyOf(M.date).split('-w')[1]}.png`; document.body.appendChild(a); a.click(); a.remove();
+            toast('Đã tải ảnh bảng cơm'); if (!was) { M.shot = false; renderBoard(); }
+        }).catch(err => { toast('Lỗi khi tạo ảnh: ' + err.message, 'bad'); if (!was) { M.shot = false; renderBoard(); } });
+    }, 500);
+};
+
+/* ---------- báo cáo tháng ---------- */
+async function renderReport() {
+    const mo = M.rm, start = mo.startOf('month'), end = mo.endOf('month');
+    $('#mr-text').textContent = `Tháng ${mo.format('MM/YYYY')}`;
+    $('#mr-stats').innerHTML = ''; $('#mr-body').innerHTML = '<tr><td colspan="6"><div class="loading"><span class="ms">progress_activity</span>Đang tổng hợp…</div></td></tr>';
+    const weeks = []; let ws = start.day() === 0 ? start.subtract(6, 'day') : start.day(1);
+    while (ws.isBefore(end) || ws.isSame(end, 'day')) { weeks.push(ws); ws = ws.add(1, 'week'); }
+    const perDay = {}; // 'YYYY-MM-DD' -> {tl, tc}
+    try {
+        const snaps = await Promise.all(weeks.map(w => database.ref(`meal-registration/${keyOf(w)}`).once('value')));
+        snaps.forEach((snap, wi) => {
+            const data = snap.val(); if (!data || !data.employees) return;
+            const emps = normEmps(data.employees);
+            DK.forEach((k, i) => { const d = weeks[wi].add(i, 'day'); if (d.month() !== mo.month()) return; const s = d.format('YYYY-MM-DD'); perDay[s] = perDay[s] || { tl: 0, tc: 0 }; emps.forEach(e => { if (e[k + '_t']) perDay[s].tl++; if (e[k + '_c']) perDay[s].tc++; }); });
         });
-
-        const App = () => {
-            const [form] = Form.useForm();
-            const [loading, setLoading] = useState(false);
-            const [dataLoaded, setDataLoaded] = useState(false);
-
-            const [selectedDate, setSelectedDate] = useState(dayjs());
-            const currentWeekKey = selectedDate.format('YYYY-[w]ww');
-            const isPastWeek = currentWeekKey < dayjs().format('YYYY-[w]ww');
-            const [isLockedState, setIsLocked] = useState(true);
-            const isLocked = isPastWeek || isLockedState;
-            const [activeTab, setActiveTab] = useState('meal-board');
-            const [screenshotMode, setScreenshotMode] = useState(false);
-
-            const [selectedReportMonth, setSelectedReportMonth] = useState(dayjs());
-            const [monthlyReportData, setMonthlyReportData] = useState([]);
-            const [reportLoading, setReportLoading] = useState(false);
-
-            // DANH SÁCH EMAIL ĐƯỢC PHÉP TRUY CẬP HỆ THỐNG
-            const INITIAL_EMAILS = [
-                'xuanbactran196@gmail.com',
-                'admin@gmail.com',
-                'luu2004vp@gmail.com',
-                'haict080691@gmail.com',
-                'thanhhai.dienhong@gmail.com',
-                'qvu3507@gmail.com',
-                'dotranhothang@gmail.com',
-                'phamthuhacshb@gmail.com',
-                'camhuyendienhong@gmail.com',
-                'vanhuong131087hp@gmail.com',
-                'thuyquynh0327@gmail.com',
-                'ngoctungcon@gmail.com',
-                'nguyenthuy19772003@gmail.com',
-                'songnguyetle.work@gmail.com',
-                'tthangdh2022@gmail.com',
-                'vdlnguyenha@gmail.com',
-                'maithihoangyen1512dhcn@gmail.com',
-                'ngattt3@gmail.com',
-                'ngocanhvp1701.vnu@gmail.com',
-                'honghai.dienhong@gmail.com',
-                'hanhnt016@gmail.com',
-                'ntth522@gmail.com',
-                'ntth2252000@gmail.com',
-                'lybuidienhong28@gmail.com',
-                'vuhoangchinh2501@gmail.com',
-                'lanvu2727@gmail.com'
-            ];
-            
-            // DANH SÁCH SUPER ADMIN (CHỈ NHỮNG NGƯỜI NÀY MỚI THẤY TAB QUẢN LÝ TRUY CẬP)
-            const SUPER_ADMIN_EMAILS = [
-                'xuanbactran196@gmail.com',
-                'admin@gmail.com'
-            ];
-            
-            const [userAuth, setUserAuth] = useState(null);
-            const [checkingAuth, setCheckingAuth] = useState(true);
-            const [allowedEmailsList, setAllowedEmailsList] = useState([]);
-            const [newEmail, setNewEmail] = useState("");
-            const [isSavingEmail, setIsSavingEmail] = useState(false);
-            
-            const isSuperAdmin = userAuth && SUPER_ADMIN_EMAILS.includes(userAuth.email);
-
-            const isCurrentWeek = currentWeekKey === dayjs().format('YYYY-[w]ww');
-            const currentDayNumber = dayjs().day();
-            const todayIndex = currentDayNumber === 0 ? 6 : currentDayNumber - 1;
-
-            const employeesData = Form.useWatch('employees', form);
-
-            useEffect(() => {
-                if (!isConfigured) {
-                    setCheckingAuth(false);
-                    return;
-                }
-                const unsubscribe = auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        try {
-                            const snap = await database.ref('allowed-emails').once('value');
-                            let currentEmails = snap.val();
-                            
-                            if (!currentEmails || !Array.isArray(currentEmails)) {
-                                currentEmails = INITIAL_EMAILS;
-                                await database.ref('allowed-emails').set(currentEmails);
-                            }
-                            
-                            setAllowedEmailsList(currentEmails);
-
-                            if (currentEmails.includes(user.email)) {
-                                setUserAuth(user);
-                                setIsLocked(false); // Vừa vào mặc định mở khóa
-                            } else {
-                                auth.signOut();
-                                message.error(`Email ${user.email} KHÔNG ĐƯỢC CẤP QUYỀN TRUY CẬP!`, 5);
-                                setUserAuth(null);
-                            }
-                        } catch (error) {
-                            message.error("Lỗi xác thực: " + error.message);
-                            auth.signOut();
-                            setUserAuth(null);
-                        }
-                    } else {
-                        setUserAuth(null);
-                        setIsLocked(true);
-                    }
-                    setCheckingAuth(false);
-                });
-                return () => unsubscribe();
-            }, []);
-
-            useEffect(() => {
-                if (!isConfigured) return;
-                setDataLoaded(false);
-
-                const dbRef = database.ref(`meal-registration/${currentWeekKey}`);
-                const listener = dbRef.on('value', async (snapshot) => {
-                    const data = snapshot.val();
-                    if (data && data.employees) {
-                        form.setFieldsValue({
-                            employees: data.employees,
-                        });
-                        setTimeout(() => { if (isLocked) message.success(`Đã tải dữ liệu Tuần ${currentWeekKey.split('-w')[1]}`); }, 500);
-                        setDataLoaded(true);
-                    } else {
-                        // LOGIC BỐC DANH SÁCH NHÂN SỰ TỪ TUẦN LIỀN TRƯỚC:
-                        const prevWeekLocalDate = selectedDate.subtract(1, 'week');
-                        const prevWeekKey = prevWeekLocalDate.format('YYYY-[w]ww');
-
-                        try {
-                            const prevSnapshot = await database.ref(`meal-registration/${prevWeekKey}`).once('value');
-                            const prevData = prevSnapshot.val();
-
-                            if (prevData && prevData.employees) {
-                                // Xóa ô tick cơm, chỉ giữ Mã NV (id) và Tên NV (name)
-                                const cleanedRoster = prevData.employees.map(emp => {
-                                    if (!emp) return { id: '', name: '' };
-                                    return {
-                                        id: emp.id || '',
-                                        name: emp.name || ''
-                                    };
-                                });
-                                form.setFieldsValue({ employees: cleanedRoster });
-                                message.info(`Đã bốc danh sách nhân sự từ Tuần ${prevWeekKey.split('-w')[1]} đưa sang Tuần Mới!`);
-
-                                // Auto lưu khung sườn vào tuần mới này luôn (nếu bạn đang Unlock)
-                                if (!isLocked) {
-                                    await dbRef.set({
-                                        employees: cleanedRoster,
-                                        lastUpdated: new Date().toISOString()
-                                    });
-                                }
-                            } else {
-                                form.setFieldsValue({
-                                    employees: [{ id: 'VMP-001', name: 'Đỗ Trần Hồ Thắng' }],
-                                });
-                            }
-                        } catch (error) {
-                            form.setFieldsValue({
-                                employees: [{ id: 'VMP-001', name: 'Đỗ Trần Hồ Thắng' }],
-                            });
-                        }
-
-                        setDataLoaded(true);
-                    }
-                });
-
-                return () => dbRef.off('value', listener);
-            }, [form, currentWeekKey, selectedDate, isConfigured]);
-
-            const saveTimeoutRef = useRef(null);
-
-            const handleValuesChange = (_, allValues) => {
-                if (isLocked || !isConfigured) return;
-
-                if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-                setLoading(true);
-
-                saveTimeoutRef.current = setTimeout(async () => {
-                    try {
-                        const cleanEmployees = (allValues.employees || []).map(emp => emp || { id: '', name: '' });
-                        await database.ref(`meal-registration/${currentWeekKey}`).set({
-                            employees: cleanEmployees,
-                            lastUpdated: new Date().toISOString()
-                        });
-                    } catch (error) {
-                        message.error('Lỗi tự động lưu: ' + error.message);
-                    } finally {
-                        setLoading(false);
-                    }
-                }, 800);
-            };
-
-            const fetchMonthlyReport = async () => {
-                if (!isConfigured) return;
-                setReportLoading(true);
-                setMonthlyReportData([]);
-
-                try {
-                    const startOfMonth = selectedReportMonth.startOf('month');
-                    const endOfMonth = selectedReportMonth.endOf('month');
-                    
-                    let weekStart = startOfMonth.day() === 0 ? startOfMonth.subtract(6, 'day') : startOfMonth.day(1);
-                    const weeksData = [];
-
-                    while (weekStart.isBefore(endOfMonth) || weekStart.isSame(endOfMonth, 'day')) {
-                        const weekKey = weekStart.format('YYYY-[w]ww');
-                        weeksData.push({ key: weekKey, start: weekStart.clone() });
-                        weekStart = weekStart.add(1, 'week');
-                    }
-
-                    const monthlySummary = {};
-                    const dayKeys = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
-                    const dayNames = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
-
-                    for (const weekInfo of weeksData) {
-                        const snapshot = await database.ref(`meal-registration/${weekInfo.key}`).once('value');
-                        const data = snapshot.val();
-                        if (data && data.employees) {
-                            
-                            dayKeys.forEach((dKey, index) => {
-                                const exactDate = weekInfo.start.add(index, 'day');
-                                if (exactDate.month() === selectedReportMonth.month()) {
-                                    const dateStr = exactDate.format('DD/MM/YYYY');
-                                    if (!monthlySummary[dateStr]) {
-                                        monthlySummary[dateStr] = { 
-                                            date: dateStr, 
-                                            dayName: dayNames[index],
-                                            timestamp: exactDate.valueOf(),
-                                            totalTrua: 0, 
-                                            totalChieu: 0 
-                                        };
-                                    }
-                                }
-                            });
-
-                            data.employees.forEach(emp => {
-                                if (!emp) return;
-                                
-                                dayKeys.forEach((dKey, index) => {
-                                    const exactDate = weekInfo.start.add(index, 'day');
-                                    
-                                    if (exactDate.month() === selectedReportMonth.month()) {
-                                        const dateStr = exactDate.format('DD/MM/YYYY');
-                                        if (emp[`${dKey}_t`]) monthlySummary[dateStr].totalTrua++;
-                                        if (emp[`${dKey}_c`]) monthlySummary[dateStr].totalChieu++;
-                                    }
-                                });
-                            });
-                        }
-                    }
-
-                    const reportArray = Object.values(monthlySummary);
-                    reportArray.sort((a, b) => a.timestamp - b.timestamp);
-
-                    setMonthlyReportData(reportArray);
-                } catch (error) {
-                    message.error('Lỗi khi tải báo cáo tháng: ' + error.message);
-                } finally {
-                    setReportLoading(false);
-                }
-            };
-
-            useEffect(() => {
-                if (activeTab === 'report') {
-                    fetchMonthlyReport();
-                }
-            }, [selectedReportMonth, activeTab, isConfigured]);
-
-            const dayHeaders = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
-            const dayKeys = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
-
-            const syncFromPreviousWeek = async () => {
-                if (isLocked || !isConfigured) return;
-                setLoading(true);
-                const prevWeekLocalDate = selectedDate.subtract(1, 'week');
-                const prevWeekKey = prevWeekLocalDate.format('YYYY-[w]ww');
-                try {
-                    const prevSnapshot = await database.ref(`meal-registration/${prevWeekKey}`).once('value');
-                    const prevData = prevSnapshot.val();
-
-                    if (prevData && prevData.employees) {
-                        const currentEmps = form.getFieldValue('employees') || [];
-                        const currentIdsInfo = currentEmps.map(e => (e ? e.id || e.name : '').toLowerCase().trim());
-
-                        let addedCount = 0;
-                        const newEmps = [...currentEmps];
-
-                        prevData.employees.forEach(emp => {
-                            if (!emp) return;
-                            const identifier = (emp.id || emp.name || '').toLowerCase().trim();
-                            if (identifier && !currentIdsInfo.includes(identifier)) {
-                                newEmps.push({
-                                    id: emp.id || '',
-                                    name: emp.name || '',
-                                });
-                                addedCount++;
-                            }
-                        });
-
-                        form.setFieldsValue({ employees: newEmps });
-                        handleValuesChange(null, { employees: newEmps });
-
-                        if (addedCount > 0) {
-                            message.success(`Đã bổ sung ${addedCount} nhân sự từ Tuần ${prevWeekKey.split('-w')[1]}!`);
-                        } else {
-                            message.info(`Tất cả nhân sự Tuần ${prevWeekKey.split('-w')[1]} đều đã có mặt ở Tuần này.`);
-                        }
-                    } else {
-                        message.warning('Không tìm thấy dữ liệu Tuần trước để đồng bộ.');
-                    }
-                } catch (error) {
-                    message.error('Lỗi đồng bộ: ' + error.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            const getTotalMeals = (dayPrefix, session) => {
-                if (!employeesData || !Array.isArray(employeesData)) return 0;
-                return employeesData.reduce((total, emp) => {
-                    const val = emp ? emp[`${dayPrefix}_${session}`] : null;
-                    if (val && val.trim() !== '') return total + 1;
-                    return total;
-                }, 0);
-            };
-
-            const totalTrua = dayKeys.reduce((acc, d) => acc + getTotalMeals(d, 't'), 0);
-            const totalChieu = dayKeys.reduce((acc, d) => acc + getTotalMeals(d, 'c'), 0);
-            const totalThayThe = (employeesData || []).filter(e => e && e.replaceBy && e.replaceBy.trim() !== '').length;
-
-            const exportToExcel = () => {
-                const data = form.getFieldValue('employees') || [];
-                const exportData = data.map((emp, index) => ({
-                    "STT": index + 1, "Mã NV": emp.id || "", "Họ Tên": emp.name || "",
-                    "T2 - Trưa": emp.t2_t || "", "T2 - Chiểu": emp.t2_c || "",
-                    "T3 - Trưa": emp.t3_t || "", "T3 - Chiểu": emp.t3_c || "",
-                    "T4 - Trưa": emp.t4_t || "", "T4 - Chiểu": emp.t4_c || "",
-                    "T5 - Trưa": emp.t5_t || "", "T5 - Chiểu": emp.t5_c || "",
-                    "T6 - Trưa": emp.t6_t || "", "T6 - Chiểu": emp.t6_c || "",
-                    "T7 - Trưa": emp.t7_t || "", "T7 - Chiểu": emp.t7_c || "",
-                    "CN - Trưa": emp.cn_t || "", "CN - Chiểu": emp.cn_c || "",
-                    "Ghi chú - Không ăn": emp.noEat || "", "Ghi chú - Đổi món": emp.replaceBy || ""
-                }));
-
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const wsCols = [{ wch: 5 }, { wch: 10 }, { wch: 25 }];
-                for (let i = 0; i < 14; i++) wsCols.push({ wch: 12 });
-                wsCols.push({ wch: 20 }, { wch: 20 });
-                worksheet['!cols'] = wsCols;
-
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, `Tuan_${currentWeekKey.split('-w')[1]}`);
-                XLSX.writeFile(workbook, `BaoCaoSuatAn_${currentWeekKey}.xlsx`);
-            };
-
-            const handleDownloadImage = () => {
-                const element = document.getElementById('meal-table');
-                if (!element) return;
-
-                const hideLoading = message.loading('Đang tạo ảnh chụp (vui lòng đợi một chút)...', 0);
-
-                // Bật chế độ screenshotMode để bảng bung hết chiều cao
-                const wasScreenshotMode = screenshotMode;
-                if (!wasScreenshotMode) setScreenshotMode(true);
-
-                setTimeout(() => {
-                    html2canvas(element, {
-                        backgroundColor: '#0b1326', // Màu nền theme
-                        scale: 1.5, // Tăng chất lượng ảnh
-                        useCORS: true,
-                        logging: false,
-                        windowWidth: element.scrollWidth,
-                        width: element.scrollWidth
-                    }).then(canvas => {
-                        const imgData = canvas.toDataURL('image/png');
-                        const link = document.createElement('a');
-                        link.href = imgData;
-                        link.download = `BangCom_Tuan_${currentWeekKey.split('-w')[1]}.png`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-
-                        hideLoading();
-                        message.success('Đã tải ảnh thành công!');
-
-                        // Phục hồi trạng thái cũ
-                        if (!wasScreenshotMode) setScreenshotMode(false);
-                    }).catch(err => {
-                        hideLoading();
-                        message.error('Lỗi khi tạo ảnh: ' + err.message);
-                    });
-                }, 800); // Đợi DOM cập nhật đầy đủ nếu vừa mở bảng
-            };
-
-            const handleGoogleLogin = async () => {
-                try {
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    await auth.signInWithPopup(provider);
-                } catch (error) {
-                    message.error('Đăng nhập thất bại (bạn đã bật Google Sign-in chưa?): ' + error.message);
-                }
-            };
-
-            const handleLogout = async () => {
-                await auth.signOut();
-            };
-
-            const handleUnlock = () => {
-                if (isPastWeek) {
-                    message.error('Hệ thống đã tự động khóa dữ liệu của các tuần đã qua để bảo vệ dữ liệu!');
-                    return;
-                }
-                if (!isLockedState) {
-                    setIsLocked(true);
-                    message.info('Về lại trạng thái an toàn (Read Only).');
-                } else {
-                    setIsLocked(false);
-                    message.success('Đã mở khóa! Sẽ Auto-Save mọi thao tác.');
-                }
-            };
-
-            /* ==== COMPONENT RENDER TABS ==== */
-
-            // Tab 2: Quản lý Truy Cập (Admin)
-            const handleAddEmail = async () => {
-                if (!isSuperAdmin) {
-                    message.error('Bạn không có quyền thực hiện thao tác này!');
-                    return;
-                }
-                if (!newEmail || !newEmail.includes('@')) {
-                    message.error('Vui lòng nhập một địa chỉ email hợp lệ!');
-                    return;
-                }
-                const emailToAdd = newEmail.trim().toLowerCase();
-                if (allowedEmailsList.includes(emailToAdd)) {
-                    message.warning('Email này đã được cấp quyền từ trước!');
-                    return;
-                }
-
-                setIsSavingEmail(true);
-                try {
-                    const newList = [...allowedEmailsList, emailToAdd];
-                    await database.ref('allowed-emails').set(newList);
-                    setAllowedEmailsList(newList);
-                    setNewEmail("");
-                    message.success(`Đã cấp quyền truy cập cho ${emailToAdd}`);
-                } catch (error) {
-                    message.error('Lỗi khi thêm email: ' + error.message);
-                } finally {
-                    setIsSavingEmail(false);
-                }
-            };
-
-            const handleRemoveEmail = async (emailToRemove) => {
-                if (!isSuperAdmin) {
-                    message.error('Bạn không có quyền thực hiện thao tác này!');
-                    return;
-                }
-                if (emailToRemove === userAuth.email) {
-                    message.error('Bạn không thể tự thu hồi quyền của chính mình!');
-                    return;
-                }
-                setIsSavingEmail(true);
-                try {
-                    const newList = allowedEmailsList.filter(email => email !== emailToRemove);
-                    await database.ref('allowed-emails').set(newList);
-                    setAllowedEmailsList(newList);
-                    message.success(`Đã thu hồi quyền của ${emailToRemove}`);
-                } catch (error) {
-                    message.error('Lỗi khi xóa email: ' + error.message);
-                } finally {
-                    setIsSavingEmail(false);
-                }
-            };
-
-            const renderTeamTab = () => {
-                if (!isSuperAdmin) {
-                    return (
-                        <div className="flex flex-col items-center justify-center p-12 text-slate-400">
-                            <span className="material-symbols-outlined text-6xl mb-4 text-slate-600">security</span>
-                            <h2 className="text-xl font-bold font-['Space_Grotesk']">Truy cập bị từ chối</h2>
-                            <p className="mt-2 text-sm">Chỉ Quản trị viên hệ thống (Admin) mới có quyền vào khu vực này.</p>
-                        </div>
-                    );
-                }
-
-                return (
-                <div className="glass-card rounded-2xl p-6 shadow-2xl overflow-hidden border border-slate-700 font-['Inter'] animate-[fadeIn_0.5s_ease-out] max-w-4xl mx-auto">
-                    <div className="flex justify-between items-center mb-6 gap-4 flex-wrap border-b border-slate-700/50 pb-4">
-                        <h2 className="font-['Space_Grotesk'] font-bold text-xl text-primary flex items-center gap-3">
-                            <span className="material-symbols-outlined">admin_panel_settings</span> Quản Lý Quyền Truy Cập (Admin)
-                        </h2>
-                    </div>
-                    
-                    <div className="text-sm text-slate-400 mb-6 bg-slate-900/50 p-4 rounded-xl border border-slate-800 border-l-4 border-l-primary shadow-inner">
-                        <span className="font-bold text-slate-200">ℹ Lưu ý bảo mật:</span> Dưới đây là danh sách {allowedEmailsList.length} tài khoản đang có quyền truy cập vào Ứng dụng đăng ký Suất Ăn. Bất kỳ ai trong danh sách này đều có thể Thêm hoặc Xóa tài khoản khác.
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 mb-6 bg-slate-950/50 p-4 rounded-xl border border-slate-700/50">
-                        <Input 
-                            value={newEmail} 
-                            onChange={e => setNewEmail(e.target.value)}
-                            placeholder="Nhập địa chỉ email mới (VD: nguyenvana@gmail.com)" 
-                            className="!bg-slate-800 !border-slate-700 !text-white !rounded-lg flex-1 focus:!border-teal-500"
-                            onPressEnter={handleAddEmail}
-                            disabled={isSavingEmail}
-                        />
-                        <button 
-                            onClick={handleAddEmail} 
-                            disabled={isSavingEmail}
-                            className="bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-slate-900 font-bold px-6 py-2 rounded-lg flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(20,184,166,0.3)] whitespace-nowrap active:scale-95">
-                            {isSavingEmail ? <Spin size="small"/> : <span className="material-symbols-outlined">person_add</span>}
-                            <span>Cấp Quyền</span>
-                        </button>
-                    </div>
-
-                    <div className="overflow-x-auto custom-scrollbar border border-slate-700 rounded-xl">
-                        <table className="w-full text-left border-collapse min-w-[500px]">
-                            <thead className="bg-slate-900 border-b border-slate-700">
-                                <tr>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center w-16">STT</th>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold">Tài khoản Email</th>
-                                    <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center w-32">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-800/40">
-                                {allowedEmailsList.map((email, idx) => (
-                                    <tr key={idx} className="hover:bg-slate-800/20 group">
-                                        <td className="p-4 text-center text-slate-500 font-bold">{idx + 1}</td>
-                                        <td className="p-4 font-semibold text-slate-200">
-                                            {email} 
-                                            {email === userAuth?.email && <span className="ml-2 text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full border border-primary/30 font-bold">Bạn</span>}
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <button 
-                                                onClick={() => handleRemoveEmail(email)}
-                                                disabled={email === userAuth?.email || isSavingEmail || !isSuperAdmin}
-                                                className="text-error opacity-70 hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed p-1.5 rounded-lg hover:bg-error/10 transition-all flex items-center justify-center mx-auto"
-                                                title="Thu hồi quyền truy cập"
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">person_remove</span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )};
-
-            // Tab 3: Báo cáo
-            const renderReportTab = () => {
-                const totalMonthlyTrua = monthlyReportData.reduce((sum, emp) => sum + (emp.totalTrua || 0), 0);
-                const totalMonthlyChieu = monthlyReportData.reduce((sum, emp) => sum + (emp.totalChieu || 0), 0);
-                
-                return (
-                <div className="glass-card rounded-2xl p-6 shadow-2xl overflow-hidden border border-slate-700 font-['Inter'] animate-[fadeIn_0.5s_ease-out]">
-                    <div className="flex justify-between items-center mb-6 gap-4 flex-wrap border-b border-slate-700/50 pb-4">
-                        <div className="flex flex-wrap items-center gap-4 lg:gap-6">
-                            <h2 className="font-['Space_Grotesk'] font-bold text-xl text-primary flex items-center gap-3">
-                                <span className="material-symbols-outlined">analytics</span> Báo Cáo Tổng Hợp Tháng {selectedReportMonth.format('MM/YYYY')}
-                            </h2>
-                            <div className="flex items-center gap-4 bg-slate-950/50 px-4 py-1.5 rounded-full border border-slate-700/50 shadow-inner">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Trưa:</span>
-                                    <span className="text-primary text-xl font-['Space_Grotesk'] font-bold drop-shadow-[0_0_8px_rgba(79,219,200,0.5)]">{totalMonthlyTrua}</span>
-                                </div>
-                                <div className="w-px h-4 bg-slate-700"></div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Chiều:</span>
-                                    <span className="text-tertiary text-xl font-['Space_Grotesk'] font-bold drop-shadow-[0_0_8px_rgba(243,135,100,0.5)]">{totalMonthlyChieu}</span>
-                                </div>
-                                <div className="w-px h-4 bg-slate-700"></div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tổng Tháng:</span>
-                                    <span className="text-white text-xl font-['Space_Grotesk'] font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">{totalMonthlyTrua + totalMonthlyChieu}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <DatePicker
-                            picker="month"
-                            size="middle"
-                            format="MM/YYYY"
-                            allowClear={false}
-                            value={selectedReportMonth}
-                            onChange={(date) => date && setSelectedReportMonth(date)}
-                            className="bg-surface-container-high border-slate-700/80 hover:border-primary/50 text-white shadow-none focus:ring-0 w-32 font-semibold"
-                            inputReadOnly
-                        />
-                    </div>
-                    {reportLoading ? (
-                        <div className="w-full py-20 flex justify-center"><Spin size="large" tip="Đang tổng hợp dữ liệu tháng..." /></div>
-                    ) : (
-                        <div className="overflow-x-auto custom-scrollbar">
-                            <table className="w-full text-left border-collapse min-w-[600px]">
-                                <thead className="bg-slate-900 border-b border-slate-700">
-                                    <tr>
-                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold text-center w-16">STT</th>
-                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold w-32">Ngày</th>
-                                        <th className="p-4 text-xs text-slate-400 uppercase font-bold">Thứ</th>
-                                        <th className="p-4 text-xs text-teal-400 uppercase font-bold text-center w-32">Tổng Trưa</th>
-                                        <th className="p-4 text-xs text-secondary uppercase font-bold text-center w-32">Tổng Chiều</th>
-                                        <th className="p-4 text-xs text-white uppercase font-bold text-center w-32">Tổng Cộng</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-800/40">
-                                    {monthlyReportData.length === 0 ? (
-                                        <tr>
-                                            <td colSpan="6" className="p-8 text-center text-slate-500 font-medium">Không có dữ liệu trong tháng này.</td>
-                                        </tr>
-                                    ) : (
-                                        monthlyReportData.map((dayData, idx) => (
-                                            <tr key={idx} className="hover:bg-slate-800/20">
-                                                <td className="p-4 text-center text-slate-500 font-bold">{idx + 1}</td>
-                                                <td className="p-4 font-['Space_Grotesk'] font-bold text-primary-fixed">{dayData.date}</td>
-                                                <td className="p-4 font-semibold text-slate-200">{dayData.dayName}</td>
-                                                <td className="p-4 text-center">
-                                                    <span className="bg-teal-500/10 text-teal-400 px-3 py-1 rounded-lg font-bold text-lg">{dayData.totalTrua}</span>
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-lg font-bold text-lg">{dayData.totalChieu}</span>
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <span className="bg-slate-700/50 text-white px-3 py-1 rounded-lg font-bold text-lg">{dayData.totalTrua + dayData.totalChieu}</span>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
-                );
-            };
-
-            // Tab 1: Khởi tạo chính Bảng Form (Component Mặc định gốc)
-            const renderMealBoard = () => (
-                <div className="animate-[fadeIn_0.5s_ease-out]">
-                    <div className="glass-card rounded-2xl p-0 shadow-2xl overflow-hidden border border-slate-700">
-                        <div className="flex flex-col lg:flex-row justify-between lg:items-center p-4 lg:p-4 border-b border-slate-700/50 gap-4 bg-slate-900/50">
-                            {/* Left: Title & Compact Totals */}
-                            <div className="flex flex-wrap items-center gap-4 lg:gap-6">
-                                <h2 className="font-['Space_Grotesk'] font-bold text-lg text-primary flex items-center gap-2">
-                                    <span className="material-symbols-outlined">calendar_today</span> <span className="hidden sm:inline">Bảng Ghi Cơm</span>
-                                </h2>
-
-                                <div className="flex items-center gap-4 bg-slate-950/50 px-4 py-1.5 rounded-full border border-slate-700/50 shadow-inner">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:inline">Trưa:</span>
-                                        <span className="text-primary text-xl font-['Space_Grotesk'] font-bold drop-shadow-[0_0_8px_rgba(79,219,200,0.5)]">{totalTrua}</span>
-                                    </div>
-                                    <div className="w-px h-4 bg-slate-700"></div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:inline">Chiều:</span>
-                                        <span className="text-tertiary text-xl font-['Space_Grotesk'] font-bold drop-shadow-[0_0_8px_rgba(243,135,100,0.5)]">{totalChieu}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Right: Picker & Export */}
-                            <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
-                                <div className="flex items-center gap-2 bg-slate-950/50 p-1 pl-2 rounded-xl border border-slate-700/50 shadow-inner grow lg:grow-0">
-                                    <DatePicker
-                                        picker="week"
-                                        size="small"
-                                        format={(val) => `Tuần ${val.format('ww')} (${val.day(1).format('DD/MM')} - ${val.day(7).format('DD/MM')})`}
-                                        allowClear={false}
-                                        value={selectedDate}
-                                        onChange={(date) => date && setSelectedDate(date)}
-                                        className="bg-transparent border-none text-white shadow-none focus:ring-0 w-[200px] text-sm font-semibold"
-                                        inputReadOnly
-                                    />
-                                    {!isLocked && activeTab === 'meal-board' && (
-                                        <span className={`text-[10px] sm:text-[11px] font-bold transition-all w-16 text-center ${loading ? 'text-primary animate-pulse' : 'text-slate-500'}`}>
-                                            {loading ? '⏳ Lưu Tâm...' : '✓ Hệ thống'}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button type="button" onClick={() => setScreenshotMode(!screenshotMode)} className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg ${screenshotMode ? 'bg-error text-slate-900 border-transparent shadow-[0_0_15px_rgba(255,180,171,0.4)]' : 'bg-surface-bright/50 hover:bg-slate-700/80 text-slate-200 border-slate-700/50'} font-bold shadow-sm transition-all active:scale-95 text-[13px] whitespace-nowrap border`}>
-                                        <span className="material-symbols-outlined text-[16px]">{screenshotMode ? 'fullscreen_exit' : 'screenshot_region'}</span> <span className="hidden xs:inline">{screenshotMode ? 'Hủy Chế độ Chụp' : 'Chế độ Chụp (Mở rộng)'}</span>
-                                    </button>
-                                    <button type="button" onClick={handleDownloadImage} className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 text-slate-900 font-bold shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all active:scale-95 text-[13px] whitespace-nowrap border border-transparent">
-                                        <span className="material-symbols-outlined text-[16px]">image</span> <span className="hidden xs:inline">Tải Ảnh</span>
-                                    </button>
-                                    <button type="button" onClick={exportToExcel} className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold shadow-[0_0_15px_rgba(20,184,166,0.2)] transition-all active:scale-95 text-[13px] whitespace-nowrap border border-transparent">
-                                        <span className="material-symbols-outlined text-[16px]">ios_share</span> <span className="hidden xs:inline">Xuất Excel</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {!dataLoaded ? (
-                            <div className="w-full py-20 flex justify-center"><Spin size="large" tip="Đang truy vấn Dữ liệu Tuần..." /></div>
-                        ) : (
-                            <Form form={form} onValuesChange={handleValuesChange}>
-                                <div id="meal-table" className={`custom-scrollbar relative px-1 lg:px-0 ${screenshotMode ? 'w-fit min-w-full overflow-visible' : 'main-table-container'}`} style={{ maxHeight: screenshotMode ? 'none' : '' }}>
-                                    {screenshotMode && (
-                                        <div className="pt-8 pb-6 px-4 bg-slate-900 border-b border-slate-700/80 flex flex-col items-center justify-center gap-2">
-                                            <h1 className="text-3xl font-bold text-primary font-['Space_Grotesk'] uppercase tracking-widest drop-shadow-[0_0_10px_rgba(79,219,200,0.5)]">
-                                                BẢNG ĐĂNG KÝ SUẤT ĂN
-                                            </h1>
-                                            <p className="text-lg text-slate-300 font-medium">
-                                                Tuần {currentWeekKey.split('-w')[1]} (Từ {selectedDate.day(1).format('DD/MM/YYYY')} đến {selectedDate.day(7).format('DD/MM/YYYY')})
-                                            </p>
-                                        </div>
-                                    )}
-                                    <table className="w-full text-left border-collapse min-w-[1100px] lg:min-w-[1400px]">
-                                        <thead className={screenshotMode ? "bg-slate-900 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)] z-10" : "table-header"}>
-                                            <tr className="border-b border-slate-700/80">
-                                                <th className="py-2 px-2 font-['Inter'] font-semibold text-[11px] text-slate-400 uppercase tracking-widest text-center">STT</th>
-                                                <th className="py-2 px-2 font-['Inter'] font-semibold text-[11px] text-slate-400 uppercase tracking-widest w-24">Mã NV</th>
-                                                <th className="py-2 px-2 font-['Inter'] font-semibold text-[11px] text-slate-400 uppercase tracking-widest w-40 md:w-56">Họ Và Tên</th>
-
-                                                {dayHeaders.map((h, i) => {
-                                                    const isToday = isCurrentWeek && i === todayIndex;
-                                                    return (
-                                                        <th key={h} className={`py-2 px-1 text-center font-['Inter'] border-l border-slate-700/50 font-bold text-[12px] uppercase tracking-widest ${isToday ? 'text-teal-400 bg-teal-900/40 shadow-[inset_0_2px_4px_rgba(20,184,166,0.3)]' : 'text-slate-300'}`} colSpan="2">{h}</th>
-                                                    );
-                                                })}
-
-                                                <th className="py-2 px-1 border-l border-slate-700/50 text-center font-['Inter'] font-semibold text-[11px] text-slate-400 uppercase w-32 min-w-[120px]">Ko Ăn</th>
-                                                <th className="py-2 px-1 border-l border-slate-700/50 text-center font-['Inter'] font-semibold text-[11px] text-slate-400 uppercase w-48 min-w-[160px]">Món Đổi</th>
-                                                {!isLocked && <th className="py-2 px-2 border-l border-slate-700/50 text-center font-['Inter'] font-semibold text-[11px] text-slate-400 uppercase">Xóa</th>}
-                                            </tr>
-                                        </thead>
-
-                                        <tbody className="divide-y divide-slate-800/40 font-['Inter']">
-                                            <Form.List name="employees">
-                                                {(fields, { add, remove }) => (
-                                                    <>
-                                                        {fields.map(({ key, name, ...restField }, index) => (
-                                                            <tr key={key} className="hover:bg-slate-800/30 group transition-colors">
-                                                                <td className="py-1 px-2 text-slate-500 text-xs text-center">{index + 1}</td>
-                                                                <td className="py-1 px-1">
-                                                                    <Form.Item {...restField} name={[name, 'id']} noStyle>
-                                                                        <Input className="!bg-transparent !border-0 !text-primary-fixed !shadow-none !text-[13px] !font-bold focus:!ring-0 placeholder-slate-600 w-full px-1" placeholder="ID" disabled={isLocked} />
-                                                                    </Form.Item>
-                                                                </td>
-                                                                <td className="py-1 px-1">
-                                                                    <Form.Item {...restField} name={[name, 'name']} noStyle>
-                                                                        <Input className="!bg-transparent !border-0 !text-slate-100 !shadow-none !text-[13px] !font-semibold focus:!ring-0 placeholder-slate-600 w-full px-1" placeholder="Nhập Họ Tên" disabled={isLocked} />
-                                                                    </Form.Item>
-                                                                </td>
-
-                                                                {dayKeys.map((day, i) => {
-                                                                    const isToday = isCurrentWeek && i === todayIndex;
-                                                                    return (
-                                                                        <React.Fragment key={day}>
-                                                                            <td className={`py-1 px-1 align-middle transition-colors border-l border-slate-800/30 ${isToday ? 'bg-teal-500/10' : ''}`}>
-                                                                                <Form.Item name={[name, `${day}_t`]} noStyle><MealToggle disabled={isLocked} type="trua" /></Form.Item>
-                                                                            </td>
-                                                                            <td className={`py-1 px-1 align-middle transition-colors border-r border-slate-800/30 ${isToday ? 'bg-teal-500/10' : ''}`}>
-                                                                                <Form.Item name={[name, `${day}_c`]} noStyle><MealToggle disabled={isLocked} type="chieu" /></Form.Item>
-                                                                            </td>
-                                                                        </React.Fragment>
-                                                                    );
-                                                                })}
-
-                                                                <td className="py-1 px-1 align-middle border-l border-slate-800/30">
-                                                                    <Form.Item {...restField} name={[name, 'noEat']} noStyle>
-                                                                        <Input className="!bg-slate-800/50 !border !border-slate-700/50 rounded !px-2 !py-1.5 !text-[13px] !text-slate-100 !font-semibold w-full focus:!border-primary shadow-inner" placeholder="..." disabled={isLocked} />
-                                                                    </Form.Item>
-                                                                </td>
-                                                                <td className="py-1 px-1 align-middle border-l border-slate-800/30">
-                                                                    <Form.Item {...restField} name={[name, 'replaceBy']} noStyle>
-                                                                        <Input className="!bg-slate-800/50 !border !border-slate-700/50 rounded !px-2 !py-1.5 !text-[13px] !text-slate-100 !font-semibold w-full focus:!border-primary shadow-inner" placeholder="..." disabled={isLocked} />
-                                                                    </Form.Item>
-                                                                </td>
-
-                                                                {!isLocked && (
-                                                                    <td className="py-1 px-2 align-middle text-center border-l border-slate-800/30">
-                                                                        <button type="button" onClick={() => remove(name)} className="p-1 flex items-center justify-center hover:bg-error/20 mx-auto rounded text-error transition-all hover:scale-110 active:scale-95">
-                                                                            <span className="material-symbols-outlined text-[14px]">delete</span>
-                                                                        </button>
-                                                                    </td>
-                                                                )}
-                                                            </tr>
-                                                        ))}
-
-                                                        {/* --- ROW TỔNG THEO NGÀY --- */}
-                                                        <tr className="bg-slate-900/95 border-t-2 border-slate-700 font-bold sticky bottom-0 z-40 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.3)] backdrop-blur-xl">
-                                                            <td colSpan="3" className="py-3 px-4 text-right text-sm uppercase tracking-widest text-slate-300 border-r border-slate-700/50">
-                                                                Tổng số suất đăng ký
-                                                            </td>
-                                                            {dayKeys.map((day, i) => {
-                                                                const isToday = isCurrentWeek && i === todayIndex;
-                                                                const tTrua = getTotalMeals(day, 't');
-                                                                const tChieu = getTotalMeals(day, 'c');
-                                                                return (
-                                                                    <React.Fragment key={`total_${day}`}>
-                                                                        <td className={`py-3 px-1 text-center border-l border-slate-700/50 ${isToday ? 'bg-teal-900/30 text-teal-400' : 'text-primary'} text-2xl font-['Space_Grotesk'] drop-shadow-[0_0_8px_rgba(79,219,200,0.5)]`}>
-                                                                            {tTrua > 0 ? tTrua : '-'}
-                                                                        </td>
-                                                                        <td className={`py-3 px-1 text-center border-r border-slate-700/50 ${isToday ? 'bg-teal-900/30 text-teal-400' : 'text-tertiary'} text-2xl font-['Space_Grotesk'] drop-shadow-[0_0_8px_rgba(243,135,100,0.5)]`}>
-                                                                            {tChieu > 0 ? tChieu : '-'}
-                                                                        </td>
-                                                                    </React.Fragment>
-                                                                );
-                                                            })}
-                                                            <td colSpan="3" className="border-l border-slate-700/50 bg-slate-900/95"></td>
-                                                        </tr>
-
-                                                        {!isLocked && (
-                                                            <tr>
-                                                                <td colSpan="20" className="p-4 bg-slate-900/30 border-t border-slate-800">
-                                                                    <div className="flex flex-col sm:flex-row gap-4 w-full">
-                                                                        <button type="button" onClick={() => add({ id: '', name: '' })} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border border-dashed border-primary/50 bg-primary/5 hover:bg-primary/20 text-primary font-bold tracking-wide transition-all shadow-[0_0_10px_rgba(79,219,200,0.1)] active:scale-95 text-sm">
-                                                                            <span className="material-symbols-outlined">add</span> Thêm Tài Khoản (Dòng trống)
-                                                                        </button>
-                                                                        <button type="button" onClick={syncFromPreviousWeek} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border border-dashed border-tertiary/50 bg-tertiary/5 hover:bg-tertiary/20 text-tertiary font-bold tracking-wide transition-all shadow-[0_0_10px_rgba(243,135,100,0.1)] active:scale-95 text-sm">
-                                                                            <span className="material-symbols-outlined">sync</span> Quét & Bổ sung NV từ Tuần Trước
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Form.List>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </Form>
-                        )}
-
-                        {/* (Bottom Area removed as it was condensed to header) */}
-                    </div>
-
-
-                </div>
-            );
-
-            if (checkingAuth) {
-                return (
-                    <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
-                        <div className="h-screen bg-slate-950 flex flex-col justify-center items-center">
-                            <Spin size="large" />
-                            <p className="text-slate-400 mt-4 font-['Space_Grotesk'] animate-pulse">Đang kiểm duyệt bảo mật...</p>
-                        </div>
-                    </ConfigProvider>
-                );
-            }
-
-            if (!userAuth) {
-                return (
-                    <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
-                        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden font-['Inter']">
-                            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3"></div>
-                            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] translate-y-1/3 -translate-x-1/3"></div>
-
-                            <div className="glass-card rounded-3xl p-8 md:p-12 shadow-[0_0_50px_rgba(0,0,0,0.5)] z-10 w-full max-w-md border border-slate-700/50 flex flex-col items-center text-center animate-[fadeIn_0.5s_ease-out]">
-                                <div className="w-20 h-20 rounded-2xl bg-slate-800/80 border border-slate-700/50 shadow-inner flex items-center justify-center mb-6">
-                                    <span className="material-symbols-outlined text-5xl text-primary drop-shadow-[0_0_10px_rgba(79,219,200,0.3)]">vpn_key</span>
-                                </div>
-                                <h1 className="font-['Space_Grotesk'] font-bold text-3xl text-white mb-2">Internal Access Only</h1>
-                                <p className="text-slate-400 text-sm mb-8">Bạn cần đăng nhập bằng hệ thống Email đã được phê duyệt mới có thể vào ứng dụng.</p>
-
-                                <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-4 px-6 py-4 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-bold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6 border bg-white rounded-full p-0.5" />
-                                    <span>Đăng nhập qua Google Auth</span>
-                                </button>
-
-                                <div className="mt-8 text-xs text-slate-400 max-w-xs bg-slate-900/50 p-4 rounded-xl border border-error/20 border-l-4 border-l-error text-left shadow-inner">
-                                    <div className="font-bold flex items-center gap-1 mb-1 text-slate-200"><span className="material-symbols-outlined text-[14px]">warning</span> LƯU Ý ADMIN:</div>
-                                    Để bật tính năng này, bạn <b>PHẢI</b> vào <a href="https://console.firebase.google.com" target="_blank" className="text-teal-400 font-bold underline">Firebase Console</a> &gt; Authentication &gt; Bật "Google Sign-in" lên nhé!
-                                </div>
-                            </div>
-                        </div>
-                    </ConfigProvider>
-                );
-            }
-
-            return (
-                <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
-                    <div className="flex flex-col min-h-screen">
-
-                        {/* --- TOP HEADER BAR --- */}
-                        <header className="fixed top-0 w-full flex justify-between items-center px-4 md:px-8 h-16 bg-slate-950/70 backdrop-blur-xl z-[60] border-b border-slate-800/50 shadow-2xl">
-                            <div className="flex items-center gap-4 lg:gap-8">
-                                <span className="text-xl font-bold text-teal-500 tracking-tighter font-['Space_Grotesk'] hidden sm:block">VitalMeal Pro</span>
-                                <nav className="flex gap-3 sm:gap-6 overflow-x-auto no-scrollbar max-w-[60vw]">
-                                    <span onClick={() => setActiveTab('meal-board')} className={`flex items-center gap-1 font-['Space_Grotesk'] text-[11px] sm:text-sm tracking-tight cursor-pointer transition-all whitespace-nowrap ${activeTab === 'meal-board' ? 'text-teal-400 border-b-2 border-teal-500 pb-1' : 'text-slate-400 hover:text-slate-200'}`}><span className="material-symbols-outlined text-[14px] sm:text-[18px]">restaurant</span> Bảng Cơm</span>
-                                    {isSuperAdmin && (
-                                        <span onClick={() => setActiveTab('team')} className={`flex items-center gap-1 font-['Space_Grotesk'] text-[11px] sm:text-sm tracking-tight cursor-pointer transition-all whitespace-nowrap ${activeTab === 'team' ? 'text-teal-400 border-b-2 border-teal-500 pb-1' : 'text-slate-400 hover:text-slate-200'}`}><span className="material-symbols-outlined text-[14px] sm:text-[18px]">admin_panel_settings</span> Quản lý Truy Cập</span>
-                                    )}
-                                    <span onClick={() => setActiveTab('report')} className={`flex items-center gap-1 font-['Space_Grotesk'] text-[11px] sm:text-sm tracking-tight cursor-pointer transition-all whitespace-nowrap ${activeTab === 'report' ? 'text-teal-400 border-b-2 border-teal-500 pb-1' : 'text-slate-400 hover:text-slate-200'}`}><span className="material-symbols-outlined text-[14px] sm:text-[18px]">monitoring</span> Báo cáo</span>
-                                </nav>
-                            </div>
-                            <div className="flex items-center gap-2 sm:gap-4">
-                                <div className="hidden lg:flex items-center gap-2 bg-slate-900 border border-slate-700/50 pl-2 pr-3 py-1 rounded-full">
-                                    <img src={userAuth?.photoURL || "https://ui-avatars.com/api/?name=User"} className="w-7 h-7 rounded-full border border-slate-700" alt="Avatar" />
-                                    <span className="text-xs font-bold text-slate-300 max-w-[150px] truncate">{userAuth?.email}</span>
-                                </div>
-                                <button onClick={handleLogout} className="px-2 sm:px-3 py-1.5 rounded-lg bg-surface-container hover:bg-error/20 text-outline hover:text-error transition-all flex items-center gap-2 shadow-md hover:border-error/50 border border-transparent active:scale-95">
-                                    <span className="material-symbols-outlined text-[16px] sm:text-[18px]">logout</span>
-                                    <span className="hidden sm:inline font-bold text-xs">Thoát</span>
-                                </button>
-                                <button onClick={handleUnlock} className={`px-2 sm:px-4 py-1.5 rounded-lg font-[Inter] font-bold text-xs md:text-sm shadow-md active:scale-95 transition-all flex items-center gap-2 border ${isLocked ? 'bg-surface-container text-outline border-transparent hover:bg-slate-800' : 'bg-primary-container text-on-primary-container border-teal-400 shadow-[0_0_15px_rgba(20,184,166,0.4)]'}`}>
-                                    <span className="material-symbols-outlined text-[16px] sm:text-[18px]">{isLocked ? 'lock' : 'lock_open'}</span>
-                                    <span className="hidden sm:inline">{isLocked ? 'Unlock' : 'Live Save'}</span>
-                                </button>
-                            </div>
-                        </header>
-
-                        {/* --- MAIN PAGE YIELD DYNAMIC TABS --- */}
-                        <main className="flex-1 pt-20 px-2 lg:px-8 pb-8 flex flex-col gap-6">
-
-                            {/* (Title Block Removed as per layout update to save space) */}
-
-                            {/* HOÀN LẶP (RENDER ROUTER) */}
-                            {activeTab === 'meal-board' && renderMealBoard()}
-                            {activeTab === 'team' && renderTeamTab()}
-                            {activeTab === 'report' && renderReportTab()}
-
-                        </main>
-
-                        <style>{`
-                            @keyframes fadeIn {
-                                from { opacity: 0; transform: translateY(10px); }
-                                to { opacity: 1; transform: translateY(0); }
-                            }
-                        `}</style>
-                    </div>
-                </ConfigProvider>
-            );
-        };
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    } catch (err) { $('#mr-body').innerHTML = `<tr><td colspan="6"><div class="err-box"><b>Lỗi tải báo cáo:</b> ${esc(err.message)}</div></td></tr>`; return; }
+    if (M.rm !== mo) return; // người dùng đã chuyển tháng khác
+    const today = dayjs().format('YYYY-MM-DD'), rows = [];
+    for (let d = start; d.isBefore(end) || d.isSame(end, 'day'); d = d.add(1, 'day')) { const s = d.format('YYYY-MM-DD'), v = perDay[s] || { tl: 0, tc: 0 }; rows.push({ s, d, i: (d.day() + 6) % 7, tl: v.tl, tc: v.tc }); }
+    const TL = rows.reduce((n, r) => n + r.tl, 0), TC = rows.reduce((n, r) => n + r.tc, 0), max = Math.max(1, ...rows.map(r => r.tl + r.tc));
+    const top = [...rows].sort((a, b) => (b.tl + b.tc) - (a.tl + a.tc))[0], work = rows.filter(r => r.tl + r.tc > 0).length;
+    $('#mr-stats').innerHTML = `
+    <div class="stat"><span class="lbl">Suất trưa</span><div class="v teal">${TL}</div><small>Cả tháng</small></div>
+    <div class="stat"><span class="lbl">Suất chiều</span><div class="v orange">${TC}</div><small>Cả tháng</small></div>
+    <div class="stat"><span class="lbl">Tổng suất tháng</span><div class="v">${TL + TC}</div><small>${work ? `Trung bình ${Math.round((TL + TC) / work)} suất / ngày có ăn` : 'Chưa có dữ liệu'}</small></div>
+    <div class="stat"><span class="lbl">Ngày nhiều nhất</span><div class="v sm">${top && top.tl + top.tc ? `${top.d.format('DD/MM')} · ${top.tl + top.tc} suất` : '—'}</div><small>${top && top.tl + top.tc ? DH[top.i] : ''}</small></div>`;
+    $('#mr-body').innerHTML = rows.map(r => { const tot = r.tl + r.tc, off = tot === 0, fut = r.s > today; return `<tr class="${off ? 'off' : ''} ${r.s === today ? 'today' : ''}"><td><b>${r.d.format('DD/MM/YYYY')}</b></td><td>${r.s === today ? 'Hôm nay' : DH[r.i]}</td><td class="num l">${r.tl || '–'}</td><td class="num d">${r.tc || '–'}</td><td class="num">${tot || '–'}</td><td>${off ? `<span class="who">${fut ? 'Chưa đến ngày' : r.i === 6 ? 'Chủ nhật' : 'Không đăng ký'}</span>` : `<div class="rbar"><i class="l" style="width:${r.tl / max * 100}%"></i><i class="d" style="width:${r.tc / max * 100}%"></i></div>`}</td></tr>`; }).join('');
+}
+$('#mr-prev').onclick = () => { M.rm = M.rm.subtract(1, 'month'); renderReport(); };
+$('#mr-next').onclick = () => { M.rm = M.rm.add(1, 'month'); renderReport(); };
+
+/* ---------- quản lý truy cập ---------- */
+function renderAccess() {
+    if (!isSuper()) { $('#meal-access').innerHTML = `<div class="panel denied"><span class="ms">security</span><h3>Chỉ quản trị viên hệ thống</h3><p>Tài khoản của bạn không có quyền vào khu vực này.</p></div>`; return; }
+    $('#acc-note').textContent = `${M.emails.length} tài khoản đang được phép vào ứng dụng Suất ăn. Chỉ quản trị viên hệ thống mới thêm hoặc thu hồi quyền; người dùng thường không thấy mục này.`;
+    $('#acc-list').innerHTML = M.emails.map((em, i) => `<div class="acc-row"><span class="n">${i + 1}</span><span class="em">${esc(em)}</span>${em === M.user.email ? '<span class="you">Bạn</span>' : ''}${SUPER_ADMIN_EMAILS.includes(em) ? '<span class="you sa">Quản trị</span>' : ''}<button class="icon-btn sm danger" data-rm="${esc(em)}" title="Thu hồi quyền" ${em === M.user.email ? 'disabled' : ''}><span class="ms">person_remove</span></button></div>`).join('');
+}
+$('#acc-add-btn').onclick = async () => {
+    if (!isSuper()) return;
+    const i = $('#acc-email'), v = i.value.trim().toLowerCase(), er = $('#acc-err'); er.hidden = true;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { er.textContent = 'Nhập đúng định dạng email.'; er.hidden = false; i.focus(); return; }
+    if (M.emails.includes(v)) { er.textContent = 'Email này đã có quyền truy cập.'; er.hidden = false; return; }
+    const list = [...M.emails, v];
+    try { await database.ref('allowed-emails').set(list); M.emails = list; i.value = ''; renderAccess(); toast(`Đã cấp quyền cho ${v}`); }
+    catch (err) { er.textContent = 'Lỗi khi thêm: ' + err.message; er.hidden = false; }
+};
+$('#acc-email').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#acc-add-btn').click(); } });
+$('#meal-access').addEventListener('click', async e => {
+    const b = e.target.closest('[data-rm]'); if (!b || b.disabled || !isSuper()) return;
+    const em = b.dataset.rm, list = M.emails.filter(x => x !== em);
+    try { await database.ref('allowed-emails').set(list); M.emails = list; renderAccess(); toast(`Đã thu hồi quyền của ${em}`); }
+    catch (err) { toast('Lỗi khi thu hồi: ' + err.message, 'bad'); }
+});
+</script>
 </body>
-
 </html>

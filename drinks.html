@@ -1,704 +1,219 @@
 <!DOCTYPE html>
-<html class="dark" lang="vi">
+<html lang="vi">
 <head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Tổng Hợp Đặt Đồ Uống</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-    
-    <!-- React & ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <title>Đặt đồ uống - VPT Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block">
+    <link rel="stylesheet" href="assets/vpt.css">
+    <script src="assets/vpt.js"></script>
 
-    <!-- Ant Design -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/5.12.2/antd.min.js"></script>
-
-    <!-- Utils (Export & Screenshot) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-    <!-- App Config -->
     <script src="firebase-config.js"></script>
-
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-primary": "#003731",
-                        "primary": "#57f1db",
-                        "error": "#ffb4ab",
-                        "on-secondary-fixed-variant": "#2f2ebe",
-                        "surface": "#0b1326",
-                        "tertiary-fixed-dim": "#ffb875",
-                        "on-error": "#690005",
-                        "background": "#0b1326",
-                        "on-background": "#dae2fd",
-                        "inverse-on-surface": "#283044",
-                        "primary-fixed": "#62fae3",
-                        "tertiary-fixed": "#ffdcc0",
-                        "surface-dim": "#0b1326",
-                        "on-secondary-fixed": "#07006c",
-                        "on-tertiary-container": "#744000",
-                        "on-secondary": "#1000a9",
-                        "on-error-container": "#ffdad6",
-                        "secondary": "#c0c1ff",
-                        "surface-container-lowest": "#060e20",
-                        "surface-variant": "#2d3449",
-                        "on-surface": "#dae2fd",
-                        "surface-container-highest": "#2d3449",
-                        "surface-tint": "#3cddc7",
-                        "tertiary": "#ffd1aa",
-                        "secondary-fixed-dim": "#c0c1ff",
-                        "on-primary-container": "#00574d",
-                        "surface-bright": "#31394d",
-                        "tertiary-container": "#ffac5a",
-                        "on-tertiary": "#4b2800",
-                        "primary-fixed-dim": "#3cddc7",
-                        "secondary-fixed": "#e1e0ff",
-                        "surface-container-low": "#131b2e",
-                        "surface-container-high": "#222a3d",
-                        "surface-container": "#171f33",
-                        "secondary-container": "#3131c0",
-                        "primary-container": "#2dd4bf",
-                        "on-primary-fixed": "#00201c",
-                        "error-container": "#93000a",
-                        "on-secondary-container": "#b0b2ff",
-                        "on-primary-fixed-variant": "#005047",
-                        "inverse-surface": "#dae2fd",
-                        "on-surface-variant": "#bacac5",
-                        "outline-variant": "#3c4a46",
-                        "outline": "#859490",
-                        "on-tertiary-fixed-variant": "#6b3b00",
-                        "inverse-primary": "#006b5f",
-                        "on-tertiary-fixed": "#2d1600"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "stack-sm": "8px",
-                        "gutter": "16px",
-                        "stack-lg": "32px",
-                        "stack-md": "16px",
-                        "base": "4px",
-                        "container-padding": "24px",
-                        "margin-desktop": "40px",
-                        "margin-mobile": "16px",
-                    },
-                    "fontFamily": {
-                        "label-caps": ["JetBrains Mono"],
-                        "headline-lg-mobile": ["Hanken Grotesk"],
-                        "title-md": ["Hanken Grotesk"],
-                        "display": ["Hanken Grotesk"],
-                        "body-lg": ["Inter"],
-                        "body-sm": ["Inter"],
-                        "headline-lg": ["Hanken Grotesk"]
-                    },
-                    "fontSize": {
-                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
-                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                        "title-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
-                        "display": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}]
-                    }
-                },
-            },
-        }
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body {
-            background-color: #0b1326;
-            color: #dae2fd;
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            min-height: max(884px, 100dvh);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .order-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .order-card:active {
-            transform: scale(0.98);
-        }
-        .glass-header {
-            background: rgba(11, 19, 38, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        
-        /* Ant Design Dark Mode Overrides */
-        .ant-modal-content {
-            background-color: #171f33 !important;
-            color: #dae2fd !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-        }
-        .ant-modal-header {
-            background-color: #171f33 !important;
-            color: #dae2fd !important;
-            border-bottom: 1px solid rgba(255,255,255,0.1) !important;
-        }
-        .ant-modal-title {
-            color: #57f1db !important;
-            font-family: 'Hanken Grotesk', sans-serif;
-            font-size: 20px !important;
-        }
-        .ant-modal-confirm-title {
-            color: #57f1db !important;
-            font-family: 'Hanken Grotesk', sans-serif;
-        }
-        .ant-modal-confirm-content {
-            color: #dae2fd !important;
-        }
-        .ant-modal-close-x {
-            color: #dae2fd !important;
-        }
-        .ant-input, .ant-input-number-input {
-            background-color: #0b1326 !important;
-            border: 1px solid rgba(255,255,255,0.2) !important;
-            color: #dae2fd !important;
-        }
-        .ant-input::placeholder, .ant-input-number-input::placeholder {
-            color: rgba(255,255,255,0.3) !important;
-        }
-        .ant-input:focus, .ant-input:hover, .ant-input-number-input:focus, .ant-input-number:hover {
-            border-color: #57f1db !important;
-            box-shadow: 0 0 0 2px rgba(87, 241, 219, 0.2) !important;
-        }
-        .ant-form-item-label > label {
-            color: #bacac5 !important;
-            font-family: 'Inter', sans-serif;
-        }
-        .ant-input-number {
-            background-color: #0b1326 !important;
-            border: 1px solid rgba(255,255,255,0.2) !important;
-        }
-        .ant-input-number-handler-wrap {
-            display: none !important;
-        }
-        .screenshot-mode-active {
-            max-width: none !important;
-            padding-bottom: 24px !important;
-        }
-        .screenshot-mode-active header {
-            position: static !important;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.2);
-        }
+        /* Vùng chụp ảnh gửi quán */
+        .capture{padding:4px}
+        .capture-title{display:none;text-align:center;padding:14px 0 10px}
+        .capture-title h3{font-size:20px;color:var(--teal)}
+        .capture-title p{color:var(--muted)}
+        .capture.shot .capture-title{display:block}
     </style>
 </head>
-<body class="bg-background text-on-background min-h-screen pb-24">
-    <div id="root"></div>
+<body>
+    <header class="topbar">
+        <div class="crumbs"><span class="cur">Đặt đồ uống</span></div>
+        <div class="top-actions">
+            <button class="btn ghost" id="dr-xlsx"><span class="ms">download</span><span>Xuất Excel</span></button>
+        </div>
+    </header>
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
-        const { Modal, Form, Input, InputNumber, message, Button } = antd;
-
-        const App = () => {
-            const [orders, setOrders] = useState([]);
-            const [currentDate, setCurrentDate] = useState(dayjs().format('YYYY-MM-DD'));
-            const [isModalOpen, setIsModalOpen] = useState(false);
-            const [editingOrderId, setEditingOrderId] = useState(null);
-            const [screenshotMode, setScreenshotMode] = useState(false);
-            const [isTotalModalOpen, setIsTotalModalOpen] = useState(false);
-            const [form] = Form.useForm();
-
-            useEffect(() => {
-                
-                const unsubscribe = db.collection('drink_orders').doc(currentDate).collection('orders')
-                    .orderBy('timestamp', 'asc')
-                    .onSnapshot((snapshot) => {
-                        const ordersList = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        setOrders(ordersList);
-                    }, (error) => {
-                        message.error('Lỗi tải dữ liệu: ' + error.message);
-                    });
-                return () => unsubscribe();
-            }, [currentDate]);
-
-
-
-            const togglePaymentStatus = async (orderId, currentStatus) => {
-                try {
-                    await db.collection('drink_orders').doc(currentDate).collection('orders').doc(orderId).update({
-                        isPaid: !currentStatus
-                    });
-                } catch (error) {
-                    message.error('Lỗi cập nhật: ' + error.message);
-                }
-            };
-
-            const handleEdit = (order) => {
-                setEditingOrderId(order.id);
-                form.setFieldsValue({
-                    name: order.name,
-                    drink: order.drink,
-                    note: order.note,
-                    price: order.price,
-                });
-                setIsModalOpen(true);
-            };
-
-            const showDeleteConfirm = (orderId) => {
-                Modal.confirm({
-                    title: 'Xóa món này?',
-                    content: 'Bạn có chắc chắn muốn xóa món này không? Hành động này không thể hoàn tác.',
-                    okText: 'Xóa',
-                    okType: 'danger',
-                    cancelText: 'Hủy',
-                    className: 'dark-modal',
-                    onOk: async () => {
-                        try {
-                            await db.collection('drink_orders').doc(currentDate).collection('orders').doc(orderId).delete();
-                            message.success('Đã xóa món!');
-                        } catch (error) {
-                            message.error('Lỗi xóa dữ liệu: ' + error.message);
-                        }
-                    }
-                });
-            };
-
-            const handleAddOrder = async (values) => {
-                try {
-                    if (editingOrderId) {
-                        await db.collection('drink_orders').doc(currentDate).collection('orders').doc(editingOrderId).update({
-                            name: values.name,
-                            drink: values.drink,
-                            note: values.note || '',
-                            price: values.price,
-                            addedBy: values.name,
-                        });
-                        message.success('Đã cập nhật món!');
-                    } else {
-                        await db.collection('drink_orders').doc(currentDate).collection('orders').add({
-                            name: values.name,
-                            drink: values.drink,
-                            note: values.note || '',
-                            price: values.price,
-                            isPaid: false,
-                            addedBy: values.name,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        message.success('Đã thêm đồ uống!');
-                    }
-                    setIsModalOpen(false);
-                    form.resetFields();
-                    setEditingOrderId(null);
-                } catch (error) {
-                    message.error('Lỗi lưu dữ liệu: ' + error.message);
-                }
-            };
-
-            const handleDownloadImage = () => {
-                const element = document.getElementById('report-capture-area');
-                if (!element) return;
-
-                const hideLoading = message.loading('Đang tạo ảnh chụp (vui lòng đợi)...', 0);
-
-                const wasScreenshotMode = screenshotMode;
-                if (!wasScreenshotMode) setScreenshotMode(true);
-
-                setTimeout(async () => {
-                    try {
-                        const canvas = await html2canvas(element, { 
-                            scale: 2, 
-                            backgroundColor: '#171f33',
-                            useCORS: true,
-                            windowWidth: element.scrollWidth,
-                            width: element.scrollWidth,
-                            windowHeight: element.scrollHeight,
-                            height: element.scrollHeight
-                        });
-                        const link = document.createElement('a');
-                        link.download = `DoUong_${currentDate}.png`;
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                        
-                        hideLoading();
-                        message.success('Đã tải ảnh thành công!');
-                        
-                        if (!wasScreenshotMode) setScreenshotMode(false);
-                    } catch (error) {
-                        hideLoading();
-                        message.error('Lỗi khi tạo ảnh: ' + error.message);
-                        if (!wasScreenshotMode) setScreenshotMode(false);
-                    }
-                }, 300);
-            };
-
-            const exportToExcel = () => {
-                if (!orders || orders.length === 0) {
-                    message.warning('Không có dữ liệu để xuất!');
-                    return;
-                }
-
-                const exportData = orders.map((order, idx) => ({
-                    'STT': idx + 1,
-                    'Người đặt': order.name,
-                    'Đồ uống': order.drink,
-                    'Ghi chú': order.note || '',
-                    'Giá': order.price,
-                    'Đã thanh toán': order.isPaid ? 'Đã Thanh Toán' : 'Chưa Thanh Toán'
-                }));
-
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "DoUong");
-
-                XLSX.writeFile(workbook, `ThongKeDoUong_${currentDate}.xlsx`);
-            };
-
-            const totalOrders = orders.length;
-            const totalPrice = orders.reduce((sum, order) => sum + (Number(order.price) || 0), 0);
-
-            const groupedDrinks = useMemo(() => {
-                const group = {};
-                orders.forEach(order => {
-                    if (!order.drink) return;
-                    const name = order.drink.trim();
-                    const note = order.note ? order.note.trim() : '';
-                    const key = `${name.toLowerCase()}|${note.toLowerCase()}`;
-                    if (!group[key]) {
-                        group[key] = { name: name, note: note, count: 1 };
-                    } else {
-                        group[key].count += 1;
-                    }
-                });
-                return Object.values(group).sort((a, b) => b.count - a.count);
-            }, [orders]);
-
-            // Format tiền
-            const formatMoney = (amount) => {
-                if (!amount) return '0k';
-                return (amount / 1000) + 'k';
-            };
-
-            return (
-                <div className={`w-full ${screenshotMode ? 'screenshot-mode-active' : ''}`}>
-                    <header className="sticky top-0 z-40 glass-header flex flex-col md:flex-row justify-between items-start md:items-center px-margin-mobile w-full py-4 border-b border-outline-variant/20 gap-4">
-                        <div className="flex items-center gap-4">
-                            <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
-                                ĐẶT ĐỒ UỐNG
-                            </h1>
-                            <input 
-                                type="date" 
-                                value={currentDate}
-                                onChange={(e) => setCurrentDate(e.target.value)}
-                                className="bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps rounded-lg px-2 py-1 outline-none focus:border-primary"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2" data-html2canvas-ignore>
-                            <button type="button" onClick={() => setScreenshotMode(!screenshotMode)} className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg ${screenshotMode ? 'bg-error text-slate-900 border-transparent shadow-[0_0_15px_rgba(255,180,171,0.4)]' : 'bg-surface-bright/50 hover:bg-surface-container-highest text-slate-200 border-outline-variant/30'} font-bold shadow-sm transition-all active:scale-95 text-[13px] whitespace-nowrap border`}>
-                                <span className="material-symbols-outlined text-[16px]">{screenshotMode ? 'fullscreen_exit' : 'fullscreen'}</span>
-                            </button>
-                            <button type="button" onClick={handleDownloadImage} className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 text-slate-900 font-bold shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all active:scale-95 text-[13px] whitespace-nowrap border border-transparent">
-                                <span className="material-symbols-outlined text-[16px]">image</span>
-                            </button>
-                            <button type="button" onClick={exportToExcel} className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#57f1db] hover:bg-[#3cddc7] text-[#003731] font-bold shadow-[0_0_15px_rgba(87,241,219,0.2)] transition-all active:scale-95 text-[13px] whitespace-nowrap border border-transparent">
-                                <span className="material-symbols-outlined text-[16px]">ios_share</span>
-                            </button>
-                        </div>
-                    </header>
-
-                    <main className="px-margin-mobile space-y-stack-lg pt-4 pb-24 max-w-[1280px] mx-auto">
-                        <div className="flex items-center justify-between">
-                            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">
-                                {dayjs(currentDate).format('DD/MM/YYYY')}
-                            </span>
-                        </div>
-
-                        <section className="grid grid-cols-2 gap-stack-md items-start">
-                            <div className="bg-surface-container-low p-stack-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col h-[280px] relative">
-                                <div className="flex items-center gap-2 mb-3 border-b border-outline-variant/10 pb-3 shrink-0">
-                                    <span className="material-symbols-outlined text-primary scale-90">shopping_cart</span>
-                                    <div className="flex flex-col">
-                                        <span className="font-label-caps text-label-caps text-on-surface-variant">TỔNG ĐƠN ({totalOrders})</span>
-                                    </div>
-                                </div>
-                                {groupedDrinks.length > 0 ? (
-                                    <>
-                                        <ul className="space-y-2 flex-1 overflow-hidden relative">
-                                            {groupedDrinks.slice(0, 3).map((item, idx) => (
-                                                <li key={idx} className="flex justify-between items-start text-sm border-b border-outline-variant/10 pb-3 mb-2 last:border-0 last:mb-0 last:pb-0">
-                                                    <div className="flex flex-col flex-1 pr-2">
-                                                        <span className="text-on-surface font-medium leading-snug">{item.name}</span>
-                                                        {item.note && <span className="text-on-surface-variant text-xs italic opacity-80 mt-1 uppercase">* {item.note}</span>}
-                                                    </div>
-                                                    <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-xs whitespace-nowrap mt-0.5">x{item.count}</span>
-                                                </li>
-                                            ))}
-                                            {groupedDrinks.length > 3 && (
-                                                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#171f33] to-transparent pointer-events-none"></div>
-                                            )}
-                                        </ul>
-                                        <button onClick={() => setIsTotalModalOpen(true)} className="mt-3 text-teal-400 text-sm font-bold hover:text-teal-300 w-full text-center py-2 transition-colors border border-teal-400/20 rounded-lg hover:bg-teal-400/10 shrink-0">
-                                            Xem tất cả ({groupedDrinks.length} loại)
-                                        </button>
-                                    </>
-                                ) : (
-                                    <div className="flex flex-col">
-                                        <div className="font-headline-lg text-headline-lg text-primary">{totalOrders}</div>
-                                        <div className="font-body-sm text-body-sm text-on-surface-variant mt-1">Sản phẩm đặt</div>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="bg-surface-container-high p-stack-lg rounded-xl shadow-md border border-outline-variant/30 relative overflow-hidden">
-                                <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
-                                <div className="flex items-center gap-2 mb-2 relative z-10">
-                                    <span className="material-symbols-outlined text-primary scale-90">payments</span>
-                                    <span className="font-label-caps text-label-caps text-on-surface">TỔNG TIỀN</span>
-                                </div>
-                                <div className="font-headline-lg text-headline-lg text-on-surface relative z-10">{formatMoney(totalPrice)}</div>
-                                <div className="font-body-sm text-body-sm text-on-surface-variant mt-1 relative z-10">VNĐ Dự tính</div>
-                            </div>
-                        </section>
-
-                        <section className="space-y-stack-md">
-                            <div className="flex justify-between items-center px-1">
-                                <h2 className="font-title-md text-title-md text-primary">Danh sách chi tiết</h2>
-                                <button 
-                                    onClick={() => {
-                                        setEditingOrderId(null);
-                                        form.resetFields();
-                                        setIsModalOpen(true);
-                                    }}
-                                    className="bg-[#57f1db] text-[#003731] px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(87,241,219,0.3)] hover:scale-105 active:scale-95 transition-all text-sm"
-                                >
-                                    <span className="material-symbols-outlined text-[18px] font-bold">add</span> Đặt món
-                                </button>
-                            </div>
-                            <div className="overflow-x-auto pb-2 -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
-                                <div className="min-w-[640px] bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="bg-surface-container-low border-b border-outline-variant/30">
-                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-12 text-center">STT</th>
-                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-40">Người đặt</th>
-                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold">Đồ uống (Kèm ghi chú)</th>
-                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-24">Giá</th>
-                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-32 text-center">Trạng thái</th>
-                                                <th className="p-3 font-label-caps text-label-caps text-on-surface-variant font-semibold w-24 text-center">Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-outline-variant/20">
-                                            {orders.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan="6" className="p-6 text-center text-on-surface-variant font-body-sm">
-                                                        Chưa có ai đặt đồ uống ngày này. Bấm dấu + để tạo đơn mới!
-                                                    </td>
-                                                </tr>
-                                            ) : (
-                                                orders.map((order, idx) => (
-                                                    <tr key={order.id} className="hover:bg-surface-variant/20 transition-colors order-row">
-                                                        <td className="p-3 text-center text-on-surface-variant font-label-caps">{idx + 1}</td>
-                                                        <td className="p-3">
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="font-title-md text-[14px] leading-[20px] text-on-surface whitespace-nowrap">{order.name}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="p-3 flex flex-col">
-                                                            <span className="font-body-sm text-body-sm text-on-surface">{order.drink}</span>
-                                                            {order.note && <span className="text-[12px] text-primary/80 mt-1 italic">*{order.note}</span>}
-                                                        </td>
-                                                        <td className="p-3">
-                                                            <span className="font-title-md text-[14px] leading-[20px] text-primary whitespace-nowrap">{formatMoney(order.price)}</span>
-                                                        </td>
-                                                        <td className="p-3 text-center">
-                                                            <button 
-                                                                onClick={() => togglePaymentStatus(order.id, order.isPaid)}
-                                                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter whitespace-nowrap transition-transform active:scale-95 ${
-                                                                    order.isPaid 
-                                                                        ? "bg-[#003731] text-[#62fae3] border border-[#005047]" 
-                                                                        : "bg-[#744000] text-[#ffdcc0] border border-[#965a00]"
-                                                                }`}
-                                                            >
-                                                                {order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
-                                                            </button>
-                                                        </td>
-                                                        <td className="p-3 text-center">
-                                                            <div className="flex items-center justify-center gap-2">
-                                                                <button onClick={() => handleEdit(order)} className="text-on-surface-variant hover:text-primary transition-colors p-1" title="Sửa">
-                                                                    <span className="material-symbols-outlined text-[18px]">edit</span>
-                                                                </button>
-                                                                <button onClick={() => showDeleteConfirm(order.id)} className="text-on-surface-variant hover:text-error transition-colors p-1" title="Xóa">
-                                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </section>
-
-                        <div className="mt-8 bg-surface-container-low rounded-2xl p-6 border border-dashed border-outline-variant flex flex-col items-center text-center">
-                            <span className="material-symbols-outlined text-primary text-4xl mb-2">celebration</span>
-                            <p className="font-title-md text-title-md text-on-surface">Danh sách chốt theo thời gian thực!</p>
-                            <p className="font-body-sm text-body-sm text-on-surface-variant">Vui lòng kiểm tra kỹ số tiền trước khi thanh toán cho cửa hàng.</p>
-                        </div>
-                    </main>
-
-
-
-                    {/* Add/Edit Order Modal */}
-                    <Modal
-                        title={editingOrderId ? "Chỉnh sửa Đồ Uống" : "Thêm Đồ Uống Mới"}
-                        open={isModalOpen}
-                        onCancel={() => {
-                            setIsModalOpen(false);
-                            setEditingOrderId(null);
-                            form.resetFields();
-                        }}
-                        footer={null}
-                        centered
-                        className="dark-modal"
-                    >
-                        <Form
-                            form={form}
-                            layout="vertical"
-                            onFinish={handleAddOrder}
-                            className="mt-4"
-                        >
-                            <Form.Item
-                                name="name"
-                                label="Họ và tên người nhận"
-                                rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
-                            >
-                                <Input size="large" placeholder="Ví dụ: Nguyễn Văn A" />
-                            </Form.Item>
-
-                            <Form.Item
-                                name="drink"
-                                label="Món đồ uống"
-                                rules={[{ required: true, message: 'Vui lòng nhập tên món!' }]}
-                            >
-                                <Input size="large" placeholder="Ví dụ: Trà sữa trân châu" />
-                            </Form.Item>
-
-                            <Form.Item
-                                name="price"
-                                label="Giá tiền (VNĐ)"
-                                rules={[{ required: true, message: 'Vui lòng nhập giá tiền!' }]}
-                            >
-                                <InputNumber 
-                                    size="large" 
-                                    className="w-full" 
-                                    placeholder="Ví dụ: 55000"
-                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                    parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                                />
-                            </Form.Item>
-
-                            <Form.Item
-                                name="note"
-                                label="Ghi chú thêm (Không bắt buộc)"
-                            >
-                                <Input size="large" placeholder="Ví dụ: 50% đường, ít đá..." />
-                            </Form.Item>
-
-                            <Form.Item className="mb-0 mt-6">
-                                <Button 
-                                    type="primary" 
-                                    htmlType="submit" 
-                                    size="large" 
-                                    className="w-full bg-[#57f1db] text-[#003731] hover:bg-[#3cddc7] border-none font-bold shadow-md"
-                                >
-                                    {editingOrderId ? "Cập nhật Đơn" : "Xác nhận Đặt"}
-                                </Button>
-                            </Form.Item>
-                        </Form>
-                    </Modal>
-
-                    {/* Modal Chi tiết Tổng Đơn */}
-                    <Modal
-                        title="CHI TIẾT TỔNG ĐƠN"
-                        open={isTotalModalOpen}
-                        onCancel={() => setIsTotalModalOpen(false)}
-                        footer={null}
-                        width={500}
-                    >
-                        <ul className="space-y-2 pr-2 mt-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                            {groupedDrinks.map((item, idx) => (
-                                <li key={idx} className="flex justify-between items-start text-sm border-b border-outline-variant/10 pb-3 mb-2 last:border-0 last:mb-0 last:pb-0">
-                                    <div className="flex flex-col flex-1 pr-2">
-                                        <span className="text-on-surface font-medium leading-snug text-base">{item.name}</span>
-                                        {item.note && <span className="text-on-surface-variant text-xs italic opacity-80 mt-1 uppercase">* {item.note}</span>}
-                                    </div>
-                                    <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded text-sm whitespace-nowrap mt-0.5">x{item.count}</span>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="mt-6 flex justify-end">
-                            <button type="button" onClick={handleDownloadImage} className="flex items-center justify-center gap-2 px-6 py-2 rounded-lg bg-teal-400 hover:bg-teal-300 text-slate-900 font-bold shadow-lg transition-all active:scale-95 text-sm">
-                                <span className="material-symbols-outlined text-[18px]">photo_camera</span> Chụp ảnh gửi quán
-                            </button>
-                        </div>
-                    </Modal>
-
-                    {/* Thẻ ẩn (off-screen) dành riêng cho việc chụp ảnh để tối ưu bố cục */}
-                    <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', width: '450px' }}>
-                        <div id="report-capture-area" className="bg-[#171f33] p-6 rounded-xl flex flex-col">
-                            <div className="flex items-center gap-3 mb-4 border-b border-white/10 pb-4">
-                                <span className="material-symbols-outlined text-teal-400 text-[32px]">local_cafe</span>
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-[20px] text-white leading-tight tracking-wide">TỔNG ĐƠN ĐỒ UỐNG ({totalOrders})</span>
-                                    <span className="text-[14px] text-teal-400 font-bold mt-1">{dayjs(currentDate).format('DD/MM/YYYY')}</span>
-                                </div>
-                            </div>
-                            <ul className="space-y-3">
-                                {groupedDrinks.map((item, idx) => (
-                                    <li key={idx} className="flex justify-between items-start text-base border-b border-white/5 pb-3 mb-2 last:border-0 last:mb-0 last:pb-0">
-                                        <div className="flex flex-col flex-1 pr-4">
-                                            <span className="text-white font-medium text-[16px]">{item.name}</span>
-                                            {item.note && <span className="text-gray-400 text-[13px] italic mt-1 uppercase">* {item.note}</span>}
-                                        </div>
-                                        <span className="text-slate-900 font-bold bg-teal-400 px-3 py-1 rounded text-[15px] mt-0.5">x{item.count}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
+    <div class="content">
+        <section id="view-drinks">
+            <div class="app-head">
+                <div><p class="eyebrow">Đồ uống</p><h2 class="h2">Đặt đồ uống</h2></div>
+                <div class="tools-l">
+                    <button class="icon-btn" id="dr-prev" aria-label="Ngày trước"><span class="ms">chevron_left</span></button>
+                    <label class="wk-label" for="dr-date" style="position:relative;cursor:pointer"><span class="ms">event</span><span id="dr-text"></span><input type="date" id="dr-date" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer" aria-label="Chọn ngày"></label>
+                    <button class="icon-btn" id="dr-next" aria-label="Ngày sau"><span class="ms">chevron_right</span></button>
+                    <button class="btn ghost" id="dr-today">Hôm nay</button>
+                    <button class="btn primary" id="dr-add"><span class="ms">add</span>Đặt món</button>
                 </div>
-            );
-        };
+            </div>
+            <div class="stats" id="dr-stats"></div>
+            <div class="dr-grid">
+                <div>
+                    <div class="filters">
+                        <div class="seg" id="dr-filter"><button data-f="all" class="on">Tất cả</button><button data-f="unpaid">Chưa thanh toán</button><button data-f="paid">Đã thanh toán</button></div>
+                        <input class="input" id="dr-q" placeholder="Tìm người đặt hoặc món…" aria-label="Tìm kiếm" style="flex:1;min-width:180px">
+                    </div>
+                    <div class="table-wrap dr-twrap"><table class="dr-table"><thead><tr><th style="width:44px;text-align:center">#</th><th style="width:170px">Người đặt</th><th>Đồ uống</th><th style="width:90px">Giá</th><th style="width:150px">Thanh toán</th><th style="width:90px;text-align:center"></th></tr></thead><tbody id="dr-body"><tr><td colspan="6"><div class="loading"><span class="ms">progress_activity</span>Đang tải đơn…</div></td></tr></tbody></table></div>
+                    <div class="dr-cards" id="dr-cards"></div>
+                </div>
+                <aside class="panel ticket">
+                    <div class="capture" id="report-capture-area">
+                        <div class="capture-title"><h3>Đơn đồ uống VPT</h3><p id="capture-date"></p></div>
+                        <div class="side-h"><h3>Phiếu gửi quán</h3><small id="tk-count"></small></div>
+                        <ul id="tk-list"></ul>
+                    </div>
+                    <div class="ticket-foot"><button class="btn soft" id="tk-copy"><span class="ms">content_copy</span>Sao chép</button><button class="btn ghost" id="tk-img"><span class="ms">photo_camera</span>Tải ảnh</button></div>
+                    <textarea class="input" id="tk-text" hidden readonly aria-label="Nội dung phiếu"></textarea>
+                </aside>
+            </div>
+        </section>
+    </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    <!-- Thêm / sửa đơn -->
+    <div class="modal" id="dr-modal" hidden>
+        <div class="scrim" data-dclose></div>
+        <form class="dialog wide dr-form" id="dr-form" role="dialog" aria-modal="true" aria-labelledby="dr-title" novalidate>
+            <div class="md-head"><h3 id="dr-title" style="font-size:20px">Thêm đồ uống</h3><button type="button" class="icon-btn" data-dclose aria-label="Đóng"><span class="ms">close</span></button></div>
+            <div class="field"><label class="lbl" for="dr-name">Người đặt *</label><input class="input" id="dr-name" autocomplete="name" placeholder="Ví dụ: Nguyễn Văn A"><p class="err" id="dr-name-err" hidden>Nhập tên người đặt.</p></div>
+            <div class="field"><label class="lbl" for="dr-drink">Món *</label><input class="input" id="dr-drink" placeholder="Ví dụ: Trà sữa trân châu"><div class="quick" id="dr-recent"></div><p class="err" id="dr-drink-err" hidden>Nhập tên món.</p></div>
+            <div class="field"><label class="lbl" for="dr-price">Giá (VNĐ) *</label><div class="dr-price-row"><input class="input mono" id="dr-price" inputmode="numeric" placeholder="Ví dụ: 35000"><span class="mono" id="dr-price-echo"></span></div><p class="err" id="dr-price-err" hidden>Nhập giá tiền là số.</p></div>
+            <div class="field"><label class="lbl" for="dr-note">Ghi chú</label><input class="input" id="dr-note" placeholder="Ví dụ: 50% đường, ít đá…"><div class="quick" id="dr-notes"></div></div>
+            <p class="err" id="dr-form-err" hidden></p>
+            <div class="md-actions"><button type="button" class="btn ghost" data-dclose>Hủy</button><button type="submit" class="btn primary" id="dr-submit">Xác nhận đặt</button></div>
+        </form>
+    </div>
+
+    <div class="toast" id="toast" hidden><span class="ms fill">check_circle</span><span id="toast-tx"></span></div>
+
+<script>
+/* ==== Đồ uống — Firestore (firebase-config.js)
+   drink_orders/<YYYY-MM-DD>/orders/<id> = { name, drink, note, price, isPaid, addedBy, timestamp } ==== */
+const { $, pad, ds, parseDs, addDays, esc, fm, todayStr, DL, store, toast, money, moneyFull } = VPT;
+const NOTE_CHIPS = ['Ít đá', '50% đường', 'Không đường', 'Nóng', 'Size L'];
+const D = { date: todayStr(), filter: 'all', q: '', edit: null, del: null, orders: [], loaded: false, recent: [] };
+let unsub = null;
+
+const col = date => db.collection('drink_orders').doc(date).collection('orders');
+function subscribe() {
+    if (unsub) unsub(); D.loaded = false; D.orders = []; D.del = null; render();
+    unsub = col(D.date).orderBy('timestamp', 'asc').onSnapshot(qs => {
+        D.orders = qs.docs.map(doc => { const o = doc.data(); return { id: doc.id, ...o, ts: o.timestamp && o.timestamp.toDate ? o.timestamp.toDate() : null }; });
+        D.loaded = true; render();
+    }, err => { D.loaded = true; toast('Lỗi tải dữ liệu: ' + err.message, 'bad'); render(); });
+}
+// Món hay gọi gần đây: gộp từ 7 ngày gần nhất (đọc 1 lần, dùng để gợi ý trong form)
+async function loadRecent() {
+    const g = {}; const days = []; for (let i = 0; i < 7; i++) days.push(ds(addDays(new Date(), -i)));
+    try {
+        const snaps = await Promise.all(days.map(d => col(d).get()));
+        snaps.forEach(qs => qs.forEach(doc => { const o = doc.data(); if (!o.drink) return; const k = o.drink.trim().toLowerCase(); g[k] = g[k] || { name: o.drink.trim(), n: 0, price: o.price }; g[k].n++; if (o.price) g[k].price = o.price; }));
+        D.recent = Object.values(g).sort((a, b) => b.n - a.n).slice(0, 6);
+    } catch (e) { D.recent = []; }
+}
+
+function group(list) { const g = {}; list.forEach(o => { if (!o.drink) return; const name = o.drink.trim(), note = (o.note || '').trim(), k = (name + '|' + note).toLowerCase(); g[k] = g[k] || { name, note, count: 0 }; g[k].count++; }); return Object.values(g).sort((a, b) => b.count - a.count); }
+
+function render() {
+    const d = parseDs(D.date), t = todayStr(), list = D.orders;
+    $('#dr-text').textContent = `${D.date === t ? 'Hôm nay' : DL[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+    $('#dr-date').value = D.date;
+    $('#capture-date').textContent = `${DL[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+    const total = list.reduce((s, o) => s + (Number(o.price) || 0), 0), paid = list.filter(o => o.isPaid), paidSum = paid.reduce((s, o) => s + (Number(o.price) || 0), 0), groups = group(list);
+    $('#dr-stats').innerHTML = `
+    <div class="stat"><span class="lbl">Tổng đơn</span><div class="v">${list.length}</div><small>${groups.length} loại đồ uống</small></div>
+    <div class="stat"><span class="lbl">Tổng tiền</span><div class="v">${money(total)}</div><small>${moneyFull(total)}</small></div>
+    <div class="stat"><span class="lbl">Đã thanh toán</span><div class="v ok">${paid.length}<small style="font:500 14px var(--f-body);color:var(--muted)"> / ${list.length}</small></div><div class="progress"><b style="width:${list.length ? paid.length / list.length * 100 : 0}%"></b></div>${list.length && paid.length < list.length ? '<button class="linkbtn" id="dr-payall">Đánh dấu tất cả đã thanh toán</button>' : '<small>' + (list.length ? 'Đã thu đủ' : 'Chưa có đơn') + '</small>'}</div>
+    <div class="stat"><span class="lbl">Còn phải thu</span><div class="v ${total - paidSum ? 'warnc' : ''}">${money(total - paidSum)}</div><small>${list.length - paid.length} người chưa thanh toán</small></div>`;
+    const pa = $('#dr-payall'); if (pa) pa.onclick = async () => {
+        const batch = db.batch(); list.filter(o => !o.isPaid).forEach(o => batch.update(col(D.date).doc(o.id), { isPaid: true }));
+        try { await batch.commit(); toast('Đã đánh dấu tất cả đã thanh toán'); } catch (err) { toast('Lỗi cập nhật: ' + err.message, 'bad'); }
+    };
+    document.querySelectorAll('#dr-filter button').forEach(b => b.classList.toggle('on', b.dataset.f === D.filter));
+    const q = D.q.trim().toLowerCase();
+    const rows = list.map((o, i) => ({ o, i })).filter(({ o }) => (D.filter === 'all' || (D.filter === 'paid') === !!o.isPaid) && (!q || ((o.name || '') + ' ' + (o.drink || '') + ' ' + (o.note || '')).toLowerCase().includes(q)));
+    const act = o => D.del === o.id ? `<div class="rowdel">Xóa? <button class="yes" data-dyes="${o.id}">Xóa</button><button data-dno="1">Giữ</button></div>` : `<div class="rowact"><button class="icon-btn sm" data-edit="${o.id}" title="Sửa"><span class="ms">edit</span></button><button class="icon-btn sm danger" data-del="${o.id}" title="Xóa"><span class="ms">delete</span></button></div>`;
+    const pay = o => `<button class="pay ${o.isPaid ? 'yes' : 'no'}" data-pay="${o.id}" title="Bấm để đổi trạng thái"><span class="ms">${o.isPaid ? 'check_circle' : 'schedule'}</span>${o.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}</button>`;
+    const empty = !D.loaded ? '<div class="loading"><span class="ms">progress_activity</span>Đang tải đơn…</div>' : list.length ? 'Không có đơn nào khớp bộ lọc.' : 'Chưa có ai đặt đồ uống ngày này. Bấm <b>Đặt món</b> để tạo đơn đầu tiên.';
+    $('#dr-body').innerHTML = rows.length ? rows.map(({ o, i }) => `<tr><td class="n">${i + 1}</td><td><b style="font-weight:600">${esc(o.name)}</b>${o.ts ? `<div class="who mono" style="font-size:12px">${fm(o.ts.getHours() * 60 + o.ts.getMinutes())}</div>` : ''}</td><td class="drink"><b>${esc(o.drink)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ''}</td><td class="price">${money(o.price)}</td><td>${pay(o)}</td><td>${act(o)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty" style="text-align:center;padding:32px">${empty}</td></tr>`;
+    $('#dr-cards').innerHTML = rows.length ? rows.map(({ o }) => `<div class="dr-card"><div class="top"><b>${esc(o.name)}</b><span class="price">${money(o.price)}</span></div><div class="mid">${esc(o.drink)}${o.note ? `<small>${esc(o.note)}</small>` : ''}</div><div class="bot">${pay(o)}${act(o)}</div></div>`).join('') : `<p class="empty">${empty}</p>`;
+    $('#tk-count').textContent = list.length ? `${list.length} ly` : '';
+    $('#tk-list').innerHTML = groups.length ? groups.map(g => `<li><span class="qty">${g.count}×</span><div class="what"><b>${esc(g.name)}</b>${g.note ? `<small>${esc(g.note)}</small>` : ''}</div></li>`).join('') : `<li class="empty">Chưa có món nào để gửi quán.</li>`;
+    $('#tk-text').value = `ĐƠN ĐỒ UỐNG VPT – ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}\nTổng ${list.length} ly\n` + groups.map(g => `${g.count} × ${g.name}${g.note ? ' (' + g.note + ')' : ''}`).join('\n');
+}
+
+/* ---------- điều hướng / lọc ---------- */
+function gotoDate(s) { D.date = s; subscribe(); }
+$('#dr-filter').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; D.filter = b.dataset.f; render(); });
+$('#dr-q').addEventListener('input', e => { D.q = e.target.value; render(); });
+$('#dr-prev').onclick = () => gotoDate(ds(addDays(parseDs(D.date), -1)));
+$('#dr-next').onclick = () => gotoDate(ds(addDays(parseDs(D.date), 1)));
+$('#dr-today').onclick = () => gotoDate(todayStr());
+$('#dr-date').addEventListener('change', e => { if (e.target.value) gotoDate(e.target.value); });
+
+/* ---------- thao tác trên đơn ---------- */
+$('#view-drinks').addEventListener('click', async e => {
+    const p = e.target.closest('[data-pay]'); if (p) { const o = D.orders.find(x => x.id === p.dataset.pay); try { await col(D.date).doc(o.id).update({ isPaid: !o.isPaid }); } catch (err) { toast('Lỗi cập nhật: ' + err.message, 'bad'); } return; }
+    const ed = e.target.closest('[data-edit]'); if (ed) { openDrink(D.orders.find(x => x.id === ed.dataset.edit)); return; }
+    const dl = e.target.closest('[data-del]'); if (dl) { D.del = dl.dataset.del; render(); return; }
+    if (e.target.closest('[data-dno]')) { D.del = null; render(); return; }
+    const y = e.target.closest('[data-dyes]'); if (y) { const o = D.orders.find(x => x.id === y.dataset.dyes); D.del = null; try { await col(D.date).doc(o.id).delete(); toast(`Đã xóa ${o.drink} của ${o.name}`); } catch (err) { toast('Lỗi xóa: ' + err.message, 'bad'); render(); } }
+});
+$('#tk-copy').onclick = () => {
+    const tx = $('#tk-text').value;
+    const ok = () => toast('Đã sao chép phiếu, dán vào Zalo gửi quán');
+    const fail = () => { const ta = $('#tk-text'); ta.hidden = false; ta.focus(); ta.select(); toast('Không sao chép tự động được, hãy bôi đen nội dung bên dưới', 'warn'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(tx).then(ok, fail); else fail();
+};
+$('#tk-img').onclick = () => {
+    const el = $('#report-capture-area'); el.classList.add('shot'); toast('Đang tạo ảnh…');
+    setTimeout(async () => {
+        try {
+            const bg = getComputedStyle(document.querySelector('.ticket')).backgroundColor;
+            const canvas = await html2canvas(el, { scale: 2, backgroundColor: bg, useCORS: true, windowWidth: el.scrollWidth, width: el.scrollWidth, windowHeight: el.scrollHeight, height: el.scrollHeight });
+            const a = document.createElement('a'); a.download = `DoUong_${D.date}.png`; a.href = canvas.toDataURL('image/png'); a.click(); toast('Đã tải ảnh phiếu');
+        } catch (err) { toast('Lỗi khi tạo ảnh: ' + err.message, 'bad'); }
+        el.classList.remove('shot');
+    }, 300);
+};
+$('#dr-xlsx').onclick = () => {
+    if (!D.orders.length) { toast('Không có dữ liệu để xuất.', 'warn'); return; }
+    const rows = D.orders.map((o, i) => ({ 'STT': i + 1, 'Người đặt': o.name, 'Đồ uống': o.drink, 'Ghi chú': o.note || '', 'Giá': o.price, 'Đã thanh toán': o.isPaid ? 'Đã Thanh Toán' : 'Chưa Thanh Toán' }));
+    const ws = XLSX.utils.json_to_sheet(rows), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'DoUong'); XLSX.writeFile(wb, `ThongKeDoUong_${D.date}.xlsx`); toast('Đã xuất file Excel');
+};
+
+/* ---------- form thêm / sửa ---------- */
+function openDrink(o) {
+    D.edit = o ? o.id : null; const prof = store.get('mrb_drink');
+    $('#dr-title').textContent = o ? 'Sửa đồ uống' : 'Thêm đồ uống'; $('#dr-submit').textContent = o ? 'Cập nhật đơn' : 'Xác nhận đặt'; $('#dr-submit').disabled = false;
+    $('#dr-name').value = o ? o.name : (prof && prof.name || ''); $('#dr-drink').value = o ? o.drink : ''; $('#dr-price').value = o ? o.price : ''; $('#dr-note').value = o ? o.note || '' : '';
+    ['name', 'drink', 'price'].forEach(k => { $('#dr-' + k).classList.remove('bad'); $('#dr-' + k + '-err').hidden = true; }); $('#dr-form-err').hidden = true;
+    $('#dr-recent').innerHTML = D.recent.map(r => `<button type="button" data-rd="${esc(r.name)}" data-rp="${Number(r.price) || ''}">${esc(r.name)}${r.price ? ' · ' + money(r.price) : ''}</button>`).join('');
+    $('#dr-notes').innerHTML = NOTE_CHIPS.map(n => `<button type="button" data-rn="${esc(n)}">${esc(n)}</button>`).join('');
+    priceEcho(); $('#dr-modal').hidden = false; setTimeout(() => $(o || (prof && prof.name) ? '#dr-drink' : '#dr-name').focus(), 50);
+}
+function priceEcho() { const v = Number(String($('#dr-price').value).replace(/\D/g, '')) || 0; $('#dr-price-echo').textContent = v ? moneyFull(v) : ''; }
+$('#dr-price').addEventListener('input', priceEcho);
+$('#dr-add').onclick = () => openDrink(null);
+$('#dr-modal').addEventListener('click', e => {
+    if (e.target.closest('[data-dclose]')) { $('#dr-modal').hidden = true; return; }
+    const r = e.target.closest('[data-rd]'); if (r) { $('#dr-drink').value = r.dataset.rd; if (!$('#dr-price').value && r.dataset.rp) $('#dr-price').value = r.dataset.rp; priceEcho(); $('#dr-price').focus(); return; }
+    const n = e.target.closest('[data-rn]'); if (n) { const i = $('#dr-note'); i.value = i.value ? (i.value.toLowerCase().includes(n.dataset.rn.toLowerCase()) ? i.value : i.value + ', ' + n.dataset.rn) : n.dataset.rn; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#dr-modal').hidden) $('#dr-modal').hidden = true; });
+$('#dr-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = $('#dr-name').value.trim().replace(/\s+/g, ' '), drink = $('#dr-drink').value.trim(), price = Number(String($('#dr-price').value).replace(/\D/g, '')), note = $('#dr-note').value.trim();
+    let bad = false; [['name', !name], ['drink', !drink], ['price', !price]].forEach(([k, no]) => { $('#dr-' + k).classList.toggle('bad', no); $('#dr-' + k + '-err').hidden = !no; if (no && !bad) { $('#dr-' + k).focus(); bad = true; } });
+    if (bad) return;
+    const btn = $('#dr-submit'); btn.disabled = true; $('#dr-form-err').hidden = true;
+    try {
+        if (D.edit) { await col(D.date).doc(D.edit).update({ name, drink, note, price, addedBy: name }); toast('Đã cập nhật đơn'); }
+        else { await col(D.date).add({ name, drink, note, price, isPaid: false, addedBy: name, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); toast(`Đã thêm ${drink} cho ${name}`); }
+        store.set('mrb_drink', { name }); $('#dr-modal').hidden = true;
+        if (!D.recent.find(r => r.name.toLowerCase() === drink.toLowerCase())) D.recent.unshift({ name: drink, n: 1, price });
+    } catch (err) { $('#dr-form-err').hidden = false; $('#dr-form-err').textContent = 'Lỗi lưu dữ liệu: ' + err.message; }
+    btn.disabled = false;
+});
+
+subscribe(); loadRecent();
+</script>
 </body>
 </html>

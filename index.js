@@ -1,335 +1,295 @@
-// Constants
-const START_HOUR = 8;
-const END_HOUR = 18;
-const SLOT_DURATION = 30;
+/* Đặt phòng họp — meeting.html
+   Dữ liệu: Firestore  meeting_bookings_<room>/<YYYY-MM-DD>  =>  { "08:00 - 08:30": {name, purpose, department}, ... }
+   Phòng VIP cũ (collection phong_vip) được hiển thị là "Phòng Họp Vừa". */
+const { $, pad, ds, parseDs, addDays, mondayOf, isoWeek, esc, fm, nowMin, todayStr, DS, DL, store, toast } = VPT;
 
-// Elements
-const datesContainer = document.getElementById('dates-container');
-const slotsContainer = document.getElementById('slots-container');
-const currentMonthDisplay = document.getElementById('current-month-display');
-const nextBtn = document.getElementById('next-btn');
-const counterEl = document.getElementById('selected-count');
-const monthBtn = document.getElementById('month-btn');
-const datePicker = document.getElementById('date-picker');
+const START_HOUR = 8, END_HOUR = 18, SLOT_DURATION = 30;
+const START = START_HOUR * 60, END = END_HOUR * 60, STEP = SLOT_DURATION, ROW = 46;
+const SLOTS = []; for (let m = START; m < END; m += STEP) SLOTS.push({ s: m, e: m + STEP, key: `${fm(m)} - ${fm(m + STEP)}` });
+const N = SLOTS.length;
 
-const infoModal = document.getElementById('info-modal');
-const modalTime = document.getElementById('modal-time');
-const modalDept = document.getElementById('modal-dept');
-const modalName = document.getElementById('modal-name');
-const modalPurpose = document.getElementById('modal-purpose');
-const cancelNameInput = document.getElementById('cancel-name-input');
-const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+const ROOMS = [
+    { id: 'phong_hop_nho', name: 'Phòng Họp Nhỏ', floor: 'Tầng 2', icon: 'group', c: '#b48cff' },
+    { id: 'phong_vip', name: 'Phòng Họp Vừa', floor: 'Tầng 3', icon: 'groups', c: '#e9a23b' },
+    { id: 'phong_hop_lon', name: 'Phòng Họp Lớn', floor: 'Tầng 3', icon: 'meeting_room', c: '#8f91ff' }];
+const roomById = id => ROOMS.find(r => r.id === id);
+const colOf = room => db.collection('meeting_bookings_' + room);
 
-// State
-let selectedDateStr = ''; // YYYY-MM-DD
-let selectedSlots = []; // Array of slot strings like "08:00 - 08:30"
-let currentListener = null; // Quản lý Firebase listener
-let currentCancelSlot = null;
-let currentCancelBooker = null;
+const DEPTS = [['IT', '#2b9fd9'], ['Marketing', '#d14d9c'], ['Kế toán', '#c9a227'], ['ISO', '#e0702c'], ['Công tác xã hội', '#35a866'], ['Nhân sự', '#e0485f'], ['Hành chính', '#8b5cf6'], ['Ban Tổng Giám đốc', '#7d8db0'], ['Chánh văn phòng', '#b0763c']];
+const deptColor = d => (DEPTS.find(x => x[0] === d) || [0, '#52d2a6'])[1];
 
-// Khởi tạo
-document.addEventListener('DOMContentLoaded', () => {
-    initCalendar(new Date());
-    
-    // Gọi lịch khi bấm nút
-    monthBtn.addEventListener('click', () => {
-        try {
-            datePicker.showPicker();
-        } catch (e) {
-            datePicker.focus();
-            datePicker.click();
-        }
-    });
-    
-    datePicker.addEventListener('change', (e) => {
-        if (e.target.value) {
-            const val = e.target.value;
-            if (val.includes('-W')) {
-                const [yearStr, weekNumStr] = val.split('-W');
-                const y = parseInt(yearStr, 10);
-                const w = parseInt(weekNumStr, 10);
-                
-                const simple = new Date(y, 0, 1 + (w - 1) * 7);
-                const dow = simple.getDay();
-                const ISOweekStart = simple;
-                if (dow <= 4) {
-                    ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
-                } else {
-                    ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
-                }
-                initCalendar(ISOweekStart);
-            } else {
-                initCalendar(new Date(val));
-            }
-        }
-    });
-});
+const durTx = n => { const m = n * STEP, h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h} giờ ${r} phút` : `${h} giờ`) : `${r} phút`; };
+const rangeTx = (a, b) => `${fm(SLOTS[a].s)}–${fm(SLOTS[b].e)}`;
+const dayLabel = s => { const t = todayStr(); if (s === t) return 'Hôm nay'; if (s === ds(addDays(new Date(), 1))) return 'Ngày mai'; const d = parseDs(s); return `${DS[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}`; };
+const groupRanges = arr => { const s = [...arr].sort((a, b) => a - b), out = []; s.forEach(i => { const l = out[out.length - 1]; if (l && l.b === i - 1) l.b = i; else out.push({ a: i, b: i }); }); return out; };
 
-function getLocalDateStr(d) {
-    const year = d.getFullYear();
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const day = d.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
+/* ---------- cache dữ liệu theo phòng / ngày ---------- */
+const DAY = {}; ROOMS.forEach(r => DAY[r.id] = {});          // DAY[room][date] = slots map
+const LOADED = {}; ROOMS.forEach(r => LOADED[r.id] = new Set()); // ngày đã tải (kể cả ngày không có doc)
+const getDay = (room, date) => DAY[room][date] || {};
 
-function initCalendar(targetDate) {
-    const target = targetDate || new Date();
-    
-    // Tính toán ngày Thứ 2 của tuần chứa targetDate
-    const dayOfWeek = target.getDay();
-    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    
-    const startOfWeek = new Date(target);
-    startOfWeek.setDate(target.getDate() + diffToMonday);
-
-    // Tính toán số Tuần (ISO week number)
-    const tempDate = new Date(target.getTime());
-    tempDate.setHours(0, 0, 0, 0);
-    tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
-    const week1 = new Date(tempDate.getFullYear(), 0, 4);
-    const weekNumber = 1 + Math.round(((tempDate.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-
-    // Set current month display
-    const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-    currentMonthDisplay.textContent = `Tuần ${weekNumber} - ${monthNames[target.getMonth()]}, ${target.getFullYear()}`;
-
-    // Xác định ngày đang được chọn
-    const targetDateStr = getLocalDateStr(target);
-    selectedDateStr = targetDateStr;
-
-    // Generate 7 days (T2 -> CN)
-    datesContainer.innerHTML = '';
-    const dayNamesList = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-    
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(startOfWeek);
-        d.setDate(startOfWeek.getDate() + i);
-        
-        const dateStr = getLocalDateStr(d);
-        const dayStr = dayNamesList[d.getDay()];
-        const dateNum = d.getDate().toString().padStart(2, '0');
-        
-        const isSelected = (dateStr === targetDateStr);
-        const isToday = (dateStr === getLocalDateStr(new Date()));
-        
-        const btn = document.createElement('button');
-        btn.className = `date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center group transition-all duration-300 ${isSelected ? 'border-primary/50 bg-primary/10 selected-glow' : ''}`;
-        btn.innerHTML = `
-            <span class="font-label-caps text-label-caps group-hover:text-primary ${isSelected ? 'text-primary' : 'text-on-surface-variant'} ${isToday ? 'mt-3' : 'mt-1'}">${dayStr}</span>
-            <span class="font-display-lg text-headline-lg ${isToday ? 'text-[#39ff14] drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]' : 'text-on-surface'}">${dateNum}</span>
-            ${isToday ? '<span class="w-1.5 h-1.5 rounded-full bg-[#39ff14] shadow-[0_0_8px_rgba(57,255,20,0.8)] mb-2 animate-pulse"></span>' : '<span class="h-1.5 mb-2"></span>'}
-        `;
-        
-        btn.onclick = () => selectDate(dateStr, btn);
-        datesContainer.appendChild(btn);
-    }
-    
-    renderSlots();
-}
-
-function selectDate(dateStr, clickedBtn) {
-    selectedDateStr = dateStr;
-    selectedSlots = []; // Reset selected slots khi đổi ngày
-    updateSelectedCounter();
-    
-    // Update active class on buttons
-    document.querySelectorAll('.date-btn').forEach(btn => {
-        btn.className = 'date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center group transition-all duration-300';
-        
-        const firstSpan = btn.querySelector('span:first-child');
-        const isToday = btn.querySelector('span:last-child').classList.contains('animate-pulse');
-        firstSpan.className = `font-label-caps text-label-caps group-hover:text-primary text-on-surface-variant ${isToday ? 'mt-3' : 'mt-1'}`;
-    });
-    
-    clickedBtn.className = 'date-btn flex-shrink-0 w-20 h-28 glass-card rounded-2xl flex flex-col items-center justify-center group transition-all duration-300 border-primary/50 bg-primary/10 selected-glow';
-    
-    const clickedFirstSpan = clickedBtn.querySelector('span:first-child');
-    const isClickedToday = clickedBtn.querySelector('span:last-child').classList.contains('animate-pulse');
-    clickedFirstSpan.className = `font-label-caps text-label-caps group-hover:text-primary text-primary ${isClickedToday ? 'mt-3' : 'mt-1'}`;
-    
-    renderSlots();
-}
-
-function generateTimeSlots() {
-    const slots = [];
-    for (let h = START_HOUR; h < END_HOUR; h++) {
-        for (let m = 0; m < 60; m += SLOT_DURATION) {
-            const startTime = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-            let nextH = h;
-            let nextM = m + SLOT_DURATION;
-            if (nextM >= 60) {
-                nextH += 1;
-                nextM -= 60;
-            }
-            const endTime = `${nextH.toString().padStart(2, '0')}:${nextM.toString().padStart(2, '0')}`;
-            slots.push(`${startTime} - ${endTime}`);
-        }
-    }
-    return slots;
-}
-
-function renderSlots() {
-    slotsContainer.innerHTML = '';
-    const slots = generateTimeSlots();
-    
-    if (currentListener) {
-        currentListener();
-    }
-    
-    const deptColors = {
-        "IT": { hex: "#00f0ff", rgb: "0, 240, 255" }, // Cyan
-        "Marketing": { hex: "#ff00ff", rgb: "255, 0, 255" }, // Magenta
-        "Kế toán": { hex: "#ffea00", rgb: "255, 234, 0" }, // Yellow
-        "ISO": { hex: "#ff5e00", rgb: "255, 94, 0" }, // Orange
-        "Công tác xã hội": { hex: "#00ff00", rgb: "0, 255, 0" }, // Green
-        "Nhân sự": { hex: "#ff0055", rgb: "255, 0, 85" }, // Pink
-        "Hành chính": { hex: "#b200ff", rgb: "178, 0, 255" }, // Purple
-        "Ban Tổng Giám đốc": { hex: "#ffffff", rgb: "255, 255, 255" }, // White
-        "Chánh văn phòng": { hex: "#ffaa00", rgb: "255, 170, 0" }, // Golden Orange
-        "default": { hex: "#39ff14", rgb: "57, 255, 20" } // Neon green
-    };
-
-    currentListener = db.collection('meeting_bookings').doc(selectedDateStr).onSnapshot((doc) => {
-        const dayBookings = doc.exists ? doc.data() : {};
-        slotsContainer.innerHTML = ''; 
-        
-        slots.forEach(slot => {
-            const isBooked = dayBookings[slot];
-            
-            if (isBooked) {
-                const deptName = isBooked.department || 'Đã đặt';
-                const colorInfo = deptColors[isBooked.department] || deptColors["default"];
-                
-                const div = document.createElement('div');
-                div.className = 'glass-card rounded-xl py-5 px-6 flex justify-between items-center cursor-pointer transition-soft border booked-slot';
-                div.style.setProperty('--dept-color', colorInfo.hex);
-                div.style.setProperty('--dept-rgb', colorInfo.rgb);
-                
-                div.innerHTML = `
-                    <span class="font-mono-data text-mono-data text-on-surface line-through booked-line-through">${slot}</span>
-                    <span class="font-label-caps text-[10px] uppercase border px-2 py-0.5 rounded truncate max-w-[120px] booked-tag">${deptName}</span>
-                `;
-                div.onclick = () => cancelBooking(slot, isBooked, colorInfo.hex);
-                slotsContainer.appendChild(div);
-            } else {
-                const btn = document.createElement('button');
-                const isSelected = selectedSlots.includes(slot);
-                btn.className = `time-slot glass-card rounded-xl py-5 px-6 flex justify-between items-center group time-slot-transition cursor-pointer ${isSelected ? 'selected-glow bg-primary/5 border-primary/40' : 'border-transparent'}`;
-                btn.innerHTML = `
-                    <span class="font-mono-data text-mono-data ${isSelected ? 'text-primary' : 'text-on-surface group-hover:text-primary'}">${slot}</span>
-                    <span class="material-symbols-outlined text-primary transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-[.selected-glow]:opacity-100'}" style="${isSelected ? "font-variation-settings: 'FILL' 1;" : "font-variation-settings: 'FILL' 0;"}">check_circle</span>
-                `;
-                btn.onclick = () => toggleSlot(btn, slot);
-                slotsContainer.appendChild(btn);
-            }
+// Tải một khoảng ngày của một phòng bằng 1 truy vấn theo documentId
+function loadRange(room, from, to) {
+    const need = []; for (let d = parseDs(from); ds(d) <= to; d = addDays(d, 1)) if (!LOADED[room].has(ds(d))) need.push(ds(d));
+    if (!need.length) return Promise.resolve();
+    return colOf(room)
+        .where(firebase.firestore.FieldPath.documentId(), '>=', from)
+        .where(firebase.firestore.FieldPath.documentId(), '<=', to)
+        .get().then(qs => {
+            need.forEach(d => { LOADED[room].add(d); if (!DAY[room][d]) DAY[room][d] = {}; });
+            qs.forEach(doc => { DAY[room][doc.id] = doc.data() || {}; });
         });
+}
+
+const isPast = (date, i) => { const t = todayStr(); if (date < t) return true; if (date > t) return false; return SLOTS[i].e <= nowMin(); };
+function meetingsOf(room, date) {
+    const day = getDay(room, date), out = []; let cur = null;
+    SLOTS.forEach((sl, i) => {
+        const b = day[sl.key]; if (!b) { cur = null; return; }
+        const k = (b.name || '') + '|' + (b.department || '') + '|' + (b.purpose || '');
+        if (cur && cur.k === k && cur.end === i - 1) { cur.end = i; cur.keys.push(sl.key); }
+        else { cur = { k, start: i, end: i, keys: [sl.key], b, room, date }; out.push(cur); }
     });
+    return out;
+}
+function firstFree(room, date, len) {
+    const day = getDay(room, date);
+    for (let i = 0; i + len <= N; i++) { let ok = true; for (let j = i; j < i + len; j++) { if (day[SLOTS[j].key] || isPast(date, j)) { ok = false; i = j; break; } } if (ok) return i; }
+    return -1;
+}
+function findAhead(room, len) {
+    for (let off = 0; off < 14; off++) { const d = addDays(new Date(), off); if (d.getDay() === 0) continue; const s = ds(d), i = firstFree(room, s, len); if (i >= 0) return { date: s, i }; }
+    return null;
 }
 
-function toggleSlot(el, slotTime) {
-    const isSelected = selectedSlots.includes(slotTime);
-    const timeText = el.querySelector('span:first-child');
-    const icon = el.querySelector('.material-symbols-outlined');
-    
-    if (isSelected) {
-        // Deselect
-        el.classList.remove('selected-glow', 'bg-primary/5', 'border-primary/40');
-        el.classList.add('border-transparent');
-        timeText.className = 'font-mono-data text-mono-data text-on-surface group-hover:text-primary';
-        icon.classList.replace('opacity-100', 'opacity-0');
-        icon.style.fontVariationSettings = "'FILL' 0";
-        selectedSlots = selectedSlots.filter(s => s !== slotTime);
-    } else {
-        // Select
-        el.classList.remove('border-transparent');
-        el.classList.add('selected-glow', 'bg-primary/5', 'border-primary/40');
-        timeText.className = 'font-mono-data text-mono-data text-primary';
-        icon.classList.replace('opacity-0', 'opacity-100');
-        icon.style.fontVariationSettings = "'FILL' 1";
-        selectedSlots.push(slotTime);
+/* ---------- trạng thái giao diện ---------- */
+const S = { view: 'rooms', room: null, date: todayStr(), week: mondayOf(new Date()), sel: new Set(), last: null, finderLen: 2, modal: null, finderReady: false };
+let todayUnsubs = [], dayUnsub = null;
+
+function show(view) {
+    S.view = view;
+    ['rooms', 'booking'].forEach(v => $('#view-' + v).hidden = v !== view);
+    $('#bottom-action-bar').hidden = view !== 'booking';
+    renderCrumbs();
+    window.scrollTo({ top: 0 });
+    if (view === 'rooms') renderRooms();
+    if (view === 'booking') renderBooking();
+}
+function renderCrumbs() {
+    const r = S.room && roomById(S.room); let items = [];
+    if (S.view === 'rooms') items = [['Chọn phòng họp']];
+    if (S.view === 'booking') items = [['Phòng họp', 'rooms'], [`${r.name} (${r.floor})`]];
+    const back = items.length > 1 ? `<button class="icon-btn" data-go="${items[items.length - 2][1]}" aria-label="Quay lại"><span class="ms">arrow_back</span></button>` : '';
+    $('#crumbs').innerHTML = back + items.map((it, i) => i === items.length - 1 ? `<span class="cur">${esc(it[0])}</span>` : `<button data-go="${it[1]}">${esc(it[0])}</button><span class="sep">/</span>`).join('');
+}
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) show(g.dataset.go); });
+
+/* ---------- màn chọn phòng ---------- */
+function renderRooms() {
+    const t = todayStr(), nm = nowMin(), td = new Date();
+    $('#rooms-eyebrow').textContent = `Hôm nay · ${DL[td.getDay()]}, ${pad(td.getDate())}/${pad(td.getMonth() + 1)}/${td.getFullYear()} · ${fm(nm)}`;
+    $('#rooms').innerHTML = ROOMS.map(r => {
+        const loaded = LOADED[r.id].has(t), ms = meetingsOf(r.id, t), day = getDay(r.id, t), booked = Object.keys(day).length;
+        const live = ms.find(m => SLOTS[m.start].s <= nm && nm < SLOTS[m.end].e);
+        let st;
+        if (!loaded) st = ['idle', 'Đang tải…'];
+        else if (nm >= END) st = ['idle', 'Hết giờ làm việc'];
+        else if (nm < START) st = ['idle', 'Chưa đến giờ làm việc'];
+        else if (live) st = ['busy', `Đang họp · đến ${fm(SLOTS[live.end].e)}`];
+        else { const nx = ms.find(m => SLOTS[m.start].s > nm); st = ['free', nx ? `Trống · đến ${fm(SLOTS[nx.start].s)}` : 'Trống đến hết ngày']; }
+        const freeLeft = SLOTS.filter((s, i) => !day[s.key] && !isPast(t, i)).length;
+        const strip = SLOTS.map((s, i) => { const b = day[s.key]; return `<i class="${b ? 'b' : ''} ${isPast(t, i) ? 'p' : ''} ${s.s <= nm && nm < s.e ? 'cur' : ''}" ${b ? `style="--c:${deptColor(b.department)}"` : ''}></i>`; }).join('');
+        const up = ms.filter(m => SLOTS[m.end].e > nm).slice(0, 2);
+        const upHtml = up.length ? up.map(m => `<div class="rn"><span class="dot" style="--c:${deptColor(m.b.department)}"></span><span class="mono">${rangeTx(m.start, m.end)}</span><span>${esc(m.b.purpose)}</span></div>`).join('') : `<div class="rn" style="color:var(--muted)">${loaded ? 'Không còn cuộc họp nào hôm nay' : '…'}</div>`;
+        return `<button class="room" data-room="${r.id}" style="--rc:${r.c}">
+      <div class="room-top"><span class="room-ic"><span class="ms">${r.icon}</span></span>
+        <div class="room-name"><h3>${r.name}</h3><p><span class="ms">location_on</span>${r.floor}</p></div>
+        <span class="pill ${st[0]}"><i></i>${st[1]}</span></div>
+      <div><div class="strip" aria-hidden="true">${strip}</div><div class="strip-scale"><span>08:00</span><span>13:00</span><span>18:00</span></div></div>
+      <div class="room-stats"><span>Đã đặt hôm nay <b>${booked ? durTx(booked) : '0 phút'}</b></span><span>Còn <b>${freeLeft}</b> khung trống</span></div>
+      <div class="room-next"><span class="lbl">Sắp diễn ra</span>${upHtml}</div>
+      <div class="room-cta"><span>Xem lịch & đặt phòng</span><span class="ms">arrow_forward</span></div>
+    </button>`;
+    }).join('');
+    renderFinder();
+}
+function renderFinder() {
+    document.querySelectorAll('#finder-seg button').forEach(b => b.classList.toggle('on', +b.dataset.len === S.finderLen));
+    if (!S.finderReady) return;
+    const len = S.finderLen;
+    const res = ROOMS.map(r => ({ r, f: findAhead(r.id, len) })).filter(x => x.f).sort((a, b) => a.f.date.localeCompare(b.f.date) || a.f.i - b.f.i);
+    $('#finder-res').innerHTML = res.length ? res.map((x, k) => `<button class="fr ${k === 0 ? 'best' : ''}" data-pick="${x.r.id}|${x.f.date}|${x.f.i}|${len}">
+    <div class="fr-main"><b>${x.r.name}</b><span>${x.r.floor} · ${dayLabel(x.f.date)}</span></div>
+    <div class="fr-time">${rangeTx(x.f.i, x.f.i + len - 1)}${k === 0 ? '<small>Sớm nhất</small>' : ''}</div><span class="ms" style="color:var(--accent)">chevron_right</span></button>`).join('') : `<p class="empty">Không tìm thấy khung trống ${durTx(len)} trong 2 tuần tới.</p>`;
+}
+$('#finder-seg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.finderLen = +b.dataset.len; renderFinder(); });
+$('#finder-res').addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (!b) return; const [room, date, i, len] = b.dataset.pick.split('|'); const sel = []; for (let k = +i; k < +i + +len; k++) sel.push(k); openRoom(room, date, sel); });
+$('#rooms').addEventListener('click', e => { const b = e.target.closest('[data-room]'); if (b) openRoom(b.dataset.room); });
+
+function openRoom(id, date, sel) {
+    S.room = id; S.date = date || todayStr(); S.week = mondayOf(parseDs(S.date)); S.sel = new Set(sel || []); S.last = null;
+    show('booking');
+}
+
+/* ---------- màn lịch phòng ---------- */
+function renderBooking() {
+    const r = roomById(S.room);
+    $('#bk-floor').textContent = r.floor; $('#bk-room').textContent = r.name;
+    const mid = parseDs(S.date);
+    $('#wk-text').textContent = `Tuần ${isoWeek(mid)} · Tháng ${mid.getMonth() + 1}, ${mid.getFullYear()}`;
+    const d = parseDs(S.date);
+    $('#tl-title').textContent = `${DL[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+    renderDates(); renderTimeline(); renderSide(); renderBar();
+    // Tải cả tuần (1 truy vấn) rồi theo dõi realtime ngày đang chọn
+    const from = ds(S.week), to = ds(addDays(S.week, 6));
+    loadRange(S.room, from, to).then(() => { if (S.view === 'booking') { renderDates(); renderTimeline(); renderSide(); renderBar(); } }).catch(err => toast('Không tải được lịch: ' + err.message, 'bad'));
+    watchDay(S.room, S.date);
+}
+function watchDay(room, date) {
+    if (dayUnsub) { dayUnsub(); dayUnsub = null; }
+    dayUnsub = colOf(room).doc(date).onSnapshot(doc => {
+        DAY[room][date] = doc.exists ? (doc.data() || {}) : {}; LOADED[room].add(date);
+        if (S.view === 'booking' && S.room === room && S.date === date) { renderDates(); renderTimeline(); renderSide(); renderBar(); }
+        if (S.modal && S.modal.room === room && S.modal.date === date && !meetingsOf(room, date).find(m => m.start === S.modal.start)) closeModal();
+    }, err => toast('Mất kết nối lịch: ' + err.message, 'bad'));
+}
+function renderDates() {
+    const t = todayStr();
+    $('#dates').innerHTML = Array.from({ length: 7 }, (_, k) => {
+        const d = addDays(S.week, k), s = ds(d), loaded = LOADED[S.room].has(s), cnt = Object.keys(getDay(S.room, s)).length;
+        const lt = s < t ? 'Đã qua' : !loaded ? '…' : cnt === 0 ? 'Trống cả ngày' : cnt >= N ? 'Kín lịch' : `${N - cnt}/${N} trống`;
+        return `<button class="date ${s === S.date ? 'on' : ''} ${s < t ? 'past' : ''} ${s === t ? 'today' : ''} ${d.getDay() === 0 ? 'sun' : ''}" data-d="${s}" aria-pressed="${s === S.date}">
+      <span class="dw">${s === t ? 'HÔM NAY' : DS[d.getDay()]}</span><span class="dn">${pad(d.getDate())}</span>
+      <span class="load"><b style="width:${cnt / N * 100}%"></b></span><span class="lt">${lt}</span></button>`;
+    }).join('');
+}
+function renderTimeline() {
+    if (!LOADED[S.room].has(S.date)) { $('#timeline').innerHTML = '<div class="loading"><span class="ms">progress_activity</span>Đang tải lịch…</div>'; return; }
+    const day = getDay(S.room, S.date), ms = meetingsOf(S.room, S.date), nm = nowMin(), isToday = S.date === todayStr();
+    [...S.sel].forEach(i => { if (day[SLOTS[i].key] || isPast(S.date, i)) S.sel.delete(i); });
+    const cols = [{ n: 'Buổi sáng', a: 0, b: 8 }, { n: 'Buổi chiều', a: 8, b: N }];
+    $('#timeline').innerHTML = cols.map(c => {
+        let h = '';
+        for (let i = c.a; i < c.b; i++) {
+            const row = i - c.a + 1;
+            h += `<span class="tl-time" style="grid-row:${row}">${fm(SLOTS[i].s)}</span>`;
+            if (day[SLOTS[i].key]) {
+                const m = ms.find(m => m.start <= i && i <= m.end);
+                if (i === m.start || i === c.a) {
+                    const span = Math.min(m.end, c.b - 1) - i + 1, done = isPast(S.date, m.end), col = deptColor(m.b.department);
+                    const cont = i !== m.start ? ' (tiếp)' : '';
+                    h += span === 1
+                        ? `<button class="mtg one ${done ? 'done' : ''}" style="grid-row:${row} / span 1;--c:${col}" data-m="${m.start}"><span class="tag" style="--c:${col}">${esc(m.b.department || 'Đã đặt')}</span><span class="mtg-title">${esc(m.b.purpose || 'Không có nội dung')}${cont}</span></button>`
+                        : `<button class="mtg ${done ? 'done' : ''}" style="grid-row:${row} / span ${span};--c:${col}" data-m="${m.start}"><span class="tag" style="--c:${col}">${esc(m.b.department || 'Đã đặt')}</span><span class="mtg-title">${esc(m.b.purpose || 'Không có nội dung')}${cont}</span><span class="mtg-meta"><span class="mono">${rangeTx(m.start, m.end)}</span> · ${esc(m.b.name)}</span></button>`;
+                }
+                continue;
+            }
+            const past = isPast(S.date, i), on = S.sel.has(i);
+            h += `<button class="slot ${on ? 'on' : ''}" style="grid-row:${row}" data-i="${i}" ${past ? 'disabled' : ''} aria-pressed="${on}"><span class="mono">${fm(SLOTS[i].s)} – ${fm(SLOTS[i].e)}</span>${past ? '<span class="slot-note">Đã qua</span>' : `<span class="ms chk">${on ? 'check_circle' : 'add_circle'}</span>`}</button>`;
+        }
+        let now = '';
+        if (isToday && nm >= SLOTS[c.a].s && nm < SLOTS[c.b - 1].e) now = `<div class="now" style="top:${(nm - SLOTS[c.a].s) / STEP * ROW}px"><span>${fm(nm)}</span></div>`;
+        return `<div class="tl-col"><div class="tl-cap"><span>${c.n}</span><span class="mono">${fm(SLOTS[c.a].s)}–${fm(SLOTS[c.b - 1].e)}</span></div><div class="tl-grid" style="grid-template-rows:repeat(${c.b - c.a},${ROW}px)">${h}${now}</div></div>`;
+    }).join('');
+}
+function renderSide() {
+    const loaded = LOADED[S.room].has(S.date), day = getDay(S.room, S.date), free = SLOTS.filter((s, i) => !day[s.key] && !isPast(S.date, i)).length;
+    $('#free-count').textContent = loaded ? `${free}/${N} khung còn trống` : '';
+    $('#suggest').innerHTML = !loaded ? '' : [[1, '30 phút'], [2, '1 giờ'], [4, '2 giờ']].map(([len, l]) => {
+        const i = firstFree(S.room, S.date, len);
+        return i < 0 ? `<div class="sg none"><b>${l}</b>Không còn khung liền</div>` : `<button class="sg" data-a="${i}" data-len="${len}"><b>${l}</b><span class="mono">${rangeTx(i, i + len - 1)}</span><span class="ms">add_circle</span></button>`;
+    }).join('');
+    const ms = meetingsOf(S.room, S.date);
+    $('#day-count').textContent = ms.length ? `${ms.length} cuộc` : '';
+    $('#day-list').innerHTML = ms.length ? ms.map(m => `<button data-m="${m.start}"><span class="dot" style="--c:${deptColor(m.b.department)}"></span><b>${esc(m.b.purpose || 'Không có nội dung')}</b><small><span class="mono">${rangeTx(m.start, m.end)}</span> · ${esc(m.b.department || '')}</small></button>`).join('') : `<p class="empty">${loaded ? 'Chưa có cuộc họp nào. Cả ngày đang trống.' : '…'}</p>`;
+}
+function renderBar() {
+    const r = roomById(S.room), d = parseDs(S.date), rg = groupRanges(S.sel);
+    $('#bar-cap').textContent = `${r.name} · ${DS[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+    if (rg.length) {
+        const txt = rg.map(x => rangeTx(x.a, x.b)).join(', ');
+        $('#selected-count').innerHTML = `<span class="mono">${txt}</span> <em>· ${durTx(S.sel.size)}</em>`;
+    } else $('#selected-count').textContent = 'Chọn khung giờ trống trên lịch';
+    $('#next-btn').disabled = !rg.length; $('#bar-clear').hidden = !rg.length;
+}
+function gotoDate(s) { S.date = s; S.week = mondayOf(parseDs(s)); S.sel.clear(); S.last = null; renderBooking(); }
+$('#dates').addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (!b) return; gotoDate(b.dataset.d); });
+$('#wk-prev').onclick = () => gotoDate(ds(addDays(S.week, -7)));
+$('#wk-next').onclick = () => gotoDate(ds(addDays(S.week, 7)));
+$('#wk-today').onclick = () => gotoDate(todayStr());
+$('#timeline').addEventListener('click', e => {
+    const s = e.target.closest('.slot');
+    if (s && !s.disabled) {
+        const i = +s.dataset.i, day = getDay(S.room, S.date);
+        if (e.shiftKey && S.last != null) { const a = Math.min(S.last, i), b = Math.max(S.last, i); for (let j = a; j <= b; j++) if (!day[SLOTS[j].key] && !isPast(S.date, j)) S.sel.add(j); }
+        else S.sel.has(i) ? S.sel.delete(i) : S.sel.add(i);
+        S.last = i; renderTimeline(); renderBar(); return;
     }
-    
-    selectedSlots.sort();
-    updateSelectedCounter();
-}
-
-window.closeInfoModal = function() {
-    infoModal.classList.replace('flex', 'hidden');
-    cancelNameInput.value = '';
-    currentCancelSlot = null;
-    currentCancelBooker = null;
+    const m = e.target.closest('[data-m]'); if (m) openModal(S.room, S.date, +m.dataset.m);
+});
+$('#day-list').addEventListener('click', e => { const m = e.target.closest('[data-m]'); if (m) openModal(S.room, S.date, +m.dataset.m); });
+$('#suggest').addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b) return; S.sel.clear(); for (let k = +b.dataset.a; k < +b.dataset.a + +b.dataset.len; k++) S.sel.add(k); renderTimeline(); renderBar(); toast(`Đã chọn ${rangeTx(+b.dataset.a, +b.dataset.a + +b.dataset.len - 1)}`); });
+$('#bar-clear').onclick = () => { S.sel.clear(); renderTimeline(); renderBar(); };
+$('#next-btn').onclick = () => {
+    if (!S.sel.size) return;
+    const r = roomById(S.room), idx = [...S.sel].sort((a, b) => a - b);
+    // Giữ nguyên định dạng nháp để booking.js đọc
+    const bookingDraft = { date: S.date, slots: idx.map(i => SLOTS[i].key), room: S.room, roomName: `${r.name} (${r.floor})` };
+    localStorage.setItem('bookingDraft', JSON.stringify(bookingDraft));
+    window.location.href = 'booking.html';
 };
 
-function cancelBooking(slotTime, booker, hexColor = '#39ff14') {
-    currentCancelSlot = slotTime;
-    currentCancelBooker = booker;
-    
-    modalTime.textContent = slotTime;
-    modalDept.textContent = booker.department || 'Không rõ';
-    modalDept.style.color = hexColor;
-    modalName.textContent = booker.name || 'Không rõ';
-    modalPurpose.textContent = booker.purpose || 'Không có';
-    
-    infoModal.classList.replace('hidden', 'flex');
-    setTimeout(() => cancelNameInput.focus(), 100);
+/* ---------- chi tiết / hủy ---------- */
+function openModal(room, date, start) {
+    const m = meetingsOf(room, date).find(x => x.start === start); if (!m) return;
+    S.modal = m; const col = deptColor(m.b.department), d = parseDs(date), r = roomById(room);
+    const tg = $('#modal-dept'); tg.textContent = m.b.department || 'Không rõ'; tg.style.setProperty('--c', col);
+    $('#md-title').textContent = m.b.purpose || 'Không có nội dung';
+    $('#modal-time').textContent = `${rangeTx(m.start, m.end)} · ${DS[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+    $('#modal-room').textContent = `${r.name} (${r.floor})`;
+    $('#modal-name').textContent = m.b.name || 'Không rõ';
+    const past = isPast(date, m.end);
+    $('#md-cancel').hidden = past; $('#md-past').hidden = !past;
+    $('#cancel-name-input').value = ''; $('#cancel-err').hidden = true; $('#cancel-name-input').classList.remove('bad');
+    const btn = $('#confirm-cancel-btn'); btn.disabled = false; btn.textContent = 'Hủy cuộc họp';
+    $('#info-modal').hidden = false;
+    if (!past) setTimeout(() => $('#cancel-name-input').focus(), 50);
 }
-
-confirmCancelBtn.addEventListener('click', () => {
-    if (!currentCancelSlot || !currentCancelBooker) return;
-    
-    const inputName = cancelNameInput.value;
-    if (inputName.trim().toLowerCase() === (currentCancelBooker.name || '').toLowerCase()) {
-        confirmCancelBtn.disabled = true;
-        confirmCancelBtn.textContent = 'Đang hủy...';
-        db.collection('meeting_bookings').doc(selectedDateStr).update({
-            [currentCancelSlot]: firebase.firestore.FieldValue.delete()
-        })
-            .then(() => {
-                alert('Đã hủy lịch đặt phòng thành công!');
-                closeInfoModal();
-            })
-            .catch((error) => {
-                alert('Có lỗi xảy ra khi hủy: ' + error.message);
-            })
-            .finally(() => {
-                confirmCancelBtn.disabled = false;
-                confirmCancelBtn.textContent = 'Hủy phòng';
-            });
-    } else {
-        alert('Tên không khớp! Chỉ người đặt mới có quyền hủy.');
+function closeModal() { $('#info-modal').hidden = true; S.modal = null; }
+$('#info-modal').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#info-modal').hidden) closeModal(); });
+$('#cancel-name-input').addEventListener('keydown', e => { if (e.key === 'Enter') $('#confirm-cancel-btn').click(); });
+$('#confirm-cancel-btn').onclick = () => {
+    const m = S.modal; if (!m) return;
+    const norm = s => (s || '').normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase();
+    const inp = $('#cancel-name-input');
+    if (norm(inp.value) !== norm(m.b.name)) {
+        $('#cancel-err').hidden = false; $('#cancel-err').textContent = inp.value.trim() ? 'Tên không khớp. Chỉ người đặt mới hủy được cuộc họp này.' : 'Nhập tên người đặt để hủy.';
+        inp.classList.add('bad'); const dlg = $('.dialog'); dlg.classList.remove('shake'); void dlg.offsetWidth; dlg.classList.add('shake'); return;
     }
-});
+    const btn = $('#confirm-cancel-btn'); btn.disabled = true; btn.textContent = 'Đang hủy…';
+    const updates = {}; m.keys.forEach(k => updates[k] = firebase.firestore.FieldValue.delete());
+    colOf(m.room).doc(m.date).update(updates).then(() => {
+        closeModal(); toast(`Đã hủy cuộc họp ${rangeTx(m.start, m.end)}`);
+    }).catch(err => { btn.disabled = false; btn.textContent = 'Hủy cuộc họp'; $('#cancel-err').hidden = false; $('#cancel-err').textContent = 'Lỗi khi hủy: ' + err.message; });
+};
 
-function updateSelectedCounter() {
-    if (selectedSlots.length > 0) {
-        // Lấy ngày tháng để hiển thị dưới giờ
-        const dateObj = new Date(selectedDateStr);
-        const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-        const dayStr = dayNames[dateObj.getDay()];
-        const formattedDate = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}`;
-        
-        let displayStr = selectedSlots.length === 1 ? selectedSlots[0] : `${selectedSlots[0]}... (+${selectedSlots.length-1})`;
-        
-        counterEl.innerHTML = `
-            ${displayStr}
-            <span class="w-1 h-1 rounded-full bg-on-surface-variant mx-2 inline-block align-middle"></span>
-            <span class="text-body-sm text-on-surface font-normal">${dayStr}, ${formattedDate}</span>
-        `;
-        nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-    } else {
-        counterEl.innerText = 'Chưa chọn khung giờ';
-        nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
-    }
-}
-
-nextBtn.addEventListener('click', () => {
-    if (selectedSlots.length === 0) return;
-    
-    const bookingDraft = {
-        date: selectedDateStr,
-        slots: selectedSlots
-    };
-    localStorage.setItem('bookingDraft', JSON.stringify(bookingDraft));
-    
-    window.location.href = 'booking.html?v=1';
-});
+/* ---------- khởi động ---------- */
+(function init() {
+    const t = todayStr();
+    // Theo dõi realtime lịch hôm nay của cả 3 phòng (cho thẻ phòng)
+    todayUnsubs = ROOMS.map(r => colOf(r.id).doc(t).onSnapshot(doc => {
+        DAY[r.id][t] = doc.exists ? (doc.data() || {}) : {}; LOADED[r.id].add(t);
+        if (S.view === 'rooms') renderRooms();
+    }, err => toast('Không kết nối được Firebase: ' + err.message, 'bad')));
+    // Tải 14 ngày tới của cả 3 phòng cho "Tìm khung trống sớm nhất" (3 truy vấn)
+    Promise.all(ROOMS.map(r => loadRange(r.id, t, ds(addDays(new Date(), 13)))))
+        .then(() => { S.finderReady = true; if (S.view === 'rooms') renderFinder(); })
+        .catch(err => { $('#finder-res').innerHTML = `<div class="err-box"><b>Không dò được lịch.</b> ${esc(err.message)}</div>`; });
+    // Quay lại từ trang xác nhận: mở đúng phòng / ngày vừa đặt
+    const ret = store.get('mrb_return');
+    if (ret && roomById(ret.room)) { localStorage.removeItem('mrb_return'); openRoom(ret.room, ret.date); }
+    else show('rooms');
+    // Làm mới trạng thái theo giờ mỗi phút
+    setInterval(() => { if (!$('#info-modal').hidden) return; if (S.view === 'rooms') renderRooms(); if (S.view === 'booking') { renderTimeline(); renderSide(); renderBar(); } }, 60000);
+})();
