@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block">
-    <link rel="stylesheet" href="assets/vpt.css?v=3">
+    <link rel="stylesheet" href="assets/vpt.css?v=4">
     <script src="assets/vpt.js"></script>
 
     <!-- dayjs + weekOfYear + advancedFormat: giữ nguyên cách tính khóa tuần 'YYYY-wWW' của dữ liệu cũ -->
@@ -265,7 +265,7 @@ function renderBoard() {
 
     const q = M.q.trim().toLowerCase(), dis0 = locked ? 'disabled' : '';
     let h = `<div class="shot-title"><h3>Bảng đăng ký suất ăn</h3><p>Tuần ${key.split('-w')[1]} · từ ${mon.format('DD/MM/YYYY')} đến ${sun.format('DD/MM/YYYY')}</p></div><table class="mtab"><thead><tr><th class="n">#</th><th>Mã NV</th><th>Họ và tên</th>`;
-    h += DK.map((k, i) => `<th class="day ${isCur && i === ti ? 'today' : ''} ${locked ? '' : 'clk'}" colspan="2" data-col="${k}" title="${locked ? '' : 'Bấm để chọn / bỏ chọn cả cột'}">${DH[i]}${isCur && i === ti ? '<small>Hôm nay</small>' : ''}</th>`).join('');
+    h += DK.map((k, i) => `<th class="day ${isCur && i === ti ? 'today' : ''}" colspan="2">${DH[i]}${isCur && i === ti ? '<small>Hôm nay</small>' : ''}</th>`).join('');
     h += `<th class="n">Tuần</th><th>Không ăn</th><th>Món đổi</th>${locked ? '' : '<th class="n act">Thao tác</th>'}</tr><tr class="sub-row"><th></th><th></th><th></th>`;
     h += DK.map((k, i) => `<th class="sub l ${isCur && i === ti ? 'today' : ''}">Trưa</th><th class="sub d ${isCur && i === ti ? 'today' : ''}">Chiều</th>`).join('');
     h += `<th></th><th></th><th></th>${locked ? '' : '<th class="act"></th>'}</tr></thead><tbody>`;
@@ -295,7 +295,6 @@ function mealToggle(r, k) { const e = M.W.employees[r]; if (!e || e.rowLocked ||
 function rowLock(r) { const e = M.W.employees[r]; if (!e || isLocked()) return; e.rowLocked = !e.rowLocked; if (e.rowLocked && M.del === r) M.del = null; touch(); toast(e.rowLocked ? `Đã khóa dòng ${e.name || ''}. Người khác không sửa được nữa.` : `Đã mở khóa dòng ${e.name || ''}`); }
 $('#meal-table').addEventListener('click', e => {
     const t = e.target.closest('.mt'); if (t && !t.disabled) return mealToggle(+t.dataset.r, t.dataset.k);
-    const th = e.target.closest('th.day.clk'); if (th && !isLocked()) { const k = th.dataset.col, open = M.W.employees.filter(x => !x.rowLocked), all = open.every(x => x[k + '_t'] && x[k + '_c']); open.forEach(x => { x[k + '_t'] = all ? '' : 'x'; x[k + '_c'] = all ? '' : 'x'; }); touch(); const skip = M.W.employees.length - open.length; toast(`${all ? 'Đã bỏ chọn' : 'Đã chọn'} cả cột ${DH[DK.indexOf(k)]}${skip ? ` (bỏ qua ${skip} dòng đã khóa)` : ''}`); return; }
     const lk = e.target.closest('[data-lock]'); if (lk) { rowLock(+lk.dataset.lock); return; }
     const d = e.target.closest('[data-del]'); if (d && !d.disabled) { M.del = +d.dataset.del; renderBoard(); return; }
     if (e.target.closest('[data-delno]')) { M.del = null; renderBoard(); return; }
