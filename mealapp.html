@@ -10,10 +10,14 @@
     <link rel="stylesheet" href="assets/vpt.css">
     <script src="assets/vpt.js"></script>
 
-    <!-- dayjs + weekOfYear: giữ nguyên cách tính khóa tuần 'YYYY-wWW' của dữ liệu cũ -->
+    <!-- dayjs + weekOfYear + advancedFormat: giữ nguyên cách tính khóa tuần 'YYYY-wWW' của dữ liệu cũ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/weekOfYear.min.js"></script>
-    <script>dayjs.extend(window.dayjs_plugin_weekOfYear);</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/advancedFormat.min.js"></script>
+    <script>
+        dayjs.extend(window.dayjs_plugin_weekOfYear);
+        dayjs.extend(window.dayjs_plugin_advancedFormat);
+    </script>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
