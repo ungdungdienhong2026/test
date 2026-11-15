@@ -10,13 +10,15 @@
     <link rel="stylesheet" href="assets/vpt.css?v=4">
     <script src="assets/vpt.js"></script>
 
-    <!-- dayjs + weekOfYear + advancedFormat: giữ nguyên cách tính khóa tuần 'YYYY-wWW' của dữ liệu cũ -->
+    <!-- dayjs + plugins: weekOfYear, advancedFormat, isoWeek để tính chính xác tuần từ Thứ 2 đến Chủ nhật -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/weekOfYear.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/advancedFormat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/isoWeek.min.js"></script>
     <script>
         dayjs.extend(window.dayjs_plugin_weekOfYear);
         dayjs.extend(window.dayjs_plugin_advancedFormat);
+        dayjs.extend(window.dayjs_plugin_isoWeek);
     </script>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -136,7 +138,11 @@ const INITIAL_EMAILS = ['xuanbactran196@gmail.com','admin@gmail.com','luu2004vp@
 const SUPER_ADMIN_EMAILS = ['xuanbactran196@gmail.com', 'admin@gmail.com'];
 
 const DK = ['t2','t3','t4','t5','t6','t7','cn'], DH = ['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','CN'], DHS = ['T2','T3','T4','T5','T6','T7','CN'];
-const keyOf = d => d.format('YYYY-[w]ww');
+const keyOf = d => {
+    // Tính khóa tuần theo ngày Thứ 2 của tuần đó (Thứ 2 đến Chủ nhật cùng 1 tuần)
+    const mon = d.isoWeekday(1);
+    return `${mon.isoWeekYear()}-w${pad(mon.isoWeek())}`;
+};
 const nowKey = () => keyOf(dayjs());
 const normEmps = raw => { // RTDB có thể trả mảng hoặc object, phần tử có thể null
     if (!raw) return [];
@@ -246,7 +252,7 @@ function renderBoard() {
     const ae = document.activeElement; if (ae && ae.classList && ae.classList.contains('cell-in')) { pendingRender = true; return; }
     pendingRender = false;
     const key = keyOf(M.date), past = isPastWeek(), locked = isLocked(), isCur = key === nowKey(), ti = (dayjs().day() + 6) % 7;
-    const mon = M.date.day(1), sun = M.date.day(7);
+    const mon = M.date.isoWeekday(1), sun = M.date.isoWeekday(7);
     $('#mw-text').textContent = `Tuần ${key.split('-w')[1]} · ${mon.format('DD/MM')} – ${sun.format('DD/MM/YYYY')}`;
     $('#meal-past').hidden = !past; $('#meal-hint').hidden = past || !locked; $('#meal-foot').hidden = locked || !M.loaded;
     $('#meal-board').classList.toggle('shot', M.shot);
