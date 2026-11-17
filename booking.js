@@ -3,7 +3,7 @@
    kiểm tra trùng rồi ghi vào Firestore meeting_bookings_<room>/<date> bằng set(..., {merge:true}). */
 const { $, pad, parseDs, esc, fm, store, toast, DL } = VPT;
 
-const DEPTS = [['IT', '#2b9fd9'], ['Marketing', '#d14d9c'], ['Kế toán', '#c9a227'], ['ISO', '#e0702c'], ['Công tác xã hội', '#35a866'], ['Nhân sự', '#e0485f'], ['Hành chính', '#8b5cf6'], ['Ban Tổng Giám đốc', '#7d8db0'], ['Chánh văn phòng', '#b0763c']];
+const DEPTS = [['IT', '#2b9fd9'], ['Marketing', '#d14d9c'], ['Kế toán', '#c9a227'], ['ISO', '#e0702c'], ['Công tác xã hội', '#35a866'], ['Nhân sự', '#e0485f'], ['Hành chính', '#8b5cf6'], ['Chuyên viên dinh dưỡng', '#10b981'], ['Ban Tổng Giám đốc', '#7d8db0'], ['Chánh văn phòng', '#b0763c']];
 const TPL = {
     'IT': ['Triển khai phần mềm', 'Đào tạo hệ thống', 'Họp team IT tuần'],
     'Marketing': ['Kế hoạch truyền thông tháng', 'Duyệt nội dung fanpage', 'Họp với đối tác quảng cáo'],
@@ -12,6 +12,7 @@ const TPL = {
     'Công tác xã hội': ['Kế hoạch văn nghệ cho các cụ', 'Tư vấn gia đình người cao tuổi'],
     'Nhân sự': ['Phỏng vấn ứng viên', 'Đào tạo hội nhập nhân viên mới'],
     'Hành chính': ['Giao ban khối văn phòng', 'Kế hoạch mua sắm vật tư'],
+    'Chuyên viên dinh dưỡng': ['Xây dựng thực đơn dinh dưỡng', 'Tư vấn chế độ ăn cho người cao tuổi', 'Họp đánh giá khẩu phần ăn'],
     'Ban Tổng Giám đốc': ['Giao ban giám đốc các cơ sở', 'Họp chiến lược'],
     'Chánh văn phòng': ['Chuẩn bị hồ sơ đoàn kiểm tra', 'Họp điều phối lịch công tác']
 };
