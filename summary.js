@@ -6,7 +6,7 @@ const ROOMS = [
     { id: 'phong_vip', name: 'Phòng Họp Vừa', floor: 'Tầng 3', icon: 'groups', c: '#e9a23b' },
     { id: 'phong_hop_lon', name: 'Phòng Họp Lớn', floor: 'Tầng 3', icon: 'meeting_room', c: '#8f91ff' }];
 const roomById = id => ROOMS.find(r => r.id === id);
-const DEPTS = [['IT', '#2b9fd9'], ['Marketing', '#d14d9c'], ['Kế toán', '#c9a227'], ['ISO', '#e0702c'], ['Công tác xã hội', '#35a866'], ['Nhân sự', '#e0485f'], ['Hành chính', '#8b5cf6'], ['Chuyên viên dinh dưỡng', '#10b981'], ['Ban Tổng Giám đốc', '#7d8db0'], ['Chánh văn phòng', '#b0763c']];
+const DEPTS = [['IT', '#2b9fd9'], ['Marketing', '#d14d9c'], ['Kế toán', '#c9a227'], ['ISO', '#e0702c'], ['Công tác xã hội', '#35a866'], ['Nhân sự', '#e0485f'], ['Hành chính', '#8b5cf6'], ['Chuyên viên dinh dưỡng', '#10b981'], ['Truyền thông nội bộ', '#f59e0b'], ['Ban Tổng Giám đốc', '#7d8db0'], ['Chánh văn phòng', '#b0763c']];
 const deptColor = d => (DEPTS.find(x => x[0] === d) || [0, '#52d2a6'])[1];
 
 const slotMin = s => { const [h, m] = s.split(' - ')[0].split(':').map(Number); return h * 60 + m; };
