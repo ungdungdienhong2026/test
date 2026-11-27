@@ -3,7 +3,6 @@
 const { $, pad, parseDs, esc, fm, nowMin, todayStr, DL, toast, isoWeek } = VPT;
 
 const ROOMS = [
-    { id: 'phong_hop_nho', name: 'Phòng Họp Nhỏ', floor: 'Tầng 2', icon: 'group', c: '#b48cff' },
     { id: 'phong_vip', name: 'Phòng Họp Vừa', floor: 'Tầng 3', icon: 'groups', c: '#e9a23b' },
     { id: 'phong_hop_lon', name: 'Phòng Họp Lớn', floor: 'Tầng 3', icon: 'meeting_room', c: '#8f91ff' }];
 const roomById = id => ROOMS.find(r => r.id === id);
